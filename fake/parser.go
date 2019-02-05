@@ -8,10 +8,10 @@ import (
 )
 
 type Parser struct {
-	ParseStub        func(*cli.ParserContext) error
+	ParseStub        func(*cli.Context) error
 	parseMutex       sync.RWMutex
 	parseArgsForCall []struct {
-		arg1 *cli.ParserContext
+		arg1 *cli.Context
 	}
 	parseReturns struct {
 		result1 error
@@ -23,11 +23,11 @@ type Parser struct {
 	invocationsMutex sync.RWMutex
 }
 
-func (fake *Parser) Parse(arg1 *cli.ParserContext) error {
+func (fake *Parser) Parse(arg1 *cli.Context) error {
 	fake.parseMutex.Lock()
 	ret, specificReturn := fake.parseReturnsOnCall[len(fake.parseArgsForCall)]
 	fake.parseArgsForCall = append(fake.parseArgsForCall, struct {
-		arg1 *cli.ParserContext
+		arg1 *cli.Context
 	}{arg1})
 	fake.recordInvocation("Parse", []interface{}{arg1})
 	fake.parseMutex.Unlock()
@@ -46,7 +46,7 @@ func (fake *Parser) ParseCallCount() int {
 	return len(fake.parseArgsForCall)
 }
 
-func (fake *Parser) ParseArgsForCall(i int) *cli.ParserContext {
+func (fake *Parser) ParseArgsForCall(i int) *cli.Context {
 	fake.parseMutex.RLock()
 	defer fake.parseMutex.RUnlock()
 	return fake.parseArgsForCall[i].arg1

@@ -2,28 +2,16 @@ package cli
 
 import (
 	"flag"
-	"io"
 	"io/ioutil"
 	"os"
+	"strings"
 )
-
-// ParserContext is the parser's context
-type ParserContext struct {
-	// Name of the app
-	Name string
-	// Args are the command line arguments
-	Args []string
-	// Flags are the app's defined flags
-	Flags []Flag
-	// Output sets the destination for usage and error messages. If output is nil, os.Stderr is used.
-	Output io.Writer
-}
 
 //go:generate counterfeiter -fake-name Parser -o ./fake/parser.go . Parser
 
 // Parser is the interface that parses the flags
 type Parser interface {
-	Parse(*ParserContext) error
+	Parse(*Context) error
 }
 
 var _ Parser = &FlagParser{}
@@ -34,16 +22,26 @@ type FlagParser struct {
 }
 
 // Parse parses the args
-func (p *FlagParser) Parse(ctx *ParserContext) error {
-	p.set = flag.NewFlagSet(ctx.Name, flag.ContinueOnError)
-	p.set.SetOutput(ctx.Output)
+func (p *FlagParser) Parse(ctx *Context) error {
+	p.set = flag.NewFlagSet(ctx.Command.Name, flag.ContinueOnError)
+	p.set.SetOutput(ioutil.Discard)
 
-	for _, flag := range ctx.Flags {
+	for _, flag := range ctx.Command.Flags {
 		definition := flag.Definition()
-		p.set.Var(flag, definition.Name, definition.Usage)
+
+		for _, key := range split(definition.Name) {
+			key = strings.TrimSpace(key)
+			p.set.Var(flag, key, definition.Usage)
+		}
 	}
 
-	return p.set.Parse(ctx.Args)
+	err := p.set.Parse(ctx.Args)
+	if err != nil {
+		return err
+	}
+
+	ctx.Args = p.set.Args()
+	return nil
 }
 
 var _ Parser = &EnvParser{}
@@ -52,8 +50,8 @@ var _ Parser = &EnvParser{}
 type EnvParser struct{}
 
 // Parse parses the args
-func (p *EnvParser) Parse(ctx *ParserContext) error {
-	for _, flag := range ctx.Flags {
+func (p *EnvParser) Parse(ctx *Context) error {
+	for _, flag := range ctx.Command.Flags {
 		definition := flag.Definition()
 
 		env := definition.EnvVar
@@ -80,8 +78,8 @@ var _ Parser = &FileParser{}
 type FileParser struct{}
 
 // Parse parses the args
-func (p *FileParser) Parse(ctx *ParserContext) error {
-	for _, flag := range ctx.Flags {
+func (p *FileParser) Parse(ctx *Context) error {
+	for _, flag := range ctx.Command.Flags {
 		definition := flag.Definition()
 
 		data, err := ioutil.ReadFile(definition.FilePath)

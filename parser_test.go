@@ -16,7 +16,7 @@ var _ = Describe("Parser", func() {
 	var (
 		flag       *fake.Flag
 		definition *cli.FlagDefinition
-		ctx        *cli.ParserContext
+		ctx        *cli.Context
 	)
 
 	BeforeEach(func() {
@@ -28,10 +28,11 @@ var _ = Describe("Parser", func() {
 		flag = &fake.Flag{}
 		flag.DefinitionReturns(definition)
 
-		ctx = &cli.ParserContext{
-			Name:   "app",
-			Flags:  []cli.Flag{flag},
-			Output: GinkgoWriter,
+		ctx = &cli.Context{
+			Command: &cli.Command{
+				Name:  "app",
+				Flags: []cli.Flag{flag},
+			},
 		}
 	})
 
