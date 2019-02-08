@@ -4,8 +4,10 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"path"
 
 	"github.com/hashicorp/vault/api"
+	"github.com/mitchellh/mapstructure"
 	"github.com/phogolabs/cli"
 )
 
@@ -13,33 +15,35 @@ var _ cli.Parser = &Parser{}
 
 // Parser is a parser that populates flags from Hashi Corp Vault
 type Parser struct {
-	client  *Client
-	renwers []*api.Renewer
+	Client *api.Client
 }
 
 // Parse parses the args
 func (m *Parser) Parse(ctx *cli.Context) error {
-	client, err := NewClient()
-	if err != nil {
-		return err
-	}
-
-	m.client = client
-
 	for _, flag := range ctx.Command.Flags {
-		definition := flag.Definition()
+		key := key(flag.Definition().Metadata)
 
-		key, ok := definition.Metadata["vault_key"]
-		if !ok {
+		if key == "" {
 			continue
 		}
 
-		data, err := m.get(key)
+		mnt, err := m.mount(key)
 		if err != nil {
 			return err
 		}
 
-		value, err := m.transform(data)
+		key = abs(key, mnt)
+
+		secret, err := m.Client.Logical().Read(key)
+		if err != nil {
+			return err
+		}
+
+		if err = m.rewnew(secret); err != nil {
+			return err
+		}
+
+		value, err := transform(secret.Data, mnt)
 		if err != nil {
 			return err
 		}
@@ -52,90 +56,89 @@ func (m *Parser) Parse(ctx *cli.Context) error {
 	return nil
 }
 
-func (m *Parser) transform(data interface{}) (string, error) {
+func (m *Parser) mount(key string) (*api.MountOutput, error) {
+	path := fmt.Sprintf("/v1/sys/internal/ui/mounts/%s", key)
+	request := m.Client.NewRequest("GET", path)
+
+	response, err := m.Client.RawRequest(request)
+	if err != nil {
+		return nil, err
+	}
+
+	defer response.Body.Close()
+
+	props := map[string]interface{}{}
+	if err = json.NewDecoder(response.Body).Decode(&props); err != nil {
+		return nil, err
+	}
+
+	type mount struct {
+		Renewable bool            `json:"renewable"`
+		Data      api.MountOutput `json:"data" mapstructure:"data"`
+	}
+
+	output := &mount{}
+	if err = mapstructure.Decode(props, output); err != nil {
+		return nil, err
+	}
+
+	return &output.Data, nil
+}
+
+func (m *Parser) rewnew(secret *api.Secret) error {
+	renewer, err := m.Client.NewRenewer(&api.RenewerInput{
+		Secret: secret,
+	})
+
+	if err != nil {
+		return err
+	}
+
+	go renewer.Renew()
+	return nil
+}
+
+func key(metadata map[string]string) string {
+	if metadata == nil {
+		return ""
+	}
+
+	if key, ok := metadata["vault_key"]; ok {
+		return key
+	}
+
+	return ""
+}
+
+func abs(key string, mnt *api.MountOutput) string {
+	switch mnt.Type {
+	case "kv":
+		if version, ok := mnt.Options["version"]; ok && version == "2" {
+			dir, name := path.Split(key)
+			key = path.Join(dir, "data", name)
+		}
+	}
+
+	return key
+}
+
+func transform(data map[string]interface{}, mnt *api.MountOutput) (string, error) {
 	buffer := &bytes.Buffer{}
 
-	if err := json.NewEncoder(buffer).Encode(data); err != nil {
+	var value interface{}
+
+	switch mnt.Type {
+	case "kv":
+		if version, ok := mnt.Options["version"]; ok && version == "2" {
+			value = data["data"]
+		}
+	default:
+		value = data
+	}
+
+	if err := json.NewEncoder(buffer).Encode(value); err != nil {
 		return "", err
 	}
 
 	return buffer.String(), nil
-}
-
-func (m *Parser) get(root string) (interface{}, error) {
-	mnt, err := m.client.GetMount(root)
-	if err != nil {
-		return nil, err
-	}
-
-	keys, err := m.keys(root, mnt)
-	if err != nil {
-		return nil, err
-	}
-
-	if len(keys) == 0 {
-		keys = append(keys, root)
-	}
-
-	var data []map[string]interface{}
-
-	for _, key := range keys {
-		secret, err := m.fetch(key, mnt)
-		if err != nil {
-			return nil, err
-		}
-
-		data = append(data, secret.Data)
-
-		if key == root {
-			return data[0], nil
-		}
-	}
-
-	return data, nil
-}
-
-func (m *Parser) fetch(key string, mnt *api.MountOutput) (*api.Secret, error) {
-	secret, err := m.client.Read(&Query{
-		Path:    key,
-		Type:    mnt.Type,
-		Options: mnt.Options,
-	})
-
-	if err != nil {
-		return nil, err
-	}
-
-	renewer, _ := m.client.NewRenewer(secret)
-	if renewer != nil {
-		m.renwers = append(m.renwers, renewer)
-	}
-
-	return secret, nil
-}
-
-func (m *Parser) keys(key string, opt *api.MountOutput) ([]string, error) {
-	keys := []string{}
-
-	list, err := m.client.List(&Query{
-		Path:    key,
-		Type:    opt.Type,
-		Options: opt.Options,
-	})
-
-	if list == nil || err != nil {
-		return keys, err
-	}
-
-	data, ok := list.Data["keys"].([]interface{})
-	if !ok {
-		return keys, fmt.Errorf("vault: keys are missing for mount %s", key)
-	}
-
-	for _, secret := range data {
-		path := fmt.Sprintf("%s/%v", key, secret)
-		keys = append(keys, path)
-	}
-
-	return keys, nil
 }

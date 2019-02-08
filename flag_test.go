@@ -184,10 +184,14 @@ var _ = Describe("StringSliceFlag", func() {
 
 	Describe("Set", func() {
 		It("sets the value successfully", func() {
-			Expect(flag.Set("guest, admin")).To(Succeed())
-			Expect(flag.Value).To(HaveLen(2))
+			Expect(flag.Set("guest")).To(Succeed())
+			Expect(flag.Set("admin")).To(Succeed())
+			Expect(flag.Set("usr1,usr2")).To(Succeed())
+
+			Expect(flag.Value).To(HaveLen(4))
 			Expect(flag.Value).To(ContainElement("guest"))
 			Expect(flag.Value).To(ContainElement("admin"))
+			Expect(flag.Value).To(ContainElement("usr1,usr2"))
 		})
 	})
 

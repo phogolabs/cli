@@ -3,9 +3,9 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
+	"net"
 	"net/url"
 	"strconv"
-	"strings"
 	"time"
 
 	"gopkg.in/yaml.v2"
@@ -135,13 +135,8 @@ func (f *StringSliceFlag) String() string {
 // Set is called once, in command line order, for each flag present.
 // The flag package may call the String method with a zero-valued receiver,
 // such as a nil pointer.
-func (f *StringSliceFlag) Set(arr string) error {
-	f.Value = []string{}
-
-	for _, value := range strings.Split(arr, ",") {
-		f.Value = append(f.Value, strings.TrimSpace(value))
-	}
-
+func (f *StringSliceFlag) Set(value string) error {
+	f.Value = append(f.Value, value)
 	return nil
 }
 
@@ -821,6 +816,72 @@ func (f *UInt64Flag) Definition() *FlagDefinition {
 	}
 }
 
+// Float32Flag is a flag with type float32
+type Float32Flag struct {
+	Name         string
+	Usage        string
+	EnvVar       string
+	FilePath     string
+	Value        float32
+	Metadata     map[string]string
+	Hidden       bool
+	Required     bool
+	ValidationFn ValidationFn
+}
+
+// String returns the value as string
+func (f *Float32Flag) String() string {
+	return FlagFormat(f)
+}
+
+// Set is called once, in command line order, for each flag present.
+// The flag package may call the String method with a zero-valued receiver,
+// such as a nil pointer.
+func (f *Float32Flag) Set(value string) error {
+	parsed, err := strconv.ParseFloat(value, 64)
+	if err != nil {
+		return err
+	}
+
+	f.Value = float32(parsed)
+	return nil
+}
+
+// Get is a function that allows the contents of a Value to be retrieved.
+// It wraps the Value interface, rather than being part of it, because it
+// appeared after Go 1 and its compatibility rules. All Value types provided
+// by this package satisfy the Getter interface.
+func (f *Float32Flag) Get() interface{} {
+	return f.Value
+}
+
+// Validate validates the flag
+func (f *Float32Flag) Validate() error {
+	if f.Required {
+		if f.Value == 0 {
+			return RequiredErr(f.Name)
+		}
+	}
+
+	if f.ValidationFn != nil {
+		return f.ValidationFn(f)
+	}
+
+	return nil
+}
+
+// Definition returns the flag's definition
+func (f *Float32Flag) Definition() *FlagDefinition {
+	return &FlagDefinition{
+		Name:     f.Name,
+		Usage:    f.Usage,
+		EnvVar:   f.EnvVar,
+		FilePath: f.FilePath,
+		Metadata: f.Metadata,
+		Hidden:   f.Hidden,
+	}
+}
+
 // Float64Flag is a flag with type float64
 type Float64Flag struct {
 	Name         string
@@ -872,6 +933,136 @@ func (f *Float64Flag) Validate() error {
 
 // Definition returns the flag's definition
 func (f *Float64Flag) Definition() *FlagDefinition {
+	return &FlagDefinition{
+		Name:     f.Name,
+		Usage:    f.Usage,
+		EnvVar:   f.EnvVar,
+		FilePath: f.FilePath,
+		Metadata: f.Metadata,
+		Hidden:   f.Hidden,
+	}
+}
+
+// IPFlag is a flag with type net.IP
+type IPFlag struct {
+	Name         string
+	Usage        string
+	EnvVar       string
+	FilePath     string
+	Value        net.IP
+	Metadata     map[string]string
+	Hidden       bool
+	Required     bool
+	ValidationFn ValidationFn
+}
+
+// String returns the value as string
+func (f *IPFlag) String() string {
+	return FlagFormat(f)
+}
+
+// Set is called once, in command line order, for each flag present.
+// The flag package may call the String method with a zero-valued receiver,
+// such as a nil pointer.
+func (f *IPFlag) Set(value string) (err error) {
+	f.Value = net.ParseIP(value)
+
+	if f.Value == nil && value != "" {
+		return &net.ParseError{
+			Type: "IP Address",
+			Text: value,
+		}
+	}
+
+	return
+}
+
+// Get is a function that allows the contents of a Value to be retrieved.
+// It wraps the Value interface, rather than being part of it, because it
+// appeared after Go 1 and its compatibility rules. All Value types provided
+// by this package satisfy the Getter interface.
+func (f *IPFlag) Get() interface{} {
+	return f.Value
+}
+
+// Validate validates the flag
+func (f *IPFlag) Validate() error {
+	if f.Required {
+		if f.Value == nil {
+			return RequiredErr(f.Name)
+		}
+	}
+
+	if f.ValidationFn != nil {
+		return f.ValidationFn(f)
+	}
+
+	return nil
+}
+
+// Definition returns the flag's definition
+func (f *IPFlag) Definition() *FlagDefinition {
+	return &FlagDefinition{
+		Name:     f.Name,
+		Usage:    f.Usage,
+		EnvVar:   f.EnvVar,
+		FilePath: f.FilePath,
+		Metadata: f.Metadata,
+		Hidden:   f.Hidden,
+	}
+}
+
+// HardwareAddrFlag is a flag with type net.HardwareAddr
+type HardwareAddrFlag struct {
+	Name         string
+	Usage        string
+	EnvVar       string
+	FilePath     string
+	Value        net.HardwareAddr
+	Metadata     map[string]string
+	Hidden       bool
+	Required     bool
+	ValidationFn ValidationFn
+}
+
+// String returns the value as string
+func (f *HardwareAddrFlag) String() string {
+	return FlagFormat(f)
+}
+
+// Set is called once, in command line order, for each flag present.
+// The flag package may call the String method with a zero-valued receiver,
+// such as a nil pointer.
+func (f *HardwareAddrFlag) Set(value string) (err error) {
+	f.Value, err = net.ParseMAC(value)
+	return
+}
+
+// Get is a function that allows the contents of a Value to be retrieved.
+// It wraps the Value interface, rather than being part of it, because it
+// appeared after Go 1 and its compatibility rules. All Value types provided
+// by this package satisfy the Getter interface.
+func (f *HardwareAddrFlag) Get() interface{} {
+	return f.Value
+}
+
+// Validate validates the flag
+func (f *HardwareAddrFlag) Validate() error {
+	if f.Required {
+		if f.Value == nil {
+			return RequiredErr(f.Name)
+		}
+	}
+
+	if f.ValidationFn != nil {
+		return f.ValidationFn(f)
+	}
+
+	return nil
+}
+
+// Definition returns the flag's definition
+func (f *HardwareAddrFlag) Definition() *FlagDefinition {
 	return &FlagDefinition{
 		Name:     f.Name,
 		Usage:    f.Usage,

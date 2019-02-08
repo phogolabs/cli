@@ -25,7 +25,7 @@ type OnUsageErrorFunc func(context *Context, err error) error
 
 // ExitErrHandlerFunc is executed if provided in order to handle ExitError values
 // returned by Actions and Before/After functions.
-type ExitErrHandlerFunc func(context *Context, err error)
+type ExitErrHandlerFunc func(err error) error
 
 // ExitFunc is an exit function
 type ExitFunc func(code int)

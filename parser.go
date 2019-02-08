@@ -4,6 +4,7 @@ import (
 	"flag"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 	"strings"
 )
 
@@ -59,13 +60,14 @@ func (p *EnvParser) Parse(ctx *Context) error {
 			continue
 		}
 
-		value := os.Getenv(env)
-		if value == "" {
-			continue
-		}
+		for _, value := range split(os.Getenv(env)) {
+			if value == "" {
+				continue
+			}
 
-		if err := flag.Set(value); err != nil {
-			return err
+			if err := flag.Set(value); err != nil {
+				return err
+			}
 		}
 	}
 
@@ -82,14 +84,24 @@ func (p *FileParser) Parse(ctx *Context) error {
 	for _, flag := range ctx.Command.Flags {
 		definition := flag.Definition()
 
-		data, err := ioutil.ReadFile(definition.FilePath)
-		if err != nil {
+		if definition.FilePath == "" {
 			continue
 		}
 
-		value := string(data)
-		if err := flag.Set(value); err != nil {
+		paths, err := filepath.Glob(definition.FilePath)
+		if err != nil {
 			return err
+		}
+
+		for _, path := range paths {
+			value, err := ioutil.ReadFile(path)
+			if err != nil {
+				continue
+			}
+
+			if err := flag.Set(string(value)); err != nil {
+				return err
+			}
 		}
 	}
 
