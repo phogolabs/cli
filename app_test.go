@@ -2,7 +2,6 @@ package cli_test
 
 import (
 	"bytes"
-	"os"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -17,21 +16,6 @@ var _ = Describe("App", func() {
 
 		noop := func(ctx *cli.Context) error {
 			return nil
-		}
-
-		flags := []cli.Flag{
-			&cli.StringFlag{
-				Name: "test.timeout",
-			},
-			&cli.StringFlag{
-				Name: "test.coverprofile",
-			},
-			&cli.StringFlag{
-				Name: "ginkgo.seed",
-			},
-			&cli.StringFlag{
-				Name: "ginkgo.slowSpecThreshold",
-			},
 		}
 
 		commands := []*cli.Command{
@@ -60,7 +44,6 @@ var _ = Describe("App", func() {
 			Before:   noop,
 			After:    noop,
 			Action:   nil,
-			Flags:    flags,
 			Commands: commands,
 		}
 	})
@@ -91,7 +74,7 @@ var _ = Describe("App", func() {
 			return nil
 		}
 
-		Expect(app.Run(os.Args)).To(Succeed())
+		Expect(app.Run([]string{"app"})).To(Succeed())
 	})
 
 	Context("when the app name is not provided", func() {
