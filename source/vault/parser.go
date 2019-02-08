@@ -106,7 +106,7 @@ func (m *Parser) fetch(key string, mnt *api.MountOutput) (*api.Secret, error) {
 		return nil, err
 	}
 
-	renewer, err := m.client.NewRenewer(secret)
+	renewer, _ := m.client.NewRenewer(secret)
 	if renewer != nil {
 		m.renwers = append(m.renwers, renewer)
 	}
