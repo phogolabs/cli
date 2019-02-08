@@ -137,6 +137,15 @@ func toString(value interface{}) string {
 		}
 
 		return strings.Join(items, ", ")
+	case reflect.Map:
+		items := make([]string, v.Len())
+
+		for i, key := range v.MapKeys() {
+			value := v.MapIndex(key)
+			items[i] = fmt.Sprintf("%v => %v", key.Interface(), value.Interface())
+		}
+
+		return strings.Join(items, ", ")
 	case reflect.Bool:
 		return ""
 	}

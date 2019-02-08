@@ -2,7 +2,9 @@ package cli
 
 import (
 	"io"
+	"net/url"
 	"strings"
+	"time"
 )
 
 // Context represents the execution context
@@ -87,6 +89,182 @@ func (ctx *Context) GlobalStringSlice(name string) []string {
 	}
 
 	return []string{}
+}
+
+// URL looks up the value of a local URLFlag, returns nil if not found
+func (ctx *Context) URL(name string) *url.URL {
+	if flag := ctx.find(name); flag != nil {
+		if value, ok := flag.Get().(*url.URL); ok {
+			return value
+		}
+	}
+
+	return nil
+}
+
+// GlobalURL looks up the value of a global URLFlag, returns nil if not found
+func (ctx *Context) GlobalURL(name string) *url.URL {
+	if flag := ctx.findAncestor(name); flag != nil {
+		if value, ok := flag.Get().(*url.URL); ok {
+			return value
+		}
+	}
+
+	return nil
+}
+
+// Time looks up the value of a local TimeFlag, returns 0 if not found
+func (ctx *Context) Time(name string) time.Time {
+	if flag := ctx.find(name); flag != nil {
+		if value, ok := flag.Get().(time.Time); ok {
+			return value
+		}
+	}
+
+	return time.Time{}
+}
+
+// GlobalTime looks up the value of a global TimeFlag, returns 0 if not found
+func (ctx *Context) GlobalTime(name string) time.Time {
+	if flag := ctx.findAncestor(name); flag != nil {
+		if value, ok := flag.Get().(time.Time); ok {
+			return value
+		}
+	}
+
+	return time.Time{}
+}
+
+// Duration looks up the value of a local DurationFlag, returns 0 if not found
+func (ctx *Context) Duration(name string) time.Duration {
+	if flag := ctx.find(name); flag != nil {
+		if value, ok := flag.Get().(time.Duration); ok {
+			return value
+		}
+	}
+
+	return time.Duration(0)
+}
+
+// GlobalDuration looks up the value of a global DurationFlag, returns 0 if not found
+func (ctx *Context) GlobalDuration(name string) time.Duration {
+	if flag := ctx.findAncestor(name); flag != nil {
+		if value, ok := flag.Get().(time.Duration); ok {
+			return value
+		}
+	}
+
+	return time.Duration(0)
+}
+
+// Float64 looks up the value of a local Float64Flag, returns 0 if not found
+func (ctx *Context) Float64(name string) float64 {
+	if flag := ctx.find(name); flag != nil {
+		if value, ok := flag.Get().(float64); ok {
+			return value
+		}
+	}
+
+	return 0
+}
+
+// GlobalFloat64 looks up the value of a global Float64Flag, returns 0 if not found
+func (ctx *Context) GlobalFloat64(name string) float64 {
+	if flag := ctx.findAncestor(name); flag != nil {
+		if value, ok := flag.Get().(float64); ok {
+			return value
+		}
+	}
+
+	return 0
+}
+
+// Int looks up the value of a local IntFlag, returns 0 if not found
+func (ctx *Context) Int(name string) int {
+	if flag := ctx.find(name); flag != nil {
+		if value, ok := flag.Get().(int); ok {
+			return value
+		}
+	}
+
+	return 0
+}
+
+// GlobalInt looks up the value of a global IntFlag, returns 0 if not found
+func (ctx *Context) GlobalInt(name string) int {
+	if flag := ctx.findAncestor(name); flag != nil {
+		if value, ok := flag.Get().(int); ok {
+			return value
+		}
+	}
+
+	return 0
+}
+
+// Int64 looks up the value of a local Int64Flag, returns 0 if not found
+func (ctx *Context) Int64(name string) int64 {
+	if flag := ctx.find(name); flag != nil {
+		if value, ok := flag.Get().(int64); ok {
+			return value
+		}
+	}
+
+	return 0
+}
+
+// GlobalInt64 looks up the value of a global Int64Flag, returns 0 if not found
+func (ctx *Context) GlobalInt64(name string) int64 {
+	if flag := ctx.findAncestor(name); flag != nil {
+		if value, ok := flag.Get().(int64); ok {
+			return value
+		}
+	}
+
+	return 0
+}
+
+// UInt looks up the value of a local UIntFlag, returns 0 if not found
+func (ctx *Context) UInt(name string) uint {
+	if flag := ctx.find(name); flag != nil {
+		if value, ok := flag.Get().(uint); ok {
+			return value
+		}
+	}
+
+	return 0
+}
+
+// GlobalUInt looks up the value of a global UIntFlag, returns 0 if not found
+func (ctx *Context) GlobalUInt(name string) uint {
+	if flag := ctx.findAncestor(name); flag != nil {
+		if value, ok := flag.Get().(uint); ok {
+			return value
+		}
+	}
+
+	return 0
+}
+
+// UInt64 looks up the value of a local UInt64Flag, returns 0 if not found
+func (ctx *Context) UInt64(name string) uint64 {
+	if flag := ctx.find(name); flag != nil {
+		if value, ok := flag.Get().(uint64); ok {
+			return value
+		}
+	}
+
+	return 0
+}
+
+// GlobalUInt64 looks up the value of a global UInt64Flag, returns 0 if not found
+func (ctx *Context) GlobalUInt64(name string) uint64 {
+	if flag := ctx.findAncestor(name); flag != nil {
+		if value, ok := flag.Get().(uint64); ok {
+			return value
+		}
+	}
+
+	return 0
 }
 
 func (ctx *Context) find(name string) Flag {
