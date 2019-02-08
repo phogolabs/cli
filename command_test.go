@@ -127,7 +127,7 @@ var _ = Describe("Command", func() {
 				ctx.Args = []string{"child1"}
 			})
 
-			It("runs the command successully", func() {
+			It("runs the command successfully", func() {
 				Expect(cmd.RunWithContext(ctx)).To(Succeed())
 			})
 
