@@ -10,9 +10,11 @@ A simple package for building command line applications in Go
 ## Questions
 
 Q: Why another package?
+
 A: The [urfave/cli](github.com/urfave/cli) package that we love is not maintained.
 
 Q: Why didn't fork it?
+
 A: The package has a lot of legacy. So we decided to address that by completely
 re-writing it and revamping the API.
 
