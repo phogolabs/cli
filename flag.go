@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/url"
 	"strconv"
-	"strings"
 	"time"
 
 	"gopkg.in/yaml.v2"
@@ -135,13 +134,8 @@ func (f *StringSliceFlag) String() string {
 // Set is called once, in command line order, for each flag present.
 // The flag package may call the String method with a zero-valued receiver,
 // such as a nil pointer.
-func (f *StringSliceFlag) Set(arr string) error {
-	f.Value = []string{}
-
-	for _, value := range strings.Split(arr, ",") {
-		f.Value = append(f.Value, strings.TrimSpace(value))
-	}
-
+func (f *StringSliceFlag) Set(value string) error {
+	f.Value = append(f.Value, value)
 	return nil
 }
 
