@@ -1,6 +1,7 @@
 # CLI
 
 [![Documentation][godoc-img]][godoc-url]
+[![Build Status][travis-img]][travis-url]
 [![Coverage][codecov-img]][codecov-url]
 [![Go Report Card][report-img]][report-url]
 
@@ -31,6 +32,8 @@ $ go get github.com/phogolabs/cli
 We are welcome to any contributions. Just fork the
 [project](https://github.com/phogolabs/cli).
 
+[travis-img]: https://travis-ci.org/phogolabs/cli.svg?branch=master
+[travis-url]: https://travis-ci.org/phogolabs/cli
 [report-img]: https://goreportcard.com/badge/github.com/phogolabs/cli
 [report-url]: https://goreportcard.com/report/github.com/phogolabs/cli
 [codecov-url]: https://codecov.io/gh/phogolabs/cli
