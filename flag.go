@@ -2,6 +2,7 @@ package cli
 
 import (
 	"encoding/json"
+	"encoding/xml"
 	"fmt"
 	"net"
 	"net/url"
@@ -307,7 +308,7 @@ func (f *URLFlag) Definition() *FlagDefinition {
 	}
 }
 
-// JSONFlag is a flag with type url.URL
+// JSONFlag is a flag with type json document
 type JSONFlag struct {
 	Name         string
 	Usage        string
@@ -371,7 +372,7 @@ func (f *JSONFlag) Definition() *FlagDefinition {
 	}
 }
 
-// YAMLFlag is a flag with type url.URL
+// YAMLFlag is a flag with type yaml document
 type YAMLFlag struct {
 	Name         string
 	Usage        string
@@ -425,6 +426,70 @@ func (f *YAMLFlag) Validate() error {
 
 // Definition returns the flag's definition
 func (f *YAMLFlag) Definition() *FlagDefinition {
+	return &FlagDefinition{
+		Name:     f.Name,
+		Usage:    f.Usage,
+		EnvVar:   f.EnvVar,
+		FilePath: f.FilePath,
+		Metadata: f.Metadata,
+		Hidden:   f.Hidden,
+	}
+}
+
+// XMLFlag is a flag with type XMLDocument
+type XMLFlag struct {
+	Name         string
+	Usage        string
+	EnvVar       string
+	FilePath     string
+	Value        interface{}
+	Metadata     map[string]string
+	Hidden       bool
+	Required     bool
+	ValidationFn ValidationFn
+}
+
+// String returns the value as string
+func (f *XMLFlag) String() string {
+	return FlagFormat(f)
+}
+
+// Set is called once, in command line order, for each flag present.
+// The flag package may call the String method with a zero-valued receiver,
+// such as a nil pointer.
+func (f *XMLFlag) Set(value string) error {
+	if f.Value == nil {
+		f.Value = make(map[string]interface{})
+	}
+
+	return xml.Unmarshal([]byte(value), &f.Value)
+}
+
+// Get is a function that allows the contents of a Value to be retrieved.
+// It wraps the Value interface, rather than being part of it, because it
+// appeared after Go 1 and its compatibility rules. All Value types provided
+// by this package satisfy the Getter interface.
+func (f *XMLFlag) Get() interface{} {
+	return f.Value
+}
+
+// Validate validates the flag
+func (f *XMLFlag) Validate() error {
+	if f.Required {
+		if f.Value == nil {
+			return RequiredErr(f.Name)
+		}
+	}
+
+	if f.ValidationFn != nil {
+		return f.ValidationFn(f)
+	}
+
+	return nil
+}
+
+// Definition returns the flag's definition
+func (f *XMLFlag) Definition() *FlagDefinition {
 	return &FlagDefinition{
 		Name:     f.Name,
 		Usage:    f.Usage,

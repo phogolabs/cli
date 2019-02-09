@@ -2,6 +2,7 @@ package cli
 
 import (
 	"io"
+	"net"
 	"net/url"
 	"strings"
 	"time"
@@ -157,6 +158,28 @@ func (ctx *Context) GlobalDuration(name string) time.Duration {
 	return time.Duration(0)
 }
 
+// Float32 looks up the value of a local Float32Flag, returns 0 if not found
+func (ctx *Context) Float32(name string) float32 {
+	if flag := ctx.find(name); flag != nil {
+		if value, ok := flag.Get().(float32); ok {
+			return value
+		}
+	}
+
+	return 0
+}
+
+// GlobalFloat32 looks up the value of a global Float64Flag, returns 0 if not found
+func (ctx *Context) GlobalFloat32(name string) float32 {
+	if flag := ctx.findAncestor(name); flag != nil {
+		if value, ok := flag.Get().(float32); ok {
+			return value
+		}
+	}
+
+	return 0
+}
+
 // Float64 looks up the value of a local Float64Flag, returns 0 if not found
 func (ctx *Context) Float64(name string) float64 {
 	if flag := ctx.find(name); flag != nil {
@@ -265,6 +288,68 @@ func (ctx *Context) GlobalUInt64(name string) uint64 {
 	}
 
 	return 0
+}
+
+// IP looks up the value of a local IPFlag, returns nil if not found
+func (ctx *Context) IP(name string) net.IP {
+	if flag := ctx.find(name); flag != nil {
+		if value, ok := flag.Get().(net.IP); ok {
+			return value
+		}
+	}
+
+	return nil
+}
+
+// GlobalIP looks up the value of a global IPFlag, returns nil if not found
+func (ctx *Context) GlobalIP(name string) net.IP {
+	if flag := ctx.findAncestor(name); flag != nil {
+		if value, ok := flag.Get().(net.IP); ok {
+			return value
+		}
+	}
+
+	return nil
+}
+
+// HardwareAddr looks up the value of a local HardwareddrFlag, returns nil if not found
+func (ctx *Context) HardwareAddr(name string) net.HardwareAddr {
+	if flag := ctx.find(name); flag != nil {
+		if value, ok := flag.Get().(net.HardwareAddr); ok {
+			return value
+		}
+	}
+
+	return nil
+}
+
+// GlobalHardwareAddr looks up the value of a global HardwareAddrFlag, returns nil if not found
+func (ctx *Context) GlobalHardwareAddr(name string) net.HardwareAddr {
+	if flag := ctx.findAncestor(name); flag != nil {
+		if value, ok := flag.Get().(net.HardwareAddr); ok {
+			return value
+		}
+	}
+
+	return nil
+}
+
+// Get looks up the value of a local flag, returns nil if not found
+func (ctx *Context) Get(name string) interface{} {
+	if flag := ctx.find(name); flag != nil {
+		return flag.Get()
+	}
+
+	return nil
+}
+
+// GlobalGet looks up the value of a global flag, returns nil if not found
+func (ctx *Context) GlobalGet(name string) interface{} {
+	if flag := ctx.findAncestor(name); flag != nil {
+		return flag.Get()
+	}
+
+	return nil
 }
 
 func (ctx *Context) find(name string) Flag {
