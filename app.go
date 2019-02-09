@@ -54,7 +54,7 @@ type App struct {
 	OnUsageError OnUsageErrorFunc
 	// Execute this function to handle ExitErrors. If not provided, HandleExitCoder is provided to
 	// function as a default, so this is optional.
-	ExitErrHandler ExitErrHandlerFunc
+	OnExitErr ExitErrHandlerFunc
 	// Exit is the function used when the app exits. If not set defaults to os.Exit.
 	Exit ExitFunc
 	// Writer writer to write output to
@@ -140,12 +140,21 @@ func (app *App) prepare(args []string) {
 }
 
 func (app *App) error(err error) error {
-	if exitErr, ok := err.(ExitCoder); ok {
-		fmt.Fprintln(app.ErrWriter, err)
-		app.Exit(exitErr.ExitCode())
-		return err
+	if err == nil {
+		return nil
 	}
 
+	if app.OnExitErr != nil {
+		err = app.OnExitErr(err)
+	}
+
+	exitErr, ok := err.(ExitCoder)
+	if !ok {
+		exitErr = WrapExitError(err, 1)
+	}
+
+	fmt.Fprintln(app.ErrWriter, err)
+	app.Exit(exitErr.ExitCode())
 	return err
 }
 
