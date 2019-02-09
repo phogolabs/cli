@@ -459,9 +459,8 @@ func (f *XMLFlag) String() string {
 // such as a nil pointer.
 func (f *XMLFlag) Set(value string) error {
 	if f.Value == nil {
-		f.Value = make(map[string]interface{})
+		return nil
 	}
-
 	return xml.Unmarshal([]byte(value), &f.Value)
 }
 

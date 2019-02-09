@@ -111,6 +111,13 @@ var _ = Describe("Parser", func() {
 			Expect(flag.SetArgsForCall(0)).To(Equal("9292"))
 		})
 
+		Context("when the file path is not valid", func() {
+			It("returns an error", func() {
+				definition.FilePath = "\\/"
+				Expect(parser.Parse(ctx)).To(MatchError("syntax error in pattern"))
+			})
+		})
+
 		Context("when the file does not exist", func() {
 			BeforeEach(func() {
 				definition.FilePath = "/tmp/file"

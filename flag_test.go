@@ -2,7 +2,9 @@ package cli_test
 
 import (
 	"encoding/json"
+	"encoding/xml"
 	"fmt"
+	"net"
 	"net/url"
 	"time"
 
@@ -355,16 +357,28 @@ var _ = Describe("JSONFlag", func() {
 	})
 
 	Describe("Set", func() {
-		It("sets the value successfully", func() {
-			m := map[string]string{
-				"key": "value",
-			}
+		ItSetsTheValue := func() {
+			It("sets the value successfully", func() {
+				m := map[string]string{
+					"key": "value",
+				}
 
-			data, err := json.Marshal(&m)
-			Expect(err).To(BeNil())
+				data, err := json.Marshal(&m)
+				Expect(err).To(BeNil())
 
-			Expect(flag.Set(string(data))).To(Succeed())
-			Expect(flag.Value).To(HaveKeyWithValue("key", "value"))
+				Expect(flag.Set(string(data))).To(Succeed())
+				Expect(flag.Value).To(HaveKeyWithValue("key", "value"))
+			})
+		}
+
+		ItSetsTheValue()
+
+		Context("when the value is not set", func() {
+			BeforeEach(func() {
+				flag.Value = nil
+			})
+			ItSetsTheValue()
+
 		})
 	})
 
@@ -447,16 +461,135 @@ var _ = Describe("YAMLFlag", func() {
 	})
 
 	Describe("Set", func() {
+		ItSetsTheValue := func() {
+			It("sets the value successfully", func() {
+				m := map[string]string{
+					"key": "value",
+				}
+
+				data, err := json.Marshal(&m)
+				Expect(err).To(BeNil())
+
+				Expect(flag.Set(string(data))).To(Succeed())
+				Expect(flag.Value).To(HaveKeyWithValue("key", "value"))
+			})
+		}
+
+		ItSetsTheValue()
+
+		Context("when the value is not set", func() {
+			BeforeEach(func() {
+				flag.Value = nil
+			})
+			ItSetsTheValue()
+
+		})
+	})
+
+	Describe("Get", func() {
+		It("gets the value successfully", func() {
+			Expect(flag.Get()).To(Equal(flag.Value))
+		})
+	})
+
+	Describe("Validate", func() {
+		It("validates the flag successfully", func() {
+			Expect(flag.Validate()).To(Succeed())
+		})
+
+		Context("when the validation fails", func() {
+			It("returns an error", func() {
+				flag.ValidationFn = func(cli.Flag) error {
+					return fmt.Errorf("oh no!")
+				}
+
+				Expect(flag.Validate()).To(MatchError("oh no!"))
+			})
+		})
+
+		Context("when the flag is required", func() {
+			BeforeEach(func() {
+				flag.Required = true
+			})
+
+			Context("when the flag's value is not set", func() {
+				BeforeEach(func() {
+					flag.Value = nil
+				})
+
+				It("returns an error", func() {
+					Expect(flag.Validate()).To(MatchError("cli: flag -map is missing"))
+				})
+			})
+		})
+	})
+
+	Describe("Definition", func() {
+		It("returns the definition successfully", func() {
+			definition := flag.Definition()
+			Expect(definition).NotTo(BeNil())
+
+			Expect(definition.Name).To(Equal(flag.Name))
+			Expect(definition.Usage).To(Equal(flag.Usage))
+			Expect(definition.FilePath).To(Equal(flag.FilePath))
+			Expect(definition.EnvVar).To(Equal(flag.EnvVar))
+			Expect(definition.Metadata).To(Equal(flag.Metadata))
+		})
+	})
+})
+
+var _ = Describe("XMLFlag", func() {
+	var flag *cli.XMLFlag
+
+	type T struct {
+		ID   int
+		Name string
+	}
+
+	BeforeEach(func() {
+		flag = &cli.XMLFlag{
+			Name: "map",
+			Value: T{
+				ID:   0,
+				Name: "root",
+			},
+			EnvVar: "APP_MAP",
+		}
+	})
+
+	Describe("String", func() {
+		It("returns the flag as string", func() {
+			Expect(flag.String()).To(ContainSubstring("--map value"))
+		})
+	})
+
+	Describe("Set", func() {
 		It("sets the value successfully", func() {
-			m := map[string]string{
-				"key": "value",
+			m := T{
+				ID:   12345,
+				Name: "guest",
 			}
 
-			data, err := json.Marshal(&m)
+			data, err := xml.Marshal(&m)
 			Expect(err).To(BeNil())
 
 			Expect(flag.Set(string(data))).To(Succeed())
-			Expect(flag.Value).To(HaveKeyWithValue("key", "value"))
+		})
+
+		Context("when the value is not set", func() {
+			It("sets the value successfully", func() {
+				m := T{
+					ID:   12345,
+					Name: "guest",
+				}
+
+				data, err := xml.Marshal(&m)
+				Expect(err).To(BeNil())
+
+				flag.Value = nil
+				Expect(flag.Set(string(data))).To(Succeed())
+				Expect(flag.Value).To(BeNil())
+			})
 		})
 	})
 
@@ -686,6 +819,12 @@ var _ = Describe("IntFlag", func() {
 			Expect(flag.Set("99")).To(Succeed())
 			Expect(flag.Value).To(Equal(99))
 		})
+
+		Context("when the value is invalid", func() {
+			It("returns an error", func() {
+				Expect(flag.Set("yahoo")).To(MatchError(`strconv.ParseInt: parsing "yahoo": invalid syntax`))
+			})
+		})
 	})
 
 	Describe("Get", func() {
@@ -836,6 +975,12 @@ var _ = Describe("UIntFlag", func() {
 			Expect(flag.Set("99")).To(Succeed())
 			Expect(flag.Value).To(Equal(uint(99)))
 		})
+
+		Context("when the value is invalid", func() {
+			It("returns an error", func() {
+				Expect(flag.Set("yahoo")).To(MatchError(`strconv.ParseUint: parsing "yahoo": invalid syntax`))
+			})
+		})
 	})
 
 	Describe("Get", func() {
@@ -965,6 +1110,87 @@ var _ = Describe("UInt64Flag", func() {
 	})
 })
 
+var _ = Describe("Float32Flag", func() {
+	var flag *cli.Float32Flag
+
+	BeforeEach(func() {
+		flag = &cli.Float32Flag{
+			Name:  "num",
+			Value: 66,
+		}
+	})
+
+	Describe("String", func() {
+		It("returns the flag as string", func() {
+			Expect(flag.String()).To(Equal(cli.FlagFormat(flag)))
+		})
+	})
+
+	Describe("Set", func() {
+		It("sets the value successfully", func() {
+			Expect(flag.Set("99")).To(Succeed())
+			Expect(flag.Value).To(Equal(float32(99)))
+		})
+
+		Context("when the value is invalid", func() {
+			It("sets the value successfully", func() {
+				Expect(flag.Set("yahoo").Error()).To(Equal(`strconv.ParseFloat: parsing "yahoo": invalid syntax`))
+			})
+		})
+	})
+
+	Describe("Get", func() {
+		It("gets the value successfully", func() {
+			Expect(flag.Get()).To(Equal(float32(66)))
+		})
+	})
+
+	Describe("Validate", func() {
+		It("validates the flag successfully", func() {
+			Expect(flag.Validate()).To(Succeed())
+		})
+
+		Context("when the validation fails", func() {
+			It("returns an error", func() {
+				flag.ValidationFn = func(cli.Flag) error {
+					return fmt.Errorf("oh no!")
+				}
+
+				Expect(flag.Validate()).To(MatchError("oh no!"))
+			})
+		})
+
+		Context("when the flag is required", func() {
+			BeforeEach(func() {
+				flag.Required = true
+			})
+
+			Context("when the flag's value is not set", func() {
+				BeforeEach(func() {
+					flag.Value = 0
+				})
+
+				It("returns an error", func() {
+					Expect(flag.Validate()).To(MatchError("cli: flag -num is missing"))
+				})
+			})
+		})
+	})
+
+	Describe("Definition", func() {
+		It("returns the definition successfully", func() {
+			definition := flag.Definition()
+			Expect(definition).NotTo(BeNil())
+
+			Expect(definition.Name).To(Equal(flag.Name))
+			Expect(definition.Usage).To(Equal(flag.Usage))
+			Expect(definition.FilePath).To(Equal(flag.FilePath))
+			Expect(definition.EnvVar).To(Equal(flag.EnvVar))
+			Expect(definition.Metadata).To(Equal(flag.Metadata))
+		})
+	})
+})
+
 var _ = Describe("Float64Flag", func() {
 	var flag *cli.Float64Flag
 
@@ -1021,6 +1247,170 @@ var _ = Describe("Float64Flag", func() {
 
 				It("returns an error", func() {
 					Expect(flag.Validate()).To(MatchError("cli: flag -num is missing"))
+				})
+			})
+		})
+	})
+
+	Describe("Definition", func() {
+		It("returns the definition successfully", func() {
+			definition := flag.Definition()
+			Expect(definition).NotTo(BeNil())
+
+			Expect(definition.Name).To(Equal(flag.Name))
+			Expect(definition.Usage).To(Equal(flag.Usage))
+			Expect(definition.FilePath).To(Equal(flag.FilePath))
+			Expect(definition.EnvVar).To(Equal(flag.EnvVar))
+			Expect(definition.Metadata).To(Equal(flag.Metadata))
+		})
+	})
+})
+
+var _ = Describe("IPFlag", func() {
+	var flag *cli.IPFlag
+
+	BeforeEach(func() {
+		flag = &cli.IPFlag{
+			Name:  "ip",
+			Value: net.ParseIP("127.0.0.1"),
+		}
+	})
+
+	Describe("String", func() {
+		It("returns the flag as string", func() {
+			Expect(flag.String()).To(Equal(cli.FlagFormat(flag)))
+		})
+	})
+
+	Describe("Set", func() {
+		It("sets the value successfully", func() {
+			Expect(flag.Set("127.0.1.1")).To(Succeed())
+			Expect(flag.Value).To(Equal(net.ParseIP("127.0.1.1")))
+		})
+
+		Context("when the value is invalid", func() {
+			It("returns an error", func() {
+				Expect(flag.Set("yahoo")).To(MatchError("invalid IP Address: yahoo"))
+			})
+		})
+	})
+
+	Describe("Get", func() {
+		It("gets the value successfully", func() {
+			Expect(flag.Get()).To(Equal(net.ParseIP("127.0.0.1")))
+		})
+	})
+
+	Describe("Validate", func() {
+		It("validates the flag successfully", func() {
+			Expect(flag.Validate()).To(Succeed())
+		})
+
+		Context("when the validation fails", func() {
+			It("returns an error", func() {
+				flag.ValidationFn = func(cli.Flag) error {
+					return fmt.Errorf("oh no!")
+				}
+
+				Expect(flag.Validate()).To(MatchError("oh no!"))
+			})
+		})
+
+		Context("when the flag is required", func() {
+			BeforeEach(func() {
+				flag.Required = true
+			})
+
+			Context("when the flag's value is not set", func() {
+				BeforeEach(func() {
+					flag.Value = nil
+				})
+
+				It("returns an error", func() {
+					Expect(flag.Validate()).To(MatchError("cli: flag -ip is missing"))
+				})
+			})
+		})
+	})
+
+	Describe("Definition", func() {
+		It("returns the definition successfully", func() {
+			definition := flag.Definition()
+			Expect(definition).NotTo(BeNil())
+
+			Expect(definition.Name).To(Equal(flag.Name))
+			Expect(definition.Usage).To(Equal(flag.Usage))
+			Expect(definition.FilePath).To(Equal(flag.FilePath))
+			Expect(definition.EnvVar).To(Equal(flag.EnvVar))
+			Expect(definition.Metadata).To(Equal(flag.Metadata))
+		})
+	})
+})
+
+var _ = Describe("HardwareAddrFlag", func() {
+	var flag *cli.HardwareAddrFlag
+
+	BeforeEach(func() {
+		mac, err := net.ParseMAC("01:23:45:67:89:ab:cd:ef:00:00:01:23:45:67:89:ab:cd:ef:00:00")
+		Expect(err).To(BeNil())
+
+		flag = &cli.HardwareAddrFlag{
+			Name:  "mac",
+			Value: mac,
+		}
+	})
+
+	Describe("String", func() {
+		It("returns the flag as string", func() {
+			Expect(flag.String()).To(Equal(cli.FlagFormat(flag)))
+		})
+	})
+
+	Describe("Set", func() {
+		It("sets the value successfully", func() {
+			Expect(flag.Set("01:23:45:67:89:ab:cd:ef:00:00:01:23:45:67:89:ab:cd:ef:00:00")).To(Succeed())
+		})
+
+		Context("when the value is not valid", func() {
+			It("returns an error", func() {
+				Expect(flag.Set("yahoo")).To(MatchError("address yahoo: invalid MAC address"))
+			})
+		})
+	})
+
+	Describe("Get", func() {
+		It("gets the value successfully", func() {
+			Expect(flag.Get()).To(Equal(flag.Value))
+		})
+	})
+
+	Describe("Validate", func() {
+		It("validates the flag successfully", func() {
+			Expect(flag.Validate()).To(Succeed())
+		})
+
+		Context("when the validation fails", func() {
+			It("returns an error", func() {
+				flag.ValidationFn = func(cli.Flag) error {
+					return fmt.Errorf("oh no!")
+				}
+
+				Expect(flag.Validate()).To(MatchError("oh no!"))
+			})
+		})
+
+		Context("when the flag is required", func() {
+			BeforeEach(func() {
+				flag.Required = true
+			})
+
+			Context("when the flag's value is not set", func() {
+				BeforeEach(func() {
+					flag.Value = nil
+				})
+
+				It("returns an error", func() {
+					Expect(flag.Validate()).To(MatchError("cli: flag -mac is missing"))
 				})
 			})
 		})
