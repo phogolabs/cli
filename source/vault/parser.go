@@ -15,11 +15,19 @@ var _ cli.Parser = &Parser{}
 
 // Parser is a parser that populates flags from Hashi Corp Vault
 type Parser struct {
-	Client *api.Client
+	client *api.Client
 }
 
 // Parse parses the args
 func (m *Parser) Parse(ctx *cli.Context) error {
+	if err := m.init(ctx); err != nil {
+		return err
+	}
+
+	if m.client == nil {
+		return nil
+	}
+
 	for _, flag := range ctx.Command.Flags {
 		key := key(flag.Definition().Metadata)
 
@@ -34,7 +42,7 @@ func (m *Parser) Parse(ctx *cli.Context) error {
 
 		key = abs(key, mnt)
 
-		secret, err := m.Client.Logical().Read(key)
+		secret, err := m.client.Logical().Read(key)
 		if err != nil {
 			return err
 		}
@@ -56,11 +64,34 @@ func (m *Parser) Parse(ctx *cli.Context) error {
 	return nil
 }
 
+func (m *Parser) init(ctx *cli.Context) error {
+	config := api.DefaultConfig()
+
+	if addr := ctx.String("vault-addr"); addr != "" {
+		config.Address = addr
+	}
+
+	client, err := api.NewClient(config)
+	if err != nil {
+		return err
+	}
+
+	if token := ctx.String("vault-token"); token != "" {
+		m.client = client
+		client.SetToken(token)
+		return nil
+	}
+
+	//TODO: kubernetes
+
+	return nil
+}
+
 func (m *Parser) mount(key string) (*api.MountOutput, error) {
 	path := fmt.Sprintf("/v1/sys/internal/ui/mounts/%s", key)
-	request := m.Client.NewRequest("GET", path)
+	request := m.client.NewRequest("GET", path)
 
-	response, err := m.Client.RawRequest(request)
+	response, err := m.client.RawRequest(request)
 	if err != nil {
 		return nil, err
 	}
@@ -86,7 +117,7 @@ func (m *Parser) mount(key string) (*api.MountOutput, error) {
 }
 
 func (m *Parser) rewnew(secret *api.Secret) error {
-	renewer, err := m.Client.NewRenewer(&api.RenewerInput{
+	renewer, err := m.client.NewRenewer(&api.RenewerInput{
 		Secret: secret,
 	})
 
