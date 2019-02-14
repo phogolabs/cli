@@ -354,7 +354,8 @@ func (ctx *Context) GlobalGet(name string) interface{} {
 
 func (ctx *Context) find(name string) Flag {
 	for _, flag := range ctx.Command.Flags {
-		names := strings.Split(flag.Definition().Name, ",")
+		accessor := &FlagAccessor{Flag: flag}
+		names := strings.Split(accessor.Name(), ",")
 
 		for _, key := range names {
 			key = strings.TrimSpace(key)

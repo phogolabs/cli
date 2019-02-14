@@ -2,6 +2,7 @@ package cli_test
 
 import (
 	"bytes"
+	"fmt"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -117,6 +118,25 @@ var _ = Describe("App", func() {
 			}
 
 			Expect(app.Run([]string{"app"})).To(MatchError("oh no!"))
+		})
+
+		Context("when the error is not exit error", func() {
+			It("exits with the exit code 1", func() {
+				app.Action = func(ctx *cli.Context) error {
+					return fmt.Errorf("oh no!")
+				}
+
+				app.OnExitErr = func(err error) error {
+					Expect(err).To(MatchError("oh no!"))
+					return err
+				}
+
+				app.Exit = func(code int) {
+					Expect(code).To(Equal(1))
+				}
+
+				Expect(app.Run([]string{"app"})).To(MatchError("oh no!"))
+			})
 		})
 	})
 })

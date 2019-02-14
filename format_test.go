@@ -5,26 +5,21 @@ import (
 	. "github.com/onsi/gomega"
 
 	"github.com/phogolabs/cli"
-	"github.com/phogolabs/cli/fake"
 )
 
 var _ = Describe("Format", func() {
 	var (
-		flag       *fake.Flag
-		definition *cli.FlagDefinition
+		flag *cli.StringFlag
 	)
 
 	BeforeEach(func() {
-		definition = &cli.FlagDefinition{
+		flag = &cli.StringFlag{
 			Name:     "log-level, l",
 			Usage:    "Application log level",
 			EnvVar:   "LOG_LEVEL,LOG_LVL",
 			FilePath: "my-config.cfg",
+			Value:    "info",
 		}
-
-		flag = &fake.Flag{}
-		flag.GetReturns("info")
-		flag.DefinitionReturns(definition)
 	})
 
 	It("formats a flag successfully", func() {
@@ -34,7 +29,7 @@ var _ = Describe("Format", func() {
 
 	Context("when the FilePath is not set", func() {
 		BeforeEach(func() {
-			definition.FilePath = ""
+			flag.FilePath = ""
 		})
 
 		It("formats a flag successfully", func() {
@@ -45,7 +40,7 @@ var _ = Describe("Format", func() {
 
 	Context("when the EnvVar is not set", func() {
 		BeforeEach(func() {
-			definition.EnvVar = ""
+			flag.EnvVar = ""
 		})
 
 		It("formats a flag successfully", func() {
@@ -55,8 +50,16 @@ var _ = Describe("Format", func() {
 	})
 
 	Context("when the value is boolean", func() {
+		var flag *cli.BoolFlag
+
 		BeforeEach(func() {
-			flag.GetReturns(false)
+			flag = &cli.BoolFlag{
+				Name:     "log-level, l",
+				Usage:    "Application log level",
+				EnvVar:   "LOG_LEVEL,LOG_LVL",
+				FilePath: "my-config.cfg",
+				Value:    true,
+			}
 		})
 
 		It("formats a flag successfully", func() {
@@ -66,8 +69,15 @@ var _ = Describe("Format", func() {
 	})
 
 	Context("when the value is nil", func() {
+		var flag *cli.YAMLFlag
+
 		BeforeEach(func() {
-			flag.GetReturns(nil)
+			flag = &cli.YAMLFlag{
+				Name:     "log-level, l",
+				Usage:    "Application log level",
+				EnvVar:   "LOG_LEVEL,LOG_LVL",
+				FilePath: "my-config.cfg",
+			}
 		})
 
 		It("formats a flag successfully", func() {

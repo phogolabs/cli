@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net"
 	"net/url"
+	"reflect"
 	"strconv"
 	"time"
 
@@ -14,16 +15,6 @@ import (
 
 // ValidationFn validates a flag
 type ValidationFn func(f Flag) error
-
-// FlagDefinition is the flag's definition
-type FlagDefinition struct {
-	Name     string
-	Usage    string
-	EnvVar   string
-	FilePath string
-	Hidden   bool
-	Metadata map[string]string
-}
 
 //go:generate counterfeiter -fake-name Flag -o ./fake/flag.go . Flag
 
@@ -46,7 +37,6 @@ type Flag interface {
 	String() string
 	Set(string) error
 	Get() interface{}
-	Definition() *FlagDefinition
 	Validate() error
 }
 
@@ -101,18 +91,6 @@ func (f *StringFlag) Validate() error {
 	return nil
 }
 
-// Definition returns the flag's definition
-func (f *StringFlag) Definition() *FlagDefinition {
-	return &FlagDefinition{
-		Name:     f.Name,
-		Usage:    f.Usage,
-		EnvVar:   f.EnvVar,
-		FilePath: f.FilePath,
-		Metadata: f.Metadata,
-		Hidden:   f.Hidden,
-	}
-}
-
 var _ Flag = &StringSliceFlag{}
 
 // StringSliceFlag is a flag with type *StringSlice
@@ -147,18 +125,6 @@ func (f *StringSliceFlag) Set(value string) error {
 // by this package satisfy the Getter interface.
 func (f *StringSliceFlag) Get() interface{} {
 	return f.Value
-}
-
-// Definition returns the flag's definition
-func (f *StringSliceFlag) Definition() *FlagDefinition {
-	return &FlagDefinition{
-		Name:     f.Name,
-		Usage:    f.Usage,
-		EnvVar:   f.EnvVar,
-		FilePath: f.FilePath,
-		Metadata: f.Metadata,
-		Hidden:   f.Hidden,
-	}
 }
 
 // Validate validates the flag
@@ -230,18 +196,6 @@ func (f *BoolFlag) Validate() error {
 	return nil
 }
 
-// Definition returns the flag's definition
-func (f *BoolFlag) Definition() *FlagDefinition {
-	return &FlagDefinition{
-		Name:     f.Name,
-		Usage:    f.Usage,
-		EnvVar:   f.EnvVar,
-		FilePath: f.FilePath,
-		Metadata: f.Metadata,
-		Hidden:   f.Hidden,
-	}
-}
-
 // URLFlag is a flag with type url.URL
 type URLFlag struct {
 	Name         string
@@ -296,18 +250,6 @@ func (f *URLFlag) Validate() error {
 	return nil
 }
 
-// Definition returns the flag's definition
-func (f *URLFlag) Definition() *FlagDefinition {
-	return &FlagDefinition{
-		Name:     f.Name,
-		Usage:    f.Usage,
-		EnvVar:   f.EnvVar,
-		FilePath: f.FilePath,
-		Metadata: f.Metadata,
-		Hidden:   f.Hidden,
-	}
-}
-
 // JSONFlag is a flag with type json document
 type JSONFlag struct {
 	Name         string
@@ -358,18 +300,6 @@ func (f *JSONFlag) Validate() error {
 	}
 
 	return nil
-}
-
-// Definition returns the flag's definition
-func (f *JSONFlag) Definition() *FlagDefinition {
-	return &FlagDefinition{
-		Name:     f.Name,
-		Usage:    f.Usage,
-		EnvVar:   f.EnvVar,
-		FilePath: f.FilePath,
-		Metadata: f.Metadata,
-		Hidden:   f.Hidden,
-	}
 }
 
 // YAMLFlag is a flag with type yaml document
@@ -424,18 +354,6 @@ func (f *YAMLFlag) Validate() error {
 	return nil
 }
 
-// Definition returns the flag's definition
-func (f *YAMLFlag) Definition() *FlagDefinition {
-	return &FlagDefinition{
-		Name:     f.Name,
-		Usage:    f.Usage,
-		EnvVar:   f.EnvVar,
-		FilePath: f.FilePath,
-		Metadata: f.Metadata,
-		Hidden:   f.Hidden,
-	}
-}
-
 // XMLFlag is a flag with type XMLDocument
 type XMLFlag struct {
 	Name         string
@@ -485,18 +403,6 @@ func (f *XMLFlag) Validate() error {
 	}
 
 	return nil
-}
-
-// Definition returns the flag's definition
-func (f *XMLFlag) Definition() *FlagDefinition {
-	return &FlagDefinition{
-		Name:     f.Name,
-		Usage:    f.Usage,
-		EnvVar:   f.EnvVar,
-		FilePath: f.FilePath,
-		Metadata: f.Metadata,
-		Hidden:   f.Hidden,
-	}
 }
 
 // TimeFlag is a flag with type time.Time
@@ -553,18 +459,6 @@ func (f *TimeFlag) Validate() error {
 	return nil
 }
 
-// Definition returns the flag's definition
-func (f *TimeFlag) Definition() *FlagDefinition {
-	return &FlagDefinition{
-		Name:     f.Name,
-		Usage:    f.Usage,
-		EnvVar:   f.EnvVar,
-		FilePath: f.FilePath,
-		Metadata: f.Metadata,
-		Hidden:   f.Hidden,
-	}
-}
-
 // DurationFlag is a flag with type time.Duration
 type DurationFlag struct {
 	Name         string
@@ -612,18 +506,6 @@ func (f *DurationFlag) Validate() error {
 	}
 
 	return nil
-}
-
-// Definition returns the flag's definition
-func (f *DurationFlag) Definition() *FlagDefinition {
-	return &FlagDefinition{
-		Name:     f.Name,
-		Usage:    f.Usage,
-		EnvVar:   f.EnvVar,
-		FilePath: f.FilePath,
-		Metadata: f.Metadata,
-		Hidden:   f.Hidden,
-	}
 }
 
 // IntFlag is a flag with type int
@@ -680,18 +562,6 @@ func (f *IntFlag) Validate() error {
 	return nil
 }
 
-// Definition returns the flag's definition
-func (f *IntFlag) Definition() *FlagDefinition {
-	return &FlagDefinition{
-		Name:     f.Name,
-		Usage:    f.Usage,
-		EnvVar:   f.EnvVar,
-		FilePath: f.FilePath,
-		Metadata: f.Metadata,
-		Hidden:   f.Hidden,
-	}
-}
-
 // Int64Flag is a flag with type int64
 type Int64Flag struct {
 	Name         string
@@ -739,18 +609,6 @@ func (f *Int64Flag) Validate() error {
 	}
 
 	return nil
-}
-
-// Definition returns the flag's definition
-func (f *Int64Flag) Definition() *FlagDefinition {
-	return &FlagDefinition{
-		Name:     f.Name,
-		Usage:    f.Usage,
-		EnvVar:   f.EnvVar,
-		FilePath: f.FilePath,
-		Metadata: f.Metadata,
-		Hidden:   f.Hidden,
-	}
 }
 
 // UIntFlag is a flag with type uint64
@@ -807,18 +665,6 @@ func (f *UIntFlag) Validate() error {
 	return nil
 }
 
-// Definition returns the flag's definition
-func (f *UIntFlag) Definition() *FlagDefinition {
-	return &FlagDefinition{
-		Name:     f.Name,
-		Usage:    f.Usage,
-		EnvVar:   f.EnvVar,
-		FilePath: f.FilePath,
-		Metadata: f.Metadata,
-		Hidden:   f.Hidden,
-	}
-}
-
 // UInt64Flag is a flag with type uint
 type UInt64Flag struct {
 	Name         string
@@ -866,18 +712,6 @@ func (f *UInt64Flag) Validate() error {
 	}
 
 	return nil
-}
-
-// Definition returns the flag's definition
-func (f *UInt64Flag) Definition() *FlagDefinition {
-	return &FlagDefinition{
-		Name:     f.Name,
-		Usage:    f.Usage,
-		EnvVar:   f.EnvVar,
-		FilePath: f.FilePath,
-		Metadata: f.Metadata,
-		Hidden:   f.Hidden,
-	}
 }
 
 // Float32Flag is a flag with type float32
@@ -934,18 +768,6 @@ func (f *Float32Flag) Validate() error {
 	return nil
 }
 
-// Definition returns the flag's definition
-func (f *Float32Flag) Definition() *FlagDefinition {
-	return &FlagDefinition{
-		Name:     f.Name,
-		Usage:    f.Usage,
-		EnvVar:   f.EnvVar,
-		FilePath: f.FilePath,
-		Metadata: f.Metadata,
-		Hidden:   f.Hidden,
-	}
-}
-
 // Float64Flag is a flag with type float64
 type Float64Flag struct {
 	Name         string
@@ -993,18 +815,6 @@ func (f *Float64Flag) Validate() error {
 	}
 
 	return nil
-}
-
-// Definition returns the flag's definition
-func (f *Float64Flag) Definition() *FlagDefinition {
-	return &FlagDefinition{
-		Name:     f.Name,
-		Usage:    f.Usage,
-		EnvVar:   f.EnvVar,
-		FilePath: f.FilePath,
-		Metadata: f.Metadata,
-		Hidden:   f.Hidden,
-	}
 }
 
 // IPFlag is a flag with type net.IP
@@ -1064,18 +874,6 @@ func (f *IPFlag) Validate() error {
 	return nil
 }
 
-// Definition returns the flag's definition
-func (f *IPFlag) Definition() *FlagDefinition {
-	return &FlagDefinition{
-		Name:     f.Name,
-		Usage:    f.Usage,
-		EnvVar:   f.EnvVar,
-		FilePath: f.FilePath,
-		Metadata: f.Metadata,
-		Hidden:   f.Hidden,
-	}
-}
-
 // HardwareAddrFlag is a flag with type net.HardwareAddr
 type HardwareAddrFlag struct {
 	Name         string
@@ -1125,16 +923,72 @@ func (f *HardwareAddrFlag) Validate() error {
 	return nil
 }
 
-// Definition returns the flag's definition
-func (f *HardwareAddrFlag) Definition() *FlagDefinition {
-	return &FlagDefinition{
-		Name:     f.Name,
-		Usage:    f.Usage,
-		EnvVar:   f.EnvVar,
-		FilePath: f.FilePath,
-		Metadata: f.Metadata,
-		Hidden:   f.Hidden,
+// FlagAccessor access the flag's field
+type FlagAccessor struct {
+	Flag Flag
+}
+
+// Value of the flag
+func (f *FlagAccessor) Value() interface{} {
+	return f.Flag.Get()
+}
+
+// SetValue sets the value
+func (f *FlagAccessor) SetValue(v interface{}) {
+	value := reflect.ValueOf(f.Flag)
+	value = reflect.Indirect(value)
+	field := value.FieldByName("Value")
+
+	if field.CanSet() {
+		field.Set(reflect.ValueOf(v))
 	}
+}
+
+// Name of the flag
+func (f *FlagAccessor) Name() string {
+	value := reflect.ValueOf(f.Flag)
+	value = reflect.Indirect(value)
+	return value.FieldByName("Name").String()
+}
+
+// Usage of the flag
+func (f *FlagAccessor) Usage() string {
+	value := reflect.ValueOf(f.Flag)
+	value = reflect.Indirect(value)
+	return value.FieldByName("Usage").String()
+}
+
+// EnvVar of the flag
+func (f *FlagAccessor) EnvVar() string {
+	value := reflect.ValueOf(f.Flag)
+	value = reflect.Indirect(value)
+	return value.FieldByName("EnvVar").String()
+}
+
+// FilePath of the flag
+func (f *FlagAccessor) FilePath() string {
+	value := reflect.ValueOf(f.Flag)
+	value = reflect.Indirect(value)
+	return value.FieldByName("FilePath").String()
+}
+
+// Metadata of the flag
+func (f *FlagAccessor) Metadata() map[string]string {
+	value := reflect.ValueOf(f.Flag)
+	value = reflect.Indirect(value)
+
+	metadata, ok := value.FieldByName("Metadata").Interface().(map[string]string)
+	if !ok {
+		return nil
+	}
+	return metadata
+}
+
+// Hidden of the flag
+func (f *FlagAccessor) Hidden() bool {
+	value := reflect.ValueOf(f.Flag)
+	value = reflect.Indirect(value)
+	return value.FieldByName("Hidden").Bool()
 }
 
 // RequiredErr returns the required error

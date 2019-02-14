@@ -37,15 +37,6 @@ type Flag struct {
 	getReturnsOnCall map[int]struct {
 		result1 interface{}
 	}
-	DefinitionStub        func() *cli.FlagDefinition
-	definitionMutex       sync.RWMutex
-	definitionArgsForCall []struct{}
-	definitionReturns     struct {
-		result1 *cli.FlagDefinition
-	}
-	definitionReturnsOnCall map[int]struct {
-		result1 *cli.FlagDefinition
-	}
 	ValidateStub        func() error
 	validateMutex       sync.RWMutex
 	validateArgsForCall []struct{}
@@ -187,46 +178,6 @@ func (fake *Flag) GetReturnsOnCall(i int, result1 interface{}) {
 	}{result1}
 }
 
-func (fake *Flag) Definition() *cli.FlagDefinition {
-	fake.definitionMutex.Lock()
-	ret, specificReturn := fake.definitionReturnsOnCall[len(fake.definitionArgsForCall)]
-	fake.definitionArgsForCall = append(fake.definitionArgsForCall, struct{}{})
-	fake.recordInvocation("Definition", []interface{}{})
-	fake.definitionMutex.Unlock()
-	if fake.DefinitionStub != nil {
-		return fake.DefinitionStub()
-	}
-	if specificReturn {
-		return ret.result1
-	}
-	return fake.definitionReturns.result1
-}
-
-func (fake *Flag) DefinitionCallCount() int {
-	fake.definitionMutex.RLock()
-	defer fake.definitionMutex.RUnlock()
-	return len(fake.definitionArgsForCall)
-}
-
-func (fake *Flag) DefinitionReturns(result1 *cli.FlagDefinition) {
-	fake.DefinitionStub = nil
-	fake.definitionReturns = struct {
-		result1 *cli.FlagDefinition
-	}{result1}
-}
-
-func (fake *Flag) DefinitionReturnsOnCall(i int, result1 *cli.FlagDefinition) {
-	fake.DefinitionStub = nil
-	if fake.definitionReturnsOnCall == nil {
-		fake.definitionReturnsOnCall = make(map[int]struct {
-			result1 *cli.FlagDefinition
-		})
-	}
-	fake.definitionReturnsOnCall[i] = struct {
-		result1 *cli.FlagDefinition
-	}{result1}
-}
-
 func (fake *Flag) Validate() error {
 	fake.validateMutex.Lock()
 	ret, specificReturn := fake.validateReturnsOnCall[len(fake.validateArgsForCall)]
@@ -276,8 +227,6 @@ func (fake *Flag) Invocations() map[string][][]interface{} {
 	defer fake.setMutex.RUnlock()
 	fake.getMutex.RLock()
 	defer fake.getMutex.RUnlock()
-	fake.definitionMutex.RLock()
-	defer fake.definitionMutex.RUnlock()
 	fake.validateMutex.RLock()
 	defer fake.validateMutex.RUnlock()
 	copiedInvocations := map[string][][]interface{}{}

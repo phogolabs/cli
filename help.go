@@ -29,6 +29,7 @@ func help(ctx *Context) error {
 		man = "help.cmd.tpl"
 	case ctx.Parent != nil:
 		cmd = ctx.Parent.Command
+		ctx = ctx.Parent
 		man = "help.sub.tpl"
 	default:
 		cmd = ctx.Command
@@ -40,6 +41,8 @@ func help(ctx *Context) error {
 		fmt.Fprintln(ctx.Writer)
 		return nil
 	}
+
+	cmd.restore(ctx)
 
 	help, _ := parcello.Open(man)
 	content, _ := ioutil.ReadAll(help)

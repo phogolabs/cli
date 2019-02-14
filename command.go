@@ -103,7 +103,9 @@ func (cmd *Command) VisibleFlags() []Flag {
 	flags := []Flag{}
 
 	for _, flag := range cmd.Flags {
-		if flag.Definition().Hidden {
+		accessor := &FlagAccessor{Flag: flag}
+
+		if accessor.Hidden() {
 			continue
 		}
 
@@ -148,15 +150,7 @@ func (cmd *Command) parse(ctx *Context) error {
 		return nil
 	}
 
-	parsers := []Parser{
-		&FileParser{},
-		&EnvParser{},
-		&FlagParser{},
-	}
-
-	parsers = append(parsers, cmd.Parsers...)
-
-	for _, parser := range parsers {
+	for _, parser := range cmd.Parsers {
 		if err := parser.Parse(ctx); err != nil {
 			return err
 		}
@@ -172,6 +166,15 @@ func (cmd *Command) parse(ctx *Context) error {
 }
 
 func (cmd *Command) prepare() {
+	parsers := []Parser{
+		&DefaultValueParser{},
+		&FileParser{},
+		&EnvParser{},
+		&FlagParser{},
+	}
+
+	cmd.Parsers = append(parsers, cmd.Parsers...)
+
 	if cmd.HelpName == "" {
 		cmd.HelpName = cmd.Name
 	}
@@ -191,6 +194,18 @@ func (cmd *Command) prepare() {
 			command.HelpName = fmt.Sprintf("%s %s", cmd.HelpName, command.Name)
 		}
 	}
+}
+
+func (cmd *Command) restore(ctx *Context) error {
+	for i := len(cmd.Parsers) - 1; i >= 0; i-- {
+		if restorer, ok := cmd.Parsers[i].(Restorer); ok {
+			if err := restorer.Restore(ctx); err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
 }
 
 func (cmd *Command) fork(ctx *Context) error {

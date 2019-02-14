@@ -11,20 +11,21 @@ import (
 func FlagFormat(flag Flag) string {
 	buffer := &bytes.Buffer{}
 
-	formatName(buffer, flag)
-	formatUsage(buffer, flag)
-	formatValue(buffer, flag)
-	formatEnv(buffer, flag)
-	formatFile(buffer, flag)
+	accessor := &FlagAccessor{Flag: flag}
+
+	formatName(buffer, accessor)
+	formatUsage(buffer, accessor)
+	formatValue(buffer, accessor)
+	formatEnv(buffer, accessor)
+	formatFile(buffer, accessor)
 
 	return buffer.String()
 }
 
-func formatName(buffer *bytes.Buffer, flag Flag) {
-	def := flag.Definition()
-	hide := isBool(flag.Get())
+func formatName(buffer *bytes.Buffer, flag *FlagAccessor) {
+	hide := isBool(flag.Value())
 
-	for index, name := range split(def.Name) {
+	for index, name := range split(flag.Name()) {
 		if index > 0 {
 			buffer.WriteString(", ")
 		}
@@ -44,10 +45,10 @@ func formatName(buffer *bytes.Buffer, flag Flag) {
 
 }
 
-func formatUsage(buffer *bytes.Buffer, flag Flag) {
-	def := flag.Definition()
+func formatUsage(buffer *bytes.Buffer, flag *FlagAccessor) {
+	usage := flag.Usage()
 
-	if def.Usage == "" {
+	if usage == "" {
 		return
 	}
 
@@ -55,11 +56,11 @@ func formatUsage(buffer *bytes.Buffer, flag Flag) {
 		buffer.WriteString("\t")
 	}
 
-	buffer.WriteString(def.Usage)
+	buffer.WriteString(usage)
 }
 
-func formatValue(buffer *bytes.Buffer, flag Flag) {
-	value := toString(flag.Get())
+func formatValue(buffer *bytes.Buffer, flag *FlagAccessor) {
+	value := toString(flag.Value())
 
 	if value == "" {
 		return
@@ -72,8 +73,8 @@ func formatValue(buffer *bytes.Buffer, flag Flag) {
 	fmt.Fprintf(buffer, "(default: %v)", value)
 }
 
-func formatEnv(buffer *bytes.Buffer, flag Flag) {
-	envs := flag.Definition().EnvVar
+func formatEnv(buffer *bytes.Buffer, flag *FlagAccessor) {
+	envs := flag.EnvVar()
 
 	if envs = strings.TrimSpace(envs); envs == "" {
 		return
@@ -97,8 +98,8 @@ func formatEnv(buffer *bytes.Buffer, flag Flag) {
 	buffer.WriteString("]")
 }
 
-func formatFile(buffer *bytes.Buffer, flag Flag) {
-	path := flag.Definition().FilePath
+func formatFile(buffer *bytes.Buffer, flag *FlagAccessor) {
+	path := flag.FilePath()
 
 	if path = strings.TrimSpace(path); path == "" {
 		return

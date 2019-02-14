@@ -72,19 +72,6 @@ var _ = Describe("BoolFlag", func() {
 			})
 		})
 	})
-
-	Describe("Definition", func() {
-		It("returns the definition successfully", func() {
-			definition := flag.Definition()
-			Expect(definition).NotTo(BeNil())
-
-			Expect(definition.Name).To(Equal(flag.Name))
-			Expect(definition.Usage).To(Equal(flag.Usage))
-			Expect(definition.FilePath).To(Equal(flag.FilePath))
-			Expect(definition.EnvVar).To(Equal(flag.EnvVar))
-			Expect(definition.Metadata).To(Equal(flag.Metadata))
-		})
-	})
 })
 
 var _ = Describe("StringFlag", func() {
@@ -148,19 +135,6 @@ var _ = Describe("StringFlag", func() {
 					Expect(flag.Validate()).To(MatchError("cli: flag -listen-addr is missing"))
 				})
 			})
-		})
-	})
-
-	Describe("Definition", func() {
-		It("returns the definition successfully", func() {
-			definition := flag.Definition()
-			Expect(definition).NotTo(BeNil())
-
-			Expect(definition.Name).To(Equal(flag.Name))
-			Expect(definition.Usage).To(Equal(flag.Usage))
-			Expect(definition.FilePath).To(Equal(flag.FilePath))
-			Expect(definition.EnvVar).To(Equal(flag.EnvVar))
-			Expect(definition.Metadata).To(Equal(flag.Metadata))
 		})
 	})
 })
@@ -232,19 +206,6 @@ var _ = Describe("StringSliceFlag", func() {
 					Expect(flag.Validate()).To(MatchError("cli: flag -user is missing"))
 				})
 			})
-		})
-	})
-
-	Describe("Definition", func() {
-		It("returns the definition successfully", func() {
-			definition := flag.Definition()
-			Expect(definition).NotTo(BeNil())
-
-			Expect(definition.Name).To(Equal(flag.Name))
-			Expect(definition.Usage).To(Equal(flag.Usage))
-			Expect(definition.FilePath).To(Equal(flag.FilePath))
-			Expect(definition.EnvVar).To(Equal(flag.EnvVar))
-			Expect(definition.Metadata).To(Equal(flag.Metadata))
 		})
 	})
 })
@@ -319,19 +280,6 @@ var _ = Describe("URLFlag", func() {
 					Expect(flag.Validate()).To(MatchError("cli: flag -listen-addr is missing"))
 				})
 			})
-		})
-	})
-
-	Describe("Definition", func() {
-		It("returns the definition successfully", func() {
-			definition := flag.Definition()
-			Expect(definition).NotTo(BeNil())
-
-			Expect(definition.Name).To(Equal(flag.Name))
-			Expect(definition.Usage).To(Equal(flag.Usage))
-			Expect(definition.FilePath).To(Equal(flag.FilePath))
-			Expect(definition.EnvVar).To(Equal(flag.EnvVar))
-			Expect(definition.Metadata).To(Equal(flag.Metadata))
 		})
 	})
 })
@@ -425,19 +373,6 @@ var _ = Describe("JSONFlag", func() {
 			})
 		})
 	})
-
-	Describe("Definition", func() {
-		It("returns the definition successfully", func() {
-			definition := flag.Definition()
-			Expect(definition).NotTo(BeNil())
-
-			Expect(definition.Name).To(Equal(flag.Name))
-			Expect(definition.Usage).To(Equal(flag.Usage))
-			Expect(definition.FilePath).To(Equal(flag.FilePath))
-			Expect(definition.EnvVar).To(Equal(flag.EnvVar))
-			Expect(definition.Metadata).To(Equal(flag.Metadata))
-		})
-	})
 })
 
 var _ = Describe("YAMLFlag", func() {
@@ -521,19 +456,6 @@ var _ = Describe("YAMLFlag", func() {
 					Expect(flag.Validate()).To(MatchError("cli: flag -map is missing"))
 				})
 			})
-		})
-	})
-
-	Describe("Definition", func() {
-		It("returns the definition successfully", func() {
-			definition := flag.Definition()
-			Expect(definition).NotTo(BeNil())
-
-			Expect(definition.Name).To(Equal(flag.Name))
-			Expect(definition.Usage).To(Equal(flag.Usage))
-			Expect(definition.FilePath).To(Equal(flag.FilePath))
-			Expect(definition.EnvVar).To(Equal(flag.EnvVar))
-			Expect(definition.Metadata).To(Equal(flag.Metadata))
 		})
 	})
 })
@@ -630,19 +552,6 @@ var _ = Describe("XMLFlag", func() {
 			})
 		})
 	})
-
-	Describe("Definition", func() {
-		It("returns the definition successfully", func() {
-			definition := flag.Definition()
-			Expect(definition).NotTo(BeNil())
-
-			Expect(definition.Name).To(Equal(flag.Name))
-			Expect(definition.Usage).To(Equal(flag.Usage))
-			Expect(definition.FilePath).To(Equal(flag.FilePath))
-			Expect(definition.EnvVar).To(Equal(flag.EnvVar))
-			Expect(definition.Metadata).To(Equal(flag.Metadata))
-		})
-	})
 })
 
 var _ = Describe("TimeFlag", func() {
@@ -707,19 +616,6 @@ var _ = Describe("TimeFlag", func() {
 			})
 		})
 	})
-
-	Describe("Definition", func() {
-		It("returns the definition successfully", func() {
-			definition := flag.Definition()
-			Expect(definition).NotTo(BeNil())
-
-			Expect(definition.Name).To(Equal(flag.Name))
-			Expect(definition.Usage).To(Equal(flag.Usage))
-			Expect(definition.FilePath).To(Equal(flag.FilePath))
-			Expect(definition.EnvVar).To(Equal(flag.EnvVar))
-			Expect(definition.Metadata).To(Equal(flag.Metadata))
-		})
-	})
 })
 
 var _ = Describe("DurationFlag", func() {
@@ -781,19 +677,6 @@ var _ = Describe("DurationFlag", func() {
 					Expect(flag.Validate()).To(MatchError("cli: flag -time is missing"))
 				})
 			})
-		})
-	})
-
-	Describe("Definition", func() {
-		It("returns the definition successfully", func() {
-			definition := flag.Definition()
-			Expect(definition).NotTo(BeNil())
-
-			Expect(definition.Name).To(Equal(flag.Name))
-			Expect(definition.Usage).To(Equal(flag.Usage))
-			Expect(definition.FilePath).To(Equal(flag.FilePath))
-			Expect(definition.EnvVar).To(Equal(flag.EnvVar))
-			Expect(definition.Metadata).To(Equal(flag.Metadata))
 		})
 	})
 })
@@ -864,19 +747,6 @@ var _ = Describe("IntFlag", func() {
 			})
 		})
 	})
-
-	Describe("Definition", func() {
-		It("returns the definition successfully", func() {
-			definition := flag.Definition()
-			Expect(definition).NotTo(BeNil())
-
-			Expect(definition.Name).To(Equal(flag.Name))
-			Expect(definition.Usage).To(Equal(flag.Usage))
-			Expect(definition.FilePath).To(Equal(flag.FilePath))
-			Expect(definition.EnvVar).To(Equal(flag.EnvVar))
-			Expect(definition.Metadata).To(Equal(flag.Metadata))
-		})
-	})
 })
 
 var _ = Describe("Int64Flag", func() {
@@ -937,19 +807,6 @@ var _ = Describe("Int64Flag", func() {
 					Expect(flag.Validate()).To(MatchError("cli: flag -num is missing"))
 				})
 			})
-		})
-	})
-
-	Describe("Definition", func() {
-		It("returns the definition successfully", func() {
-			definition := flag.Definition()
-			Expect(definition).NotTo(BeNil())
-
-			Expect(definition.Name).To(Equal(flag.Name))
-			Expect(definition.Usage).To(Equal(flag.Usage))
-			Expect(definition.FilePath).To(Equal(flag.FilePath))
-			Expect(definition.EnvVar).To(Equal(flag.EnvVar))
-			Expect(definition.Metadata).To(Equal(flag.Metadata))
 		})
 	})
 })
@@ -1020,19 +877,6 @@ var _ = Describe("UIntFlag", func() {
 			})
 		})
 	})
-
-	Describe("Definition", func() {
-		It("returns the definition successfully", func() {
-			definition := flag.Definition()
-			Expect(definition).NotTo(BeNil())
-
-			Expect(definition.Name).To(Equal(flag.Name))
-			Expect(definition.Usage).To(Equal(flag.Usage))
-			Expect(definition.FilePath).To(Equal(flag.FilePath))
-			Expect(definition.EnvVar).To(Equal(flag.EnvVar))
-			Expect(definition.Metadata).To(Equal(flag.Metadata))
-		})
-	})
 })
 
 var _ = Describe("UInt64Flag", func() {
@@ -1093,19 +937,6 @@ var _ = Describe("UInt64Flag", func() {
 					Expect(flag.Validate()).To(MatchError("cli: flag -num is missing"))
 				})
 			})
-		})
-	})
-
-	Describe("Definition", func() {
-		It("returns the definition successfully", func() {
-			definition := flag.Definition()
-			Expect(definition).NotTo(BeNil())
-
-			Expect(definition.Name).To(Equal(flag.Name))
-			Expect(definition.Usage).To(Equal(flag.Usage))
-			Expect(definition.FilePath).To(Equal(flag.FilePath))
-			Expect(definition.EnvVar).To(Equal(flag.EnvVar))
-			Expect(definition.Metadata).To(Equal(flag.Metadata))
 		})
 	})
 })
@@ -1176,19 +1007,6 @@ var _ = Describe("Float32Flag", func() {
 			})
 		})
 	})
-
-	Describe("Definition", func() {
-		It("returns the definition successfully", func() {
-			definition := flag.Definition()
-			Expect(definition).NotTo(BeNil())
-
-			Expect(definition.Name).To(Equal(flag.Name))
-			Expect(definition.Usage).To(Equal(flag.Usage))
-			Expect(definition.FilePath).To(Equal(flag.FilePath))
-			Expect(definition.EnvVar).To(Equal(flag.EnvVar))
-			Expect(definition.Metadata).To(Equal(flag.Metadata))
-		})
-	})
 })
 
 var _ = Describe("Float64Flag", func() {
@@ -1249,19 +1067,6 @@ var _ = Describe("Float64Flag", func() {
 					Expect(flag.Validate()).To(MatchError("cli: flag -num is missing"))
 				})
 			})
-		})
-	})
-
-	Describe("Definition", func() {
-		It("returns the definition successfully", func() {
-			definition := flag.Definition()
-			Expect(definition).NotTo(BeNil())
-
-			Expect(definition.Name).To(Equal(flag.Name))
-			Expect(definition.Usage).To(Equal(flag.Usage))
-			Expect(definition.FilePath).To(Equal(flag.FilePath))
-			Expect(definition.EnvVar).To(Equal(flag.EnvVar))
-			Expect(definition.Metadata).To(Equal(flag.Metadata))
 		})
 	})
 })
@@ -1330,19 +1135,6 @@ var _ = Describe("IPFlag", func() {
 					Expect(flag.Validate()).To(MatchError("cli: flag -ip is missing"))
 				})
 			})
-		})
-	})
-
-	Describe("Definition", func() {
-		It("returns the definition successfully", func() {
-			definition := flag.Definition()
-			Expect(definition).NotTo(BeNil())
-
-			Expect(definition.Name).To(Equal(flag.Name))
-			Expect(definition.Usage).To(Equal(flag.Usage))
-			Expect(definition.FilePath).To(Equal(flag.FilePath))
-			Expect(definition.EnvVar).To(Equal(flag.EnvVar))
-			Expect(definition.Metadata).To(Equal(flag.Metadata))
 		})
 	})
 })
@@ -1415,17 +1207,39 @@ var _ = Describe("HardwareAddrFlag", func() {
 			})
 		})
 	})
+})
 
-	Describe("Definition", func() {
-		It("returns the definition successfully", func() {
-			definition := flag.Definition()
-			Expect(definition).NotTo(BeNil())
+var _ = Describe("FlagAccessor", func() {
+	var (
+		accessor *cli.FlagAccessor
+		flag     *cli.StringFlag
+	)
 
-			Expect(definition.Name).To(Equal(flag.Name))
-			Expect(definition.Usage).To(Equal(flag.Usage))
-			Expect(definition.FilePath).To(Equal(flag.FilePath))
-			Expect(definition.EnvVar).To(Equal(flag.EnvVar))
-			Expect(definition.Metadata).To(Equal(flag.Metadata))
-		})
+	BeforeEach(func() {
+		flag = &cli.StringFlag{
+			Name:     "listen-addr",
+			Value:    "9292",
+			Usage:    "listen address of HTTP server",
+			EnvVar:   "APP_LISTEN_ADDR",
+			FilePath: "app.config",
+		}
+
+		accessor = &cli.FlagAccessor{
+			Flag: flag,
+		}
+	})
+
+	It("returns the definition successfully", func() {
+		Expect(accessor.Name()).To(Equal(flag.Name))
+		Expect(accessor.Usage()).To(Equal(flag.Usage))
+		Expect(accessor.FilePath()).To(Equal(flag.FilePath))
+		Expect(accessor.EnvVar()).To(Equal(flag.EnvVar))
+		Expect(accessor.Metadata()).To(Equal(flag.Metadata))
+		Expect(accessor.Value()).To(Equal(flag.Value))
+	})
+
+	It("sets the value", func() {
+		accessor.SetValue("1212")
+		Expect(flag.Value).To(Equal("1212"))
 	})
 })
