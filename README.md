@@ -1,6 +1,7 @@
 # CLI
 
 [![Documentation][godoc-img]][godoc-url]
+![License][license-img]
 [![Build Status][travis-img]][travis-url]
 [![Coverage][codecov-img]][codecov-url]
 [![Go Report Card][report-img]][report-url]
@@ -24,7 +25,7 @@ Make sure you have a working Go environment. Go version 1.2+ is supported.
 
 [See the install instructions for Go](http://golang.org/doc/install.html).
 
-To install cli, simply run:
+To install CLI, simply run:
 ```
 $ go get github.com/phogolabs/cli
 ```
