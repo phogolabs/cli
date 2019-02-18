@@ -984,6 +984,14 @@ func (f *FlagAccessor) Metadata() map[string]string {
 	return metadata
 }
 
+// MetaKey returns a metadata by key
+func (f *FlagAccessor) MetaKey(path string) string {
+	if value, ok := f.Metadata()[path]; ok {
+		return value
+	}
+	return ""
+}
+
 // Hidden of the flag
 func (f *FlagAccessor) Hidden() bool {
 	value := reflect.ValueOf(f.Flag)

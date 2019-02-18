@@ -1222,6 +1222,9 @@ var _ = Describe("FlagAccessor", func() {
 			Usage:    "listen address of HTTP server",
 			EnvVar:   "APP_LISTEN_ADDR",
 			FilePath: "app.config",
+			Metadata: map[string]string{
+				"key": "meta",
+			},
 		}
 
 		accessor = &cli.FlagAccessor{
@@ -1236,6 +1239,7 @@ var _ = Describe("FlagAccessor", func() {
 		Expect(accessor.EnvVar()).To(Equal(flag.EnvVar))
 		Expect(accessor.Metadata()).To(Equal(flag.Metadata))
 		Expect(accessor.Value()).To(Equal(flag.Value))
+		Expect(accessor.MetaKey("key")).To(Equal("meta"))
 	})
 
 	It("sets the value", func() {
