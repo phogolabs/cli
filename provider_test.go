@@ -11,7 +11,7 @@ import (
 	"github.com/phogolabs/cli"
 )
 
-var _ = Describe("Parser", func() {
+var _ = Describe("Provider", func() {
 	var (
 		flag *cli.StringFlag
 		ctx  *cli.Context
@@ -31,13 +31,13 @@ var _ = Describe("Parser", func() {
 		}
 	})
 
-	Describe("EnvParser", func() {
-		var parser *cli.EnvParser
+	Describe("EnvProvider", func() {
+		var parser *cli.EnvProvider
 
 		BeforeEach(func() {
 			flag.EnvVar = "APP_LISTEN_ADDR"
 
-			parser = &cli.EnvParser{}
+			parser = &cli.EnvProvider{}
 			Expect(os.Setenv(flag.EnvVar, "8080")).To(Succeed())
 		})
 
@@ -46,7 +46,7 @@ var _ = Describe("Parser", func() {
 		})
 
 		It("sets the value from env variable", func() {
-			Expect(parser.Parse(ctx)).To(Succeed())
+			Expect(parser.Provide(ctx)).To(Succeed())
 			Expect(flag.Value).To(Equal("8080"))
 		})
 
@@ -56,7 +56,7 @@ var _ = Describe("Parser", func() {
 			})
 
 			It("does not set the value", func() {
-				Expect(parser.Parse(ctx)).To(Succeed())
+				Expect(parser.Provide(ctx)).To(Succeed())
 				Expect(flag.Value).To(BeEmpty())
 			})
 		})
@@ -67,7 +67,7 @@ var _ = Describe("Parser", func() {
 			})
 
 			It("does not set the value", func() {
-				Expect(parser.Parse(ctx)).To(Succeed())
+				Expect(parser.Provide(ctx)).To(Succeed())
 				Expect(flag.Value).To(BeEmpty())
 			})
 		})
@@ -93,16 +93,16 @@ var _ = Describe("Parser", func() {
 			})
 
 			It("returns an error", func() {
-				Expect(parser.Parse(ctx)).To(MatchError("strconv.ParseInt: parsing \"yep\": invalid syntax"))
+				Expect(parser.Provide(ctx)).To(MatchError("strconv.ParseInt: parsing \"yep\": invalid syntax"))
 			})
 		})
 	})
 
-	Describe("FileParser", func() {
-		var parser *cli.FileParser
+	Describe("FileProvider", func() {
+		var parser *cli.FileProvider
 
 		BeforeEach(func() {
-			parser = &cli.FileParser{}
+			parser = &cli.FileProvider{}
 
 			tmpfile, err := ioutil.TempFile("", "example")
 			Expect(err).To(BeNil())
@@ -115,14 +115,14 @@ var _ = Describe("Parser", func() {
 		})
 
 		It("sets the value successfully", func() {
-			Expect(parser.Parse(ctx)).To(Succeed())
+			Expect(parser.Provide(ctx)).To(Succeed())
 			Expect(flag.Value).To(Equal("9292"))
 		})
 
 		Context("when the file path is not valid", func() {
 			It("returns an error", func() {
 				flag.FilePath = "\\/"
-				Expect(parser.Parse(ctx)).To(MatchError("syntax error in pattern"))
+				Expect(parser.Provide(ctx)).To(MatchError("syntax error in pattern"))
 			})
 		})
 
@@ -132,7 +132,7 @@ var _ = Describe("Parser", func() {
 			})
 
 			It("does not set the value", func() {
-				Expect(parser.Parse(ctx)).To(Succeed())
+				Expect(parser.Provide(ctx)).To(Succeed())
 				Expect(flag.Value).To(BeZero())
 			})
 		})
@@ -143,7 +143,7 @@ var _ = Describe("Parser", func() {
 			})
 
 			It("does not set the value", func() {
-				Expect(parser.Parse(ctx)).To(Succeed())
+				Expect(parser.Provide(ctx)).To(Succeed())
 				Expect(flag.Value).To(BeZero())
 			})
 		})
@@ -166,21 +166,21 @@ var _ = Describe("Parser", func() {
 			})
 
 			It("returns an error", func() {
-				Expect(parser.Parse(ctx)).To(MatchError("invalid IP Address: 9292"))
+				Expect(parser.Provide(ctx)).To(MatchError("invalid IP Address: 9292"))
 			})
 		})
 	})
 
-	Describe("FlagParser", func() {
-		var parser *cli.FlagParser
+	Describe("FlagProvider", func() {
+		var parser *cli.FlagProvider
 
 		BeforeEach(func() {
-			parser = &cli.FlagParser{}
+			parser = &cli.FlagProvider{}
 			ctx.Args = []string{"-listen-addr=9292"}
 		})
 
 		It("sets the value successfully", func() {
-			Expect(parser.Parse(ctx)).To(Succeed())
+			Expect(parser.Provide(ctx)).To(Succeed())
 			Expect(flag.Value).To(Equal("9292"))
 		})
 
@@ -202,29 +202,29 @@ var _ = Describe("Parser", func() {
 			})
 
 			It("returns an error", func() {
-				Expect(parser.Parse(ctx)).To(MatchError(`invalid value "9292" for flag -listen-addr: invalid IP Address: 9292`))
+				Expect(parser.Provide(ctx)).To(MatchError(`invalid value "9292" for flag -listen-addr: invalid IP Address: 9292`))
 			})
 		})
 	})
 
-	Describe("DefaultValueParser", func() {
-		var parser *cli.DefaultValueParser
+	Describe("DefaultValueProvider", func() {
+		var parser *cli.DefaultValueProvider
 
 		BeforeEach(func() {
 			flag.Value = "9292"
-			parser = &cli.DefaultValueParser{}
+			parser = &cli.DefaultValueProvider{}
 		})
 
 		It("parses the flags successfully", func() {
-			Expect(parser.Parse(ctx)).To(Succeed())
+			Expect(parser.Provide(ctx)).To(Succeed())
 		})
 
 		It("rollbacks the values successfully", func() {
-			Expect(parser.Parse(ctx)).To(Succeed())
+			Expect(parser.Provide(ctx)).To(Succeed())
 
 			flag.Value = "1010"
 
-			Expect(parser.Restore(ctx)).To(Succeed())
+			Expect(parser.Rollback(ctx)).To(Succeed())
 			Expect(flag.Value).To(Equal("9292"))
 		})
 	})

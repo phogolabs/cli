@@ -8,27 +8,27 @@ import (
 	"strings"
 )
 
-//go:generate counterfeiter -fake-name Parser -o ./fake/parser.go . Parser
+//go:generate counterfeiter -fake-name Provider -o ./fake/provider.go . Provider
 
-// Parser is the interface that parses the flags
-type Parser interface {
-	Parse(*Context) error
+// Provider is the interface that parses the flags
+type Provider interface {
+	Provide(*Context) error
 }
 
-// Restorer restore its state
-type Restorer interface {
-	Restore(*Context) error
+// Transaction restore its state
+type Transaction interface {
+	Rollback(*Context) error
 }
 
-var _ Parser = &FlagParser{}
+var _ Provider = &FlagProvider{}
 
-// FlagParser parses the CLI flags
-type FlagParser struct {
+// FlagProvider parses the CLI flags
+type FlagProvider struct {
 	set *flag.FlagSet
 }
 
-// Parse parses the args
-func (p *FlagParser) Parse(ctx *Context) error {
+// Provide parses the args
+func (p *FlagProvider) Provide(ctx *Context) error {
 	p.set = flag.NewFlagSet(ctx.Command.Name, flag.ContinueOnError)
 	p.set.SetOutput(ioutil.Discard)
 
@@ -50,13 +50,13 @@ func (p *FlagParser) Parse(ctx *Context) error {
 	return nil
 }
 
-var _ Parser = &EnvParser{}
+var _ Provider = &EnvProvider{}
 
-// EnvParser parses environment variables
-type EnvParser struct{}
+// EnvProvider parses environment variables
+type EnvProvider struct{}
 
-// Parse parses the args
-func (p *EnvParser) Parse(ctx *Context) error {
+// Provide parses the args
+func (p *EnvProvider) Provide(ctx *Context) error {
 	var env string
 
 	for _, flag := range ctx.Command.Flags {
@@ -80,13 +80,13 @@ func (p *EnvParser) Parse(ctx *Context) error {
 	return nil
 }
 
-var _ Parser = &FileParser{}
+var _ Provider = &FileProvider{}
 
-// FileParser parses flags from file
-type FileParser struct{}
+// FileProvider parses flags from file
+type FileProvider struct{}
 
-// Parse parses the args
-func (p *FileParser) Parse(ctx *Context) error {
+// Provide parses the args
+func (p *FileProvider) Provide(ctx *Context) error {
 	for _, flag := range ctx.Command.Flags {
 		accessor := &FlagAccessor{Flag: flag}
 
@@ -113,17 +113,17 @@ func (p *FileParser) Parse(ctx *Context) error {
 }
 
 var (
-	_ Parser   = &DefaultValueParser{}
-	_ Restorer = &DefaultValueParser{}
+	_ Provider    = &DefaultValueProvider{}
+	_ Transaction = &DefaultValueProvider{}
 )
 
-// DefaultValueParser keeps the default values
-type DefaultValueParser struct {
+// DefaultValueProvider keeps the default values
+type DefaultValueProvider struct {
 	values map[string]interface{}
 }
 
-// Parse parses the args
-func (p *DefaultValueParser) Parse(ctx *Context) error {
+// Provide parses the args
+func (p *DefaultValueProvider) Provide(ctx *Context) error {
 	if p.values == nil {
 		p.values = make(map[string]interface{})
 	}
@@ -139,8 +139,8 @@ func (p *DefaultValueParser) Parse(ctx *Context) error {
 	return nil
 }
 
-// Restore rollbacks the values
-func (p *DefaultValueParser) Restore(ctx *Context) error {
+// Rollback rollbacks the values
+func (p *DefaultValueProvider) Rollback(ctx *Context) error {
 	for _, flag := range ctx.Command.Flags {
 		accessor := &FlagAccessor{Flag: flag}
 

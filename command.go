@@ -60,8 +60,8 @@ type Command struct {
 	SkipFlagParsing bool
 	// List of flags to parse
 	Flags []Flag
-	// Parser contains a list of all parsers
-	Parsers []Parser
+	// Providers contains a list of all providers
+	Providers []Provider
 	// Metadata for this command
 	Metadata map[string]interface{}
 	// An action to execute before any subcommands are run, but after the context is ready
@@ -81,7 +81,7 @@ type Command struct {
 func (cmd *Command) RunWithContext(ctx *Context) error {
 	cmd.prepare()
 
-	if err := cmd.parse(ctx); err != nil {
+	if err := cmd.provide(ctx); err != nil {
 		return cmd.error(ctx, err)
 	}
 
@@ -145,13 +145,13 @@ func (cmd *Command) VisibleCategories() []*CommandCategory {
 	return result
 }
 
-func (cmd *Command) parse(ctx *Context) error {
+func (cmd *Command) provide(ctx *Context) error {
 	if cmd.SkipFlagParsing {
 		return nil
 	}
 
-	for _, parser := range cmd.Parsers {
-		if err := parser.Parse(ctx); err != nil {
+	for _, provider := range cmd.Providers {
+		if err := provider.Provide(ctx); err != nil {
 			return err
 		}
 	}
@@ -166,14 +166,14 @@ func (cmd *Command) parse(ctx *Context) error {
 }
 
 func (cmd *Command) prepare() {
-	parsers := []Parser{
-		&DefaultValueParser{},
-		&FileParser{},
-		&EnvParser{},
-		&FlagParser{},
+	providers := []Provider{
+		&DefaultValueProvider{},
+		&FileProvider{},
+		&EnvProvider{},
+		&FlagProvider{},
 	}
 
-	cmd.Parsers = append(parsers, cmd.Parsers...)
+	cmd.Providers = append(providers, cmd.Providers...)
 
 	if cmd.HelpName == "" {
 		cmd.HelpName = cmd.Name
@@ -197,9 +197,9 @@ func (cmd *Command) prepare() {
 }
 
 func (cmd *Command) restore(ctx *Context) error {
-	for i := len(cmd.Parsers) - 1; i >= 0; i-- {
-		if restorer, ok := cmd.Parsers[i].(Restorer); ok {
-			if err := restorer.Restore(ctx); err != nil {
+	for i := len(cmd.Providers) - 1; i >= 0; i-- {
+		if restorer, ok := cmd.Providers[i].(Transaction); ok {
+			if err := restorer.Rollback(ctx); err != nil {
 				return err
 			}
 		}

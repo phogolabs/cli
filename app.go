@@ -39,8 +39,8 @@ type App struct {
 	Commands []*Command
 	// List of flags to parse
 	Flags []Flag
-	// Parser contains a list of all parsers
-	Parsers []Parser
+	// Providers contains a list of all providers
+	Providers []Provider
 	// An action to execute before any subcommands are run, but after the context is ready
 	// If a non-nil error is returned, no subcommands are run
 	Before BeforeFunc
@@ -81,7 +81,7 @@ func (app *App) Run(args []string) error {
 		Before:       app.Before,
 		After:        app.After,
 		Action:       app.Action,
-		Parsers:      app.Parsers,
+		Providers:    app.Providers,
 		OnUsageError: app.OnUsageError,
 		Metadata: map[string]interface{}{
 			"HideVersion": app.HideVersion,
