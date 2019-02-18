@@ -57,11 +57,12 @@ type EnvParser struct{}
 
 // Parse parses the args
 func (p *EnvParser) Parse(ctx *Context) error {
+	var env string
+
 	for _, flag := range ctx.Command.Flags {
 		accessor := &FlagAccessor{Flag: flag}
 
-		env := accessor.EnvVar()
-		if env == "" {
+		if env = accessor.EnvVar(); env == "" {
 			continue
 		}
 
@@ -70,7 +71,7 @@ func (p *EnvParser) Parse(ctx *Context) error {
 				continue
 			}
 
-			if err := flag.Set(value); err != nil {
+			if err := accessor.SetValue(value); err != nil {
 				return err
 			}
 		}
@@ -101,7 +102,7 @@ func (p *FileParser) Parse(ctx *Context) error {
 					continue
 				}
 
-				if err := flag.Set(string(value)); err != nil {
+				if err := accessor.SetValue(string(value)); err != nil {
 					return err
 				}
 			}
@@ -144,7 +145,9 @@ func (p *DefaultValueParser) Restore(ctx *Context) error {
 		accessor := &FlagAccessor{Flag: flag}
 
 		if value, ok := p.values[accessor.Name()]; ok {
-			accessor.SetValue(value)
+			if err := accessor.SetValue(value); err != nil {
+				return err
+			}
 		}
 	}
 
