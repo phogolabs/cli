@@ -934,7 +934,13 @@ func (f *FlagAccessor) Value() interface{} {
 }
 
 // SetValue sets the value
-func (f *FlagAccessor) SetValue(v interface{}) {
+func (f *FlagAccessor) SetValue(v interface{}) (err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			err = f.error(r)
+		}
+	}()
+
 	value := reflect.ValueOf(f.Flag)
 	value = reflect.Indirect(value)
 	field := value.FieldByName("Value")
@@ -942,6 +948,8 @@ func (f *FlagAccessor) SetValue(v interface{}) {
 	if field.CanSet() {
 		field.Set(reflect.ValueOf(v))
 	}
+
+	return err
 }
 
 // Name of the flag
@@ -997,6 +1005,15 @@ func (f *FlagAccessor) Hidden() bool {
 	value := reflect.ValueOf(f.Flag)
 	value = reflect.Indirect(value)
 	return value.FieldByName("Hidden").Bool()
+}
+
+func (f *FlagAccessor) error(v interface{}) error {
+	switch err := v.(type) {
+	case *reflect.ValueError:
+		return err
+	default:
+		return fmt.Errorf("%v", err)
+	}
 }
 
 // RequiredErr returns the required error

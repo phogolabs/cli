@@ -1242,8 +1242,16 @@ var _ = Describe("FlagAccessor", func() {
 		Expect(accessor.MetaKey("key")).To(Equal("meta"))
 	})
 
-	It("sets the value", func() {
-		accessor.SetValue("1212")
-		Expect(flag.Value).To(Equal("1212"))
+	Describe("SetValue", func() {
+		It("sets the value", func() {
+			Expect(accessor.SetValue("1212")).To(Succeed())
+			Expect(flag.Value).To(Equal("1212"))
+		})
+
+		Context("when the value is not compatible", func() {
+			It("returns an error", func() {
+				Expect(accessor.SetValue(1)).To(MatchError("reflect.Set: value of type int is not assignable to type string"))
+			})
+		})
 	})
 })
