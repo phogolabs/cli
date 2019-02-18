@@ -941,12 +941,19 @@ func (f *FlagAccessor) SetValue(v interface{}) (err error) {
 		}
 	}()
 
-	value := reflect.ValueOf(f.Flag)
-	value = reflect.Indirect(value)
-	field := value.FieldByName("Value")
+	value := reflect.ValueOf(v)
 
-	if field.CanSet() {
-		field.Set(reflect.ValueOf(v))
+	switch value.Kind() {
+	case reflect.String:
+		return f.Flag.Set(value.String())
+	default:
+		flag := reflect.ValueOf(f.Flag)
+		flag = reflect.Indirect(flag)
+		field := flag.FieldByName("Value")
+
+		if field.CanSet() {
+			field.Set(value)
+		}
 	}
 
 	return err
