@@ -10,11 +10,57 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/oliveagle/jsonpath"
 	"gopkg.in/yaml.v2"
 )
 
-// ValidationFn validates a flag
-type ValidationFn func(f Flag) error
+//go:generate counterfeiter -fake-name Converter -o ./fake/converter.go . Converter
+
+// Converter converts values
+type Converter interface {
+	// Convert converts the value
+	Convert(interface{}) (interface{}, error)
+}
+
+var _ Converter = ConverterFunc(nil)
+
+// ConverterFunc converts values
+type ConverterFunc func(interface{}) (interface{}, error)
+
+// Convert converts the value
+func (fn ConverterFunc) Convert(v interface{}) (interface{}, error) {
+	return fn(v)
+}
+
+var _ Converter = &JSONPathConverter{}
+
+// JSONPathConverter converts a value from JSON by Path
+type JSONPathConverter struct {
+	Path string
+}
+
+// Convert converts the value
+func (c JSONPathConverter) Convert(v interface{}) (interface{}, error) {
+	return jsonpath.JsonPathLookup(v, c.Path)
+}
+
+//go:generate counterfeiter -fake-name Validator -o ./fake/validator.go . Validator
+
+// Validator converts values
+type Validator interface {
+	// Validate validates the value
+	Validate(interface{}) error
+}
+
+var _ Validator = ValidatorFunc(nil)
+
+// ValidatorFunc validates a flag
+type ValidatorFunc func(interface{}) error
+
+// Validate validates the value
+func (fn ValidatorFunc) Validate(v interface{}) error {
+	return fn(v)
+}
 
 //go:generate counterfeiter -fake-name Flag -o ./fake/flag.go . Flag
 
@@ -44,15 +90,16 @@ var _ Flag = &StringFlag{}
 
 // StringFlag is a flag with type string
 type StringFlag struct {
-	Name         string
-	Usage        string
-	EnvVar       string
-	FilePath     string
-	Value        string
-	Metadata     map[string]string
-	Hidden       bool
-	Required     bool
-	ValidationFn ValidationFn
+	Name      string
+	Usage     string
+	EnvVar    string
+	FilePath  string
+	Value     string
+	Metadata  map[string]string
+	Hidden    bool
+	Required  bool
+	Converter Converter
+	Validator Validator
 }
 
 // String returns the value as string
@@ -84,8 +131,8 @@ func (f *StringFlag) Validate() error {
 		}
 	}
 
-	if f.ValidationFn != nil {
-		return f.ValidationFn(f)
+	if f.Validator != nil {
+		return f.Validator.Validate(f.Value)
 	}
 
 	return nil
@@ -95,15 +142,16 @@ var _ Flag = &StringSliceFlag{}
 
 // StringSliceFlag is a flag with type *StringSlice
 type StringSliceFlag struct {
-	Name         string
-	Usage        string
-	EnvVar       string
-	FilePath     string
-	Value        []string
-	Metadata     map[string]string
-	Hidden       bool
-	Required     bool
-	ValidationFn ValidationFn
+	Name      string
+	Usage     string
+	EnvVar    string
+	FilePath  string
+	Value     []string
+	Metadata  map[string]string
+	Hidden    bool
+	Required  bool
+	Converter Converter
+	Validator Validator
 }
 
 // String returns the value as string
@@ -135,8 +183,8 @@ func (f *StringSliceFlag) Validate() error {
 		}
 	}
 
-	if f.ValidationFn != nil {
-		return f.ValidationFn(f)
+	if f.Validator != nil {
+		return f.Validator.Validate(f.Value)
 	}
 
 	return nil
@@ -146,14 +194,15 @@ var _ Flag = &BoolFlag{}
 
 // BoolFlag is a flag with type bool
 type BoolFlag struct {
-	Name         string
-	Usage        string
-	EnvVar       string
-	FilePath     string
-	Value        bool
-	Metadata     map[string]string
-	Hidden       bool
-	ValidationFn ValidationFn
+	Name      string
+	Usage     string
+	EnvVar    string
+	FilePath  string
+	Value     bool
+	Metadata  map[string]string
+	Hidden    bool
+	Converter Converter
+	Validator Validator
 }
 
 // IsBoolFlag returns true if the flag is bool
@@ -189,8 +238,8 @@ func (f *BoolFlag) Get() interface{} {
 
 // Validate validates the flag
 func (f *BoolFlag) Validate() error {
-	if f.ValidationFn != nil {
-		return f.ValidationFn(f)
+	if f.Validator != nil {
+		return f.Validator.Validate(f.Value)
 	}
 
 	return nil
@@ -198,15 +247,16 @@ func (f *BoolFlag) Validate() error {
 
 // URLFlag is a flag with type url.URL
 type URLFlag struct {
-	Name         string
-	Usage        string
-	EnvVar       string
-	FilePath     string
-	Value        *url.URL
-	Metadata     map[string]string
-	Hidden       bool
-	Required     bool
-	ValidationFn ValidationFn
+	Name      string
+	Usage     string
+	EnvVar    string
+	FilePath  string
+	Value     *url.URL
+	Metadata  map[string]string
+	Hidden    bool
+	Required  bool
+	Converter Converter
+	Validator Validator
 }
 
 // String returns the value as string
@@ -243,8 +293,8 @@ func (f *URLFlag) Validate() error {
 		}
 	}
 
-	if f.ValidationFn != nil {
-		return f.ValidationFn(f)
+	if f.Validator != nil {
+		return f.Validator.Validate(f.Value)
 	}
 
 	return nil
@@ -252,15 +302,16 @@ func (f *URLFlag) Validate() error {
 
 // JSONFlag is a flag with type json document
 type JSONFlag struct {
-	Name         string
-	Usage        string
-	EnvVar       string
-	FilePath     string
-	Value        interface{}
-	Metadata     map[string]string
-	Hidden       bool
-	Required     bool
-	ValidationFn ValidationFn
+	Name      string
+	Usage     string
+	EnvVar    string
+	FilePath  string
+	Value     interface{}
+	Metadata  map[string]string
+	Hidden    bool
+	Required  bool
+	Converter Converter
+	Validator Validator
 }
 
 // String returns the value as string
@@ -295,8 +346,8 @@ func (f *JSONFlag) Validate() error {
 		}
 	}
 
-	if f.ValidationFn != nil {
-		return f.ValidationFn(f)
+	if f.Validator != nil {
+		return f.Validator.Validate(f.Value)
 	}
 
 	return nil
@@ -304,15 +355,16 @@ func (f *JSONFlag) Validate() error {
 
 // YAMLFlag is a flag with type yaml document
 type YAMLFlag struct {
-	Name         string
-	Usage        string
-	EnvVar       string
-	FilePath     string
-	Value        interface{}
-	Metadata     map[string]string
-	Hidden       bool
-	Required     bool
-	ValidationFn ValidationFn
+	Name      string
+	Usage     string
+	EnvVar    string
+	FilePath  string
+	Value     interface{}
+	Metadata  map[string]string
+	Hidden    bool
+	Required  bool
+	Converter Converter
+	Validator Validator
 }
 
 // String returns the value as string
@@ -347,8 +399,8 @@ func (f *YAMLFlag) Validate() error {
 		}
 	}
 
-	if f.ValidationFn != nil {
-		return f.ValidationFn(f)
+	if f.Validator != nil {
+		return f.Validator.Validate(f.Value)
 	}
 
 	return nil
@@ -356,15 +408,16 @@ func (f *YAMLFlag) Validate() error {
 
 // XMLFlag is a flag with type XMLDocument
 type XMLFlag struct {
-	Name         string
-	Usage        string
-	EnvVar       string
-	FilePath     string
-	Value        interface{}
-	Metadata     map[string]string
-	Hidden       bool
-	Required     bool
-	ValidationFn ValidationFn
+	Name      string
+	Usage     string
+	EnvVar    string
+	FilePath  string
+	Value     interface{}
+	Metadata  map[string]string
+	Hidden    bool
+	Required  bool
+	Converter Converter
+	Validator Validator
 }
 
 // String returns the value as string
@@ -398,8 +451,8 @@ func (f *XMLFlag) Validate() error {
 		}
 	}
 
-	if f.ValidationFn != nil {
-		return f.ValidationFn(f)
+	if f.Validator != nil {
+		return f.Validator.Validate(f.Value)
 	}
 
 	return nil
@@ -407,16 +460,17 @@ func (f *XMLFlag) Validate() error {
 
 // TimeFlag is a flag with type time.Time
 type TimeFlag struct {
-	Name         string
-	Usage        string
-	EnvVar       string
-	FilePath     string
-	Format       string
-	Value        time.Time
-	Metadata     map[string]string
-	Hidden       bool
-	Required     bool
-	ValidationFn ValidationFn
+	Name      string
+	Usage     string
+	EnvVar    string
+	FilePath  string
+	Format    string
+	Value     time.Time
+	Metadata  map[string]string
+	Hidden    bool
+	Required  bool
+	Converter Converter
+	Validator Validator
 }
 
 // String returns the value as string
@@ -452,8 +506,8 @@ func (f *TimeFlag) Validate() error {
 		}
 	}
 
-	if f.ValidationFn != nil {
-		return f.ValidationFn(f)
+	if f.Validator != nil {
+		return f.Validator.Validate(f.Value)
 	}
 
 	return nil
@@ -461,15 +515,16 @@ func (f *TimeFlag) Validate() error {
 
 // DurationFlag is a flag with type time.Duration
 type DurationFlag struct {
-	Name         string
-	Usage        string
-	EnvVar       string
-	FilePath     string
-	Value        time.Duration
-	Metadata     map[string]string
-	Hidden       bool
-	Required     bool
-	ValidationFn ValidationFn
+	Name      string
+	Usage     string
+	EnvVar    string
+	FilePath  string
+	Value     time.Duration
+	Metadata  map[string]string
+	Hidden    bool
+	Required  bool
+	Converter Converter
+	Validator Validator
 }
 
 // String returns the value as string
@@ -501,8 +556,8 @@ func (f *DurationFlag) Validate() error {
 		}
 	}
 
-	if f.ValidationFn != nil {
-		return f.ValidationFn(f)
+	if f.Validator != nil {
+		return f.Validator.Validate(f.Value)
 	}
 
 	return nil
@@ -510,15 +565,16 @@ func (f *DurationFlag) Validate() error {
 
 // IntFlag is a flag with type int
 type IntFlag struct {
-	Name         string
-	Usage        string
-	EnvVar       string
-	FilePath     string
-	Value        int
-	Metadata     map[string]string
-	Hidden       bool
-	Required     bool
-	ValidationFn ValidationFn
+	Name      string
+	Usage     string
+	EnvVar    string
+	FilePath  string
+	Value     int
+	Metadata  map[string]string
+	Hidden    bool
+	Required  bool
+	Converter Converter
+	Validator Validator
 }
 
 // String returns the value as string
@@ -555,8 +611,8 @@ func (f *IntFlag) Validate() error {
 		}
 	}
 
-	if f.ValidationFn != nil {
-		return f.ValidationFn(f)
+	if f.Validator != nil {
+		return f.Validator.Validate(f.Value)
 	}
 
 	return nil
@@ -564,15 +620,16 @@ func (f *IntFlag) Validate() error {
 
 // Int64Flag is a flag with type int64
 type Int64Flag struct {
-	Name         string
-	Usage        string
-	EnvVar       string
-	FilePath     string
-	Value        int64
-	Metadata     map[string]string
-	Hidden       bool
-	Required     bool
-	ValidationFn ValidationFn
+	Name      string
+	Usage     string
+	EnvVar    string
+	FilePath  string
+	Value     int64
+	Metadata  map[string]string
+	Hidden    bool
+	Required  bool
+	Converter Converter
+	Validator Validator
 }
 
 // String returns the value as string
@@ -604,8 +661,8 @@ func (f *Int64Flag) Validate() error {
 		}
 	}
 
-	if f.ValidationFn != nil {
-		return f.ValidationFn(f)
+	if f.Validator != nil {
+		return f.Validator.Validate(f.Value)
 	}
 
 	return nil
@@ -613,15 +670,16 @@ func (f *Int64Flag) Validate() error {
 
 // UIntFlag is a flag with type uint64
 type UIntFlag struct {
-	Name         string
-	Usage        string
-	EnvVar       string
-	FilePath     string
-	Value        uint
-	Metadata     map[string]string
-	Hidden       bool
-	Required     bool
-	ValidationFn ValidationFn
+	Name      string
+	Usage     string
+	EnvVar    string
+	FilePath  string
+	Value     uint
+	Metadata  map[string]string
+	Hidden    bool
+	Required  bool
+	Converter Converter
+	Validator Validator
 }
 
 // String returns the value as string
@@ -658,8 +716,8 @@ func (f *UIntFlag) Validate() error {
 		}
 	}
 
-	if f.ValidationFn != nil {
-		return f.ValidationFn(f)
+	if f.Validator != nil {
+		return f.Validator.Validate(f.Value)
 	}
 
 	return nil
@@ -667,15 +725,16 @@ func (f *UIntFlag) Validate() error {
 
 // UInt64Flag is a flag with type uint
 type UInt64Flag struct {
-	Name         string
-	Usage        string
-	EnvVar       string
-	FilePath     string
-	Value        uint64
-	Metadata     map[string]string
-	Hidden       bool
-	Required     bool
-	ValidationFn ValidationFn
+	Name      string
+	Usage     string
+	EnvVar    string
+	FilePath  string
+	Value     uint64
+	Metadata  map[string]string
+	Hidden    bool
+	Required  bool
+	Converter Converter
+	Validator Validator
 }
 
 // String returns the value as string
@@ -707,8 +766,8 @@ func (f *UInt64Flag) Validate() error {
 		}
 	}
 
-	if f.ValidationFn != nil {
-		return f.ValidationFn(f)
+	if f.Validator != nil {
+		return f.Validator.Validate(f.Value)
 	}
 
 	return nil
@@ -716,15 +775,16 @@ func (f *UInt64Flag) Validate() error {
 
 // Float32Flag is a flag with type float32
 type Float32Flag struct {
-	Name         string
-	Usage        string
-	EnvVar       string
-	FilePath     string
-	Value        float32
-	Metadata     map[string]string
-	Hidden       bool
-	Required     bool
-	ValidationFn ValidationFn
+	Name      string
+	Usage     string
+	EnvVar    string
+	FilePath  string
+	Value     float32
+	Metadata  map[string]string
+	Hidden    bool
+	Required  bool
+	Converter Converter
+	Validator Validator
 }
 
 // String returns the value as string
@@ -761,8 +821,8 @@ func (f *Float32Flag) Validate() error {
 		}
 	}
 
-	if f.ValidationFn != nil {
-		return f.ValidationFn(f)
+	if f.Validator != nil {
+		return f.Validator.Validate(f.Value)
 	}
 
 	return nil
@@ -770,15 +830,16 @@ func (f *Float32Flag) Validate() error {
 
 // Float64Flag is a flag with type float64
 type Float64Flag struct {
-	Name         string
-	Usage        string
-	EnvVar       string
-	FilePath     string
-	Value        float64
-	Metadata     map[string]string
-	Hidden       bool
-	Required     bool
-	ValidationFn ValidationFn
+	Name      string
+	Usage     string
+	EnvVar    string
+	FilePath  string
+	Value     float64
+	Metadata  map[string]string
+	Hidden    bool
+	Required  bool
+	Converter Converter
+	Validator Validator
 }
 
 // String returns the value as string
@@ -810,8 +871,8 @@ func (f *Float64Flag) Validate() error {
 		}
 	}
 
-	if f.ValidationFn != nil {
-		return f.ValidationFn(f)
+	if f.Validator != nil {
+		return f.Validator.Validate(f.Value)
 	}
 
 	return nil
@@ -819,15 +880,16 @@ func (f *Float64Flag) Validate() error {
 
 // IPFlag is a flag with type net.IP
 type IPFlag struct {
-	Name         string
-	Usage        string
-	EnvVar       string
-	FilePath     string
-	Value        net.IP
-	Metadata     map[string]string
-	Hidden       bool
-	Required     bool
-	ValidationFn ValidationFn
+	Name      string
+	Usage     string
+	EnvVar    string
+	FilePath  string
+	Value     net.IP
+	Metadata  map[string]string
+	Hidden    bool
+	Required  bool
+	Converter Converter
+	Validator Validator
 }
 
 // String returns the value as string
@@ -867,8 +929,8 @@ func (f *IPFlag) Validate() error {
 		}
 	}
 
-	if f.ValidationFn != nil {
-		return f.ValidationFn(f)
+	if f.Validator != nil {
+		return f.Validator.Validate(f.Value)
 	}
 
 	return nil
@@ -876,15 +938,16 @@ func (f *IPFlag) Validate() error {
 
 // HardwareAddrFlag is a flag with type net.HardwareAddr
 type HardwareAddrFlag struct {
-	Name         string
-	Usage        string
-	EnvVar       string
-	FilePath     string
-	Value        net.HardwareAddr
-	Metadata     map[string]string
-	Hidden       bool
-	Required     bool
-	ValidationFn ValidationFn
+	Name      string
+	Usage     string
+	EnvVar    string
+	FilePath  string
+	Value     net.HardwareAddr
+	Metadata  map[string]string
+	Hidden    bool
+	Required  bool
+	Converter Converter
+	Validator Validator
 }
 
 // String returns the value as string
@@ -916,8 +979,8 @@ func (f *HardwareAddrFlag) Validate() error {
 		}
 	}
 
-	if f.ValidationFn != nil {
-		return f.ValidationFn(f)
+	if f.Validator != nil {
+		return f.Validator.Validate(f.Value)
 	}
 
 	return nil
@@ -941,6 +1004,12 @@ func (f *FlagAccessor) SetValue(v interface{}) (err error) {
 		}
 	}()
 
+	if converter := f.Converter(); converter != nil {
+		if v, err = converter.Convert(v); err != nil {
+			return err
+		}
+	}
+
 	value := reflect.ValueOf(v)
 
 	switch value.Kind() {
@@ -957,6 +1026,19 @@ func (f *FlagAccessor) SetValue(v interface{}) (err error) {
 	}
 
 	return err
+}
+
+// Converter returns the converter
+func (f *FlagAccessor) Converter() Converter {
+	value := reflect.ValueOf(f.Flag)
+	value = reflect.Indirect(value)
+	field := value.FieldByName("Converter")
+
+	if converter, ok := field.Interface().(Converter); ok {
+		return converter
+	}
+
+	return nil
 }
 
 // Name of the flag

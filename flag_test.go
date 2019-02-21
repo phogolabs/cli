@@ -64,9 +64,9 @@ var _ = Describe("BoolFlag", func() {
 
 		Context("when the validation fails", func() {
 			It("returns an error", func() {
-				flag.ValidationFn = func(cli.Flag) error {
+				flag.Validator = cli.ValidatorFunc(func(v interface{}) error {
 					return fmt.Errorf("oh no!")
-				}
+				})
 
 				Expect(flag.Validate()).To(MatchError("oh no!"))
 			})
@@ -113,9 +113,9 @@ var _ = Describe("StringFlag", func() {
 
 		Context("when the validation fails", func() {
 			It("returns an error", func() {
-				flag.ValidationFn = func(cli.Flag) error {
+				flag.Validator = cli.ValidatorFunc(func(v interface{}) error {
 					return fmt.Errorf("oh no!")
-				}
+				})
 
 				Expect(flag.Validate()).To(MatchError("oh no!"))
 			})
@@ -184,9 +184,9 @@ var _ = Describe("StringSliceFlag", func() {
 
 		Context("when the validation fails", func() {
 			It("returns an error", func() {
-				flag.ValidationFn = func(cli.Flag) error {
+				flag.Validator = cli.ValidatorFunc(func(v interface{}) error {
 					return fmt.Errorf("oh no!")
-				}
+				})
 
 				Expect(flag.Validate()).To(MatchError("oh no!"))
 			})
@@ -258,9 +258,9 @@ var _ = Describe("URLFlag", func() {
 
 		Context("when the validation fails", func() {
 			It("returns an error", func() {
-				flag.ValidationFn = func(cli.Flag) error {
+				flag.Validator = cli.ValidatorFunc(func(_ interface{}) error {
 					return fmt.Errorf("oh no!")
-				}
+				})
 
 				Expect(flag.Validate()).To(MatchError("oh no!"))
 			})
@@ -349,9 +349,9 @@ var _ = Describe("JSONFlag", func() {
 
 		Context("when the validation fails", func() {
 			It("returns an error", func() {
-				flag.ValidationFn = func(cli.Flag) error {
+				flag.Validator = cli.ValidatorFunc(func(_ interface{}) error {
 					return fmt.Errorf("oh no!")
-				}
+				})
 
 				Expect(flag.Validate()).To(MatchError("oh no!"))
 			})
@@ -434,9 +434,9 @@ var _ = Describe("YAMLFlag", func() {
 
 		Context("when the validation fails", func() {
 			It("returns an error", func() {
-				flag.ValidationFn = func(cli.Flag) error {
+				flag.Validator = cli.ValidatorFunc(func(_ interface{}) error {
 					return fmt.Errorf("oh no!")
-				}
+				})
 
 				Expect(flag.Validate()).To(MatchError("oh no!"))
 			})
@@ -528,9 +528,9 @@ var _ = Describe("XMLFlag", func() {
 
 		Context("when the validation fails", func() {
 			It("returns an error", func() {
-				flag.ValidationFn = func(cli.Flag) error {
+				flag.Validator = cli.ValidatorFunc(func(_ interface{}) error {
 					return fmt.Errorf("oh no!")
-				}
+				})
 
 				Expect(flag.Validate()).To(MatchError("oh no!"))
 			})
@@ -592,9 +592,9 @@ var _ = Describe("TimeFlag", func() {
 
 		Context("when the validation fails", func() {
 			It("returns an error", func() {
-				flag.ValidationFn = func(cli.Flag) error {
+				flag.Validator = cli.ValidatorFunc(func(_ interface{}) error {
 					return fmt.Errorf("oh no!")
-				}
+				})
 
 				Expect(flag.Validate()).To(MatchError("oh no!"))
 			})
@@ -655,9 +655,9 @@ var _ = Describe("DurationFlag", func() {
 
 		Context("when the validation fails", func() {
 			It("returns an error", func() {
-				flag.ValidationFn = func(cli.Flag) error {
+				flag.Validator = cli.ValidatorFunc(func(_ interface{}) error {
 					return fmt.Errorf("oh no!")
-				}
+				})
 
 				Expect(flag.Validate()).To(MatchError("oh no!"))
 			})
@@ -723,9 +723,9 @@ var _ = Describe("IntFlag", func() {
 
 		Context("when the validation fails", func() {
 			It("returns an error", func() {
-				flag.ValidationFn = func(cli.Flag) error {
+				flag.Validator = cli.ValidatorFunc(func(_ interface{}) error {
 					return fmt.Errorf("oh no!")
-				}
+				})
 
 				Expect(flag.Validate()).To(MatchError("oh no!"))
 			})
@@ -785,9 +785,9 @@ var _ = Describe("Int64Flag", func() {
 
 		Context("when the validation fails", func() {
 			It("returns an error", func() {
-				flag.ValidationFn = func(cli.Flag) error {
+				flag.Validator = cli.ValidatorFunc(func(_ interface{}) error {
 					return fmt.Errorf("oh no!")
-				}
+				})
 
 				Expect(flag.Validate()).To(MatchError("oh no!"))
 			})
@@ -853,9 +853,9 @@ var _ = Describe("UIntFlag", func() {
 
 		Context("when the validation fails", func() {
 			It("returns an error", func() {
-				flag.ValidationFn = func(cli.Flag) error {
+				flag.Validator = cli.ValidatorFunc(func(_ interface{}) error {
 					return fmt.Errorf("oh no!")
-				}
+				})
 
 				Expect(flag.Validate()).To(MatchError("oh no!"))
 			})
@@ -915,9 +915,9 @@ var _ = Describe("UInt64Flag", func() {
 
 		Context("when the validation fails", func() {
 			It("returns an error", func() {
-				flag.ValidationFn = func(cli.Flag) error {
+				flag.Validator = cli.ValidatorFunc(func(_ interface{}) error {
 					return fmt.Errorf("oh no!")
-				}
+				})
 
 				Expect(flag.Validate()).To(MatchError("oh no!"))
 			})
@@ -983,9 +983,9 @@ var _ = Describe("Float32Flag", func() {
 
 		Context("when the validation fails", func() {
 			It("returns an error", func() {
-				flag.ValidationFn = func(cli.Flag) error {
+				flag.Validator = cli.ValidatorFunc(func(_ interface{}) error {
 					return fmt.Errorf("oh no!")
-				}
+				})
 
 				Expect(flag.Validate()).To(MatchError("oh no!"))
 			})
@@ -1045,9 +1045,9 @@ var _ = Describe("Float64Flag", func() {
 
 		Context("when the validation fails", func() {
 			It("returns an error", func() {
-				flag.ValidationFn = func(cli.Flag) error {
+				flag.Validator = cli.ValidatorFunc(func(_ interface{}) error {
 					return fmt.Errorf("oh no!")
-				}
+				})
 
 				Expect(flag.Validate()).To(MatchError("oh no!"))
 			})
@@ -1113,9 +1113,9 @@ var _ = Describe("IPFlag", func() {
 
 		Context("when the validation fails", func() {
 			It("returns an error", func() {
-				flag.ValidationFn = func(cli.Flag) error {
+				flag.Validator = cli.ValidatorFunc(func(_ interface{}) error {
 					return fmt.Errorf("oh no!")
-				}
+				})
 
 				Expect(flag.Validate()).To(MatchError("oh no!"))
 			})
@@ -1183,9 +1183,9 @@ var _ = Describe("HardwareAddrFlag", func() {
 
 		Context("when the validation fails", func() {
 			It("returns an error", func() {
-				flag.ValidationFn = func(cli.Flag) error {
+				flag.Validator = cli.ValidatorFunc(func(_ interface{}) error {
 					return fmt.Errorf("oh no!")
-				}
+				})
 
 				Expect(flag.Validate()).To(MatchError("oh no!"))
 			})
@@ -1252,6 +1252,52 @@ var _ = Describe("FlagAccessor", func() {
 			It("returns an error", func() {
 				Expect(accessor.SetValue(1)).To(MatchError("reflect.Set: value of type int is not assignable to type string"))
 			})
+		})
+
+		Context("when the converter returns an error", func() {
+			BeforeEach(func() {
+				flag.Converter = cli.ConverterFunc(func(_ interface{}) (interface{}, error) {
+					return nil, fmt.Errorf("oh no!")
+				})
+			})
+
+			It("returns an error", func() {
+				Expect(accessor.SetValue(1)).To(MatchError("oh no!"))
+			})
+		})
+	})
+})
+
+var _ = Describe("JSONPathConverter", func() {
+	var (
+		converter *cli.JSONPathConverter
+		value     map[string]string
+	)
+
+	BeforeEach(func() {
+		value = map[string]string{
+			"password": "swordfish",
+		}
+		converter = &cli.JSONPathConverter{
+			Path: "$.password",
+		}
+	})
+
+	It("converts the value successfully", func() {
+		v, err := converter.Convert(value)
+		Expect(err).NotTo(HaveOccurred())
+		Expect(v).To(Equal("swordfish"))
+	})
+
+	Context("when the expression is wrong", func() {
+		BeforeEach(func() {
+			converter.Path = "$.$"
+		})
+
+		It("returns an error", func() {
+			v, err := converter.Convert(value)
+			Expect(err).To(MatchError("expression don't support in filter"))
+			Expect(v).To(BeNil())
 		})
 	})
 })
