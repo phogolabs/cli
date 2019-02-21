@@ -40,7 +40,7 @@ type JSONPathConverter struct {
 }
 
 // Convert converts the value
-func (c JSONPathConverter) Convert(v interface{}) (interface{}, error) {
+func (c *JSONPathConverter) Convert(v interface{}) (interface{}, error) {
 	return jsonpath.JsonPathLookup(v, c.Path)
 }
 
