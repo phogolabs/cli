@@ -1,4 +1,4 @@
-# Vault Provider
+# AWS S3 Provider
 
 A package that facilitates working with http://vaultproject.io/ in context of
 [CLI](https://github.com/phogolabs/cli). It increases the security of Golang
@@ -13,7 +13,7 @@ Make sure you have a working Go environment. Go version 1.2+ is supported.
 To install vault, simply run:
 
 ```
-$ go get github.com/phogolabs/cli/provider/vault
+$ go get github.com/phogolabs/cli/provider/aws/s3
 ```
 
 ## Getting Started
@@ -27,7 +27,7 @@ import (
 	"os"
 
 	"github.com/phogolabs/cli"
-	"github.com/phogolabs/cli/provider/vault"
+	"github.com/phogolabs/cli/provider/aws/s3"
 )
 
 func main() {
@@ -39,43 +39,34 @@ func main() {
 		Version:   "1.0-beta-04",
 		Action:    run,
 		Providers: []cli.Provider{
-			&vault.Provider{},
+			&s3.Provider{},
 		},
 		Flags: []cli.Flag{
 			&cli.StringFlag{
-				Name:   "vault-token",
-				Usage:  "Hashi Corp Vault Token",
-				EnvVar: "VAULT_TOKEN",
+				Name:   "aws-access-key-id",
+				Usage:  "AWS Access Key ID",
+				EnvVar: "AWS_ACCESS_KEY_ID",
 			},
 			&cli.StringFlag{
-				Name:   "vault-addr",
-				Usage:  "Hashi Corp Vault Address",
-				EnvVar: "VAULT_ADDR",
+				Name:   "aws-secret-access-key",
+				Usage:  "AWS Secret Access Key",
+				EnvVar: "AWS_SECRET_ACCESS_KEY",
 			},
 			&cli.StringFlag{
-				Name:   "vault-auth-mount-path",
-				Usage:  "Hashi Corp Vault Auth Mount",
-				EnvVar: "VAULT_AUTH_MOUNT_PATH",
-				Value:  "kubernetes",
+				Name:   "aws-region",
+				Usage:  "AWS Region",
+				EnvVar: "AWS_DEFAULT_REGION",
 			},
 			&cli.StringFlag{
-				Name:   "vault-auth-role",
-				Usage:  "Hashi Corp Vault Auth Role",
-				EnvVar: "VAULT_AUTH_ROLE",
-				Value:  "demo",
-			},
-			&cli.StringFlag{
-				Name:   "vault-auth-kube-jwt",
-				Usage:  "Hashi Corp Vault Kube Jwt",
-				EnvVar: "VAULT_AUTH_KUBE_TOKEN",
+				Name:   "aws-bucket",
+				Usage:  "AWS S3 Bucket",
+				EnvVar: "AWS_BUCKET",
 			},
 			&cli.StringFlag{
 				Name:   "config",
 				Usage:  "Aplication's config",
 				EnvVar: "APP_CONFIG",
-				Metadata: map[string]string{
-					"vault_path": "/app/service-api/kv/config",
-				},
+				FilePath: "s3://config.json",
 			},
 		},
 	}
@@ -91,5 +82,9 @@ func run(ctx *cli.Context) error {
 }
 ```
 
-As you can see in order to match the flag with a given secret you should set
-the `vault_path` in the meta data map.
+As you can see in order to match the flag with a file on S# you should set
+the `FilePath` field in the following format:
+
+```
+s3://<your_file_name>
+```

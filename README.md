@@ -60,7 +60,8 @@ func run(ctx *cli.Context) error {
 
 The providers allow setting the flag's value from external sources:
 
-- [Vault](./provider/vault/README.md) - a secure way to store and rotate credentials
+- [Vault](./provider/vault/README.md) - a read a flag's value from Hashi Corp Vault Secret
+- [AWS S3](./provider/aws/s3/README.md) - read a flag's value from AWS S3 bucket object
 
 ## Converters
 
