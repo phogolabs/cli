@@ -55,10 +55,8 @@ var _ = Describe("Provider", func() {
 						Value: "kubo",
 					},
 					&cli.StringFlag{
-						Name: "password",
-						Converter: &cli.JSONPathConverter{
-							Path: "$.password",
-						},
+						Name:      "password",
+						Converter: cli.JSONPath("$.password"),
 						Metadata: map[string]string{
 							"vault_path": "/app/kv/config",
 						},
@@ -101,10 +99,8 @@ var _ = Describe("Provider", func() {
 							Value: "my-token",
 						},
 						&cli.StringFlag{
-							Name: "password",
-							Converter: &cli.JSONPathConverter{
-								Path: "$.password",
-							},
+							Name:      "password",
+							Converter: cli.JSONPath("$.password"),
 							Metadata: map[string]string{
 								"vault_path": "/app/kv/config",
 							},
@@ -161,10 +157,8 @@ var _ = Describe("Provider", func() {
 		JustBeforeEach(func() {
 			flags := ctx.Command.Flags
 			flags[len(flags)-1] = &cli.IntFlag{
-				Name: "password",
-				Converter: &cli.JSONPathConverter{
-					Path: "$.password",
-				},
+				Name:      "password",
+				Converter: cli.JSONPath("$.password"),
 				Metadata: map[string]string{
 					"vault_path": "/app/kv/config",
 				},
@@ -180,10 +174,8 @@ var _ = Describe("Provider", func() {
 		JustBeforeEach(func() {
 			flags := ctx.Command.Flags
 			flags[len(flags)-1] = &cli.StringFlag{
-				Name: "password",
-				Converter: &cli.JSONPathConverter{
-					Path: "$.$",
-				},
+				Name:      "password",
+				Converter: cli.JSONPath("$.$"),
 				Metadata: map[string]string{
 					"vault_path": "/app/kv/config",
 				},
@@ -224,10 +216,8 @@ var _ = Describe("Provider", func() {
 					Name: "app",
 					Flags: []cli.Flag{
 						&cli.StringFlag{
-							Name: "password",
-							Converter: &cli.JSONPathConverter{
-								Path: "$.password",
-							},
+							Name:      "password",
+							Converter: cli.JSONPath("$.password"),
 							Metadata: map[string]string{
 								"vault_path": "/app/kv/config",
 							},

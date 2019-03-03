@@ -1,6 +1,8 @@
 package vault
 
 import (
+	"strings"
+
 	"github.com/hashicorp/vault/api"
 	"github.com/phogolabs/cli"
 	"github.com/phogolabs/vault"
@@ -38,12 +40,14 @@ func (m *Provider) Provide(ctx *cli.Context) (err error) {
 			continue
 		}
 
-		if secret, err = m.Repository.Secret(path); err != nil {
-			return err
-		}
+		for _, path := range split(path) {
+			if secret, err = m.Repository.Secret(path); err != nil {
+				return err
+			}
 
-		if err = accessor.SetValue(secret); err != nil {
-			return err
+			if err = accessor.SetValue(secret); err != nil {
+				return err
+			}
 		}
 	}
 
@@ -95,4 +99,14 @@ func (m *Provider) Rollback(ctx *cli.Context) error {
 		m.Repository.Stop()
 	}
 	return nil
+}
+
+func split(text string) []string {
+	items := strings.Split(text, ",")
+
+	for index, item := range items {
+		items[index] = strings.TrimSpace(item)
+	}
+
+	return items
 }
