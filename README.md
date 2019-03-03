@@ -10,9 +10,9 @@ A simple package for building command line applications in Go. The API is
 influenced by https://github.com/urfave/cli package, but it is way more
 flexible. It provides the following features:
 
-- Data conversion that allows conversion of data to a compatible data type accepted by the declared flag
-- Data providers that allows setting the flag's value from different sources such as environment variables, files, AWS S3 and SSM as well as Hashi Vault
-- More extensible flag types such as URL, IP, JSON, YAML and so on.
+- Data conversion that allow conversion of data to a compatible data type accepted by the declared flag
+- Data providers that allow setting the flag's value from different sources such as environment variables, files, AWS S3 and SSM as well as Hashi Vault
+- More extensible flag types such as URL, IP, JSON, YAML and so on. For more information see the [docs][godoc-url]
 
 ## Installation
 
@@ -60,8 +60,8 @@ func run(ctx *cli.Context) error {
 
 The providers allow setting the flag's value from external sources:
 
-- [Vault](./provider/vault/README.md) - a read a flag's value from Hashi Corp Vault Secret
-- [AWS S3](./provider/aws/s3/README.md) - read a flag's value from AWS S3 bucket object
+- [Vault](./provider/vault/README.md) - reads a flag's value from Hashi Corp Vault Secret
+- [AWS S3](./provider/aws/s3/README.md) - reads a flag's value from AWS S3 bucket object
 
 ## Converters
 
