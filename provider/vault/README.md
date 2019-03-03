@@ -93,30 +93,3 @@ func run(ctx *cli.Context) error {
 
 As you can see in order to match the flag with a given secret you should set
 the `vault_path` in the meta data map.
-
-Let's assume that we have the following JSON in your KV config:
-
-```json
-{
-  "username": "root",
-  "password": "swordfish"
-}
-```
-
-If you want to populate a flag's value with the password field you should use
-[JSON Path](https://goessner.net/articles/JsonPath/) by setting the flag's
-converter to `cli.JSONPathConverter`:
-
-```golang
-flag := &cli.StringFlag{
-	Name:   "password",
-	Usage:  "Aplication's password",
-	EnvVar: "APP_PASSWORD",
-	Converter: &cli.JSONPathConverter{
-		Path: "$.password",
-	},
-	Metadata: map[string]string{
-		"vault_path": "/app/service-api/kv/config",
-	},
-}
-```

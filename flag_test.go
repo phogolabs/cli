@@ -1268,9 +1268,9 @@ var _ = Describe("FlagAccessor", func() {
 	})
 })
 
-var _ = Describe("JSONPathConverter", func() {
+var _ = Describe("JSONPath", func() {
 	var (
-		converter *cli.JSONPathConverter
+		converter cli.JSONPath
 		value     map[string]string
 	)
 
@@ -1278,9 +1278,7 @@ var _ = Describe("JSONPathConverter", func() {
 		value = map[string]string{
 			"password": "swordfish",
 		}
-		converter = &cli.JSONPathConverter{
-			Path: "$.password",
-		}
+		converter = cli.JSONPath("$.password")
 	})
 
 	It("converts the value successfully", func() {
@@ -1291,7 +1289,7 @@ var _ = Describe("JSONPathConverter", func() {
 
 	Context("when the expression is wrong", func() {
 		BeforeEach(func() {
-			converter.Path = "$.$"
+			converter = cli.JSONPath("$.$")
 		})
 
 		It("returns an error", func() {

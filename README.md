@@ -62,6 +62,30 @@ The providers allow setting the flag's value from external sources:
 
 - [Vault](./provider/vault/README.md) - a secure way to store and rotate credentials
 
+## Converters
+
+Let's assume that we have the following JSON in your KV config:
+
+```json
+{
+  "username": "root",
+  "password": "swordfish"
+}
+```
+
+If you want to populate a flag's value with the password field you should use
+[JSON Path](https://goessner.net/articles/JsonPath/) by setting the flag's
+converter to `cli.JSONPath`:
+
+```golang
+flag := &cli.StringFlag{
+	Name:   "password",
+	Usage:  "Aplication's password",
+	EnvVar: "APP_PASSWORD",
+	Converter: cli.JSONPath("$.password"),
+}
+```
+
 ## Contributing
 
 We are welcome to any contributions. Just fork the

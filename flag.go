@@ -32,16 +32,14 @@ func (fn ConverterFunc) Convert(v interface{}) (interface{}, error) {
 	return fn(v)
 }
 
-var _ Converter = &JSONPathConverter{}
+var _ Converter = JSONPath("")
 
-// JSONPathConverter converts a value from JSON by Path
-type JSONPathConverter struct {
-	Path string
-}
+// JSONPath converts a value from JSON by Path
+type JSONPath string
 
 // Convert converts the value
-func (c *JSONPathConverter) Convert(v interface{}) (interface{}, error) {
-	return jsonpath.JsonPathLookup(v, c.Path)
+func (path JSONPath) Convert(v interface{}) (interface{}, error) {
+	return jsonpath.JsonPathLookup(v, string(path))
 }
 
 //go:generate counterfeiter -fake-name Validator -o ./fake/validator.go . Validator
