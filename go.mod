@@ -1,6 +1,7 @@
 module github.com/phogolabs/cli
 
 require (
+	github.com/aws/aws-sdk-go v1.17.13
 	github.com/blang/vfs v1.0.0 // indirect
 	github.com/daaku/go.zipexe v1.0.0 // indirect
 	github.com/kardianos/osext v0.0.0-20190222173326-2bc1f35cddc0 // indirect
