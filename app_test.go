@@ -65,10 +65,10 @@ var _ = Describe("App", func() {
 
 			Expect(cmd.Commands).To(ContainElement(cli.HelpCommand))
 
-			Expect(cmd.Metadata).To(HaveKeyWithValue("HideVersion", app.HideVersion))
-			Expect(cmd.Metadata).To(HaveKeyWithValue("Version", app.Version))
-			Expect(cmd.Metadata).To(HaveKeyWithValue("Authors", app.Authors))
-			Expect(cmd.Metadata).To(HaveKeyWithValue("Copyright", app.Copyright))
+			Expect(ctx.Manifest.HideVersion).To(Equal(app.HideVersion))
+			Expect(ctx.Manifest.Version).To(Equal(app.Version))
+			Expect(ctx.Manifest.Copyright).To(Equal(app.Copyright))
+			Expect(ctx.Manifest.Authors).To(Equal(app.Authors))
 
 			Expect(ctx.Args).To(BeEmpty())
 

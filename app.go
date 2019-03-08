@@ -83,12 +83,6 @@ func (app *App) Run(args []string) error {
 		Action:       app.Action,
 		Providers:    app.Providers,
 		OnUsageError: app.OnUsageError,
-		Metadata: map[string]interface{}{
-			"HideVersion": app.HideVersion,
-			"Version":     app.Version,
-			"Authors":     app.Authors,
-			"Copyright":   app.Copyright,
-		},
 	}
 
 	ctx := &Context{
@@ -96,6 +90,12 @@ func (app *App) Run(args []string) error {
 		Args:      args[1:],
 		Writer:    app.Writer,
 		ErrWriter: app.ErrWriter,
+		Manifest: &Manifest{
+			HideVersion: app.HideVersion,
+			Version:     app.Version,
+			Authors:     app.Authors,
+			Copyright:   app.Copyright,
+		},
 	}
 
 	return app.error(cmd.RunWithContext(ctx))

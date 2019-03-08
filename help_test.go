@@ -22,6 +22,12 @@ var _ = Describe("ShowHelp", func() {
 		buffer = NewBuffer()
 
 		parent = &cli.Context{
+			Manifest: &cli.Manifest{
+				HideVersion: false,
+				Version:     "1.0",
+				Authors:     []*cli.Author{},
+				Copyright:   "2020",
+			},
 			Writer: buffer,
 			Command: &cli.Command{
 				Name:      "root",
@@ -36,12 +42,6 @@ var _ = Describe("ShowHelp", func() {
 						Usage:     "action_usage",
 						UsageText: "action_usage_text",
 					},
-				},
-				Metadata: map[string]interface{}{
-					"HideVersion": false,
-					"Version":     "1.0",
-					"Authors":     []*cli.Author{},
-					"Copyright":   "2020",
 				},
 			},
 			Parent: nil,
@@ -123,11 +123,11 @@ var _ = Describe("ShowVersion", func() {
 		ctx := &cli.Context{
 			Parent: &cli.Context{
 				Writer: buffer,
+				Manifest: &cli.Manifest{
+					Version: "BETA",
+				},
 				Command: &cli.Command{
 					Name: "app",
-					Metadata: map[string]interface{}{
-						"Version": "BETA",
-					},
 				},
 			},
 		}

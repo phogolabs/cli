@@ -15,6 +15,11 @@ var TemplateFuncMap = template.FuncMap{
 	"join": strings.Join,
 }
 
+type documentation struct {
+	*Command
+	*Manifest
+}
+
 func help(ctx *Context) error {
 	var (
 		man  string
@@ -51,7 +56,12 @@ func help(ctx *Context) error {
 	tmpl := template.New("help").Funcs(TemplateFuncMap)
 	tmpl = template.Must(tmpl.Parse(string(content)))
 
-	if err := tmpl.Execute(writer, cmd); err != nil {
+	docs := &documentation{
+		Command:  cmd,
+		Manifest: ctx.Manifest,
+	}
+
+	if err := tmpl.Execute(writer, docs); err != nil {
 		return err
 	}
 
@@ -63,6 +73,6 @@ func version(ctx *Context) error {
 		ctx = ctx.Parent
 	}
 
-	fmt.Fprintf(ctx.Writer, "%v version %v\n", ctx.Command.Name, ctx.Command.Metadata["Version"])
+	fmt.Fprintf(ctx.Writer, "%v version %v\n", ctx.Command.Name, ctx.Manifest.Version)
 	return nil
 }

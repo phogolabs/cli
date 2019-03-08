@@ -62,8 +62,6 @@ type Command struct {
 	Flags []Flag
 	// Providers contains a list of all providers
 	Providers []Provider
-	// Metadata for this command
-	Metadata map[string]interface{}
 	// An action to execute before any subcommands are run, but after the context is ready
 	// If a non-nil error is returned, no subcommands are run
 	Before BeforeFunc
@@ -231,6 +229,7 @@ func (cmd *Command) fork(ctx *Context) error {
 
 	ctx = &Context{
 		Parent:    ctx,
+		Manifest:  ctx.Manifest,
 		Writer:    ctx.Writer,
 		ErrWriter: ctx.ErrWriter,
 		Command:   child,

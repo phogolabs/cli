@@ -8,6 +8,18 @@ import (
 	"time"
 )
 
+// Manifest of the app
+type Manifest struct {
+	// Copyright of the binary if any
+	Copyright string
+	// List of all authors who contributed
+	Authors []*Author
+	// Version of the program
+	Version string
+	// Boolean to hide built-in version flag and the VERSION section of help
+	HideVersion bool
+}
+
 // Context represents the execution context
 type Context struct {
 	// Args are the command line arguments
@@ -20,6 +32,8 @@ type Context struct {
 	Writer io.Writer
 	// ErrWriter writes error output
 	ErrWriter io.Writer
+	// Manifest of the app
+	Manifest *Manifest
 }
 
 // Bool looks up the value of a local BoolFlag, returns
