@@ -60,7 +60,7 @@ func run(ctx *cli.Context) error {
 
 The providers allow setting the flag's value from external sources:
 
-- [Vault](./provider/vault/README.md) - reads a flag's value from Hashi Corp Vault Secret
+- [Vault](https://github.com/phogolabs/vault/blob/master/docs/provider.md) - reads a flag's value from Hashi Corp Vault Secret
 - [AWS S3](./provider/aws/s3/README.md) - reads a flag's value from AWS S3 bucket object
 
 ## Converters
