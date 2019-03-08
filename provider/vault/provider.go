@@ -9,8 +9,7 @@ import (
 )
 
 var (
-	_ cli.Provider    = &Provider{}
-	_ cli.Transaction = &Provider{}
+	_ cli.Provider = &Provider{}
 )
 
 // Provider is a parser that populates flags from Hashi Corp Vault
