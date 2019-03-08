@@ -70,7 +70,7 @@ type App struct {
 // Run is the entry point to the cli app. Parses the arguments slice and routes
 // to the proper flag/args combination
 func (app *App) Run(args []string) error {
-	app.prepare(args)
+	args = app.prepare(args)
 
 	cmd := &Command{
 		Name:         app.Name,
@@ -107,7 +107,11 @@ func (app *App) Run(args []string) error {
 	return app.error(cmd.RunWithContext(ctx))
 }
 
-func (app *App) prepare(args []string) {
+func (app *App) prepare(args []string) []string {
+	if len(args) == 0 {
+		args = []string{"unknown"}
+	}
+
 	if app.Name == "" {
 		app.Name = path.Base(args[0])
 	}
@@ -143,6 +147,8 @@ func (app *App) prepare(args []string) {
 	if app.Exit == nil {
 		app.Exit = os.Exit
 	}
+
+	return args
 }
 
 func (app *App) error(err error) error {
