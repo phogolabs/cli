@@ -68,6 +68,10 @@ type Command struct {
 	// An action to execute after any subcommands are run, but after the subcommand has finished
 	// It is run even if Action() panics
 	After AfterFunc
+	// An action to execute before provider execution
+	BeforeInit BeforeFunc
+	// An action to execute after provider execution
+	AfterInit AfterFunc
 	// The action to execute when no subcommands are specified
 	// Expects a `cli.ActionFunc` but will accept the *deprecated* signature of `func(*cli.Context) {}`
 	Action ActionFunc
@@ -143,19 +147,37 @@ func (cmd *Command) VisibleCategories() []*CommandCategory {
 	return result
 }
 
-func (cmd *Command) provide(ctx *Context) error {
+func (cmd *Command) provide(ctx *Context) (err error) {
 	if cmd.SkipFlagParsing {
 		return nil
 	}
 
+	if cmd.AfterInit != nil {
+		defer func() {
+			if afterErr := cmd.AfterInit(ctx); afterErr != nil {
+				err = AppendError(err, afterErr)
+			}
+		}()
+	}
+
+	if cmd.BeforeInit != nil {
+		if beforeErr := cmd.BeforeInit(ctx); beforeErr != nil {
+			err = AppendError(err, beforeErr)
+		}
+	}
+
+	if err != nil {
+		return err
+	}
+
 	for _, provider := range cmd.Providers {
-		if err := provider.Provide(ctx); err != nil {
+		if err = provider.Provide(ctx); err != nil {
 			return err
 		}
 	}
 
 	for _, flag := range cmd.Flags {
-		if err := flag.Validate(); err != nil {
+		if err = flag.Validate(); err != nil {
 			return err
 		}
 	}

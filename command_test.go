@@ -177,6 +177,18 @@ var _ = Describe("Command", func() {
 			})
 		})
 
+		Context("when the before init handler returns an error", func() {
+			BeforeEach(func() {
+				cmd.BeforeInit = func(ctx *cli.Context) error {
+					return fmt.Errorf("oh no!")
+				}
+			})
+
+			It("returns an error", func() {
+				Expect(cmd.RunWithContext(ctx)).To(MatchError("oh no!"))
+			})
+		})
+
 		Context("when the command fails", func() {
 			BeforeEach(func() {
 				cmd.Action = func(ctx *cli.Context) error {
@@ -192,6 +204,18 @@ var _ = Describe("Command", func() {
 		Context("when the after handler returns an error", func() {
 			BeforeEach(func() {
 				cmd.After = func(ctx *cli.Context) error {
+					return fmt.Errorf("oh no!")
+				}
+			})
+
+			It("returns an error", func() {
+				Expect(cmd.RunWithContext(ctx)).To(MatchError("oh no!"))
+			})
+		})
+
+		Context("when the after init handler returns an error", func() {
+			BeforeEach(func() {
+				cmd.AfterInit = func(ctx *cli.Context) error {
 					return fmt.Errorf("oh no!")
 				}
 			})

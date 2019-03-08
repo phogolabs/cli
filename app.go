@@ -47,6 +47,10 @@ type App struct {
 	// An action to execute after any subcommands are run, but after the subcommand has finished
 	// It is run even if Action() panics
 	After AfterFunc
+	// An action to execute before provider execution
+	BeforeInit BeforeFunc
+	// An action to execute after provider execution
+	AfterInit AfterFunc
 	// The action to execute when no subcommands are specified
 	// Expects a `cli.ActionFunc` but will accept the *deprecated* signature of `func(*cli.Context) {}`
 	Action ActionFunc
@@ -80,6 +84,8 @@ func (app *App) Run(args []string) error {
 		Flags:        app.Flags,
 		Before:       app.Before,
 		After:        app.After,
+		BeforeInit:   app.BeforeInit,
+		AfterInit:    app.AfterInit,
 		Action:       app.Action,
 		Providers:    app.Providers,
 		OnUsageError: app.OnUsageError,
