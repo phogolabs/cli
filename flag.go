@@ -165,6 +165,12 @@ func (f *StringSliceFlag) Set(value string) error {
 	return nil
 }
 
+// Reset resets the value
+func (f *StringSliceFlag) Reset() error {
+	f.Value = []string{}
+	return nil
+}
+
 // Get is a function that allows the contents of a Value to be retrieved.
 // It wraps the Value interface, rather than being part of it, because it
 // appeared after Go 1 and its compatibility rules. All Value types provided
@@ -1092,6 +1098,17 @@ func (f *FlagAccessor) Hidden() bool {
 	value := reflect.ValueOf(f.Flag)
 	value = reflect.Indirect(value)
 	return value.FieldByName("Hidden").Bool()
+}
+
+// Reset the value
+func (f *FlagAccessor) Reset() error {
+	if r, ok := f.Flag.(resetter); ok {
+		if err := r.Reset(); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func (f *FlagAccessor) error(v interface{}) error {

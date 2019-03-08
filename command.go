@@ -218,7 +218,7 @@ func (cmd *Command) prepare() {
 
 func (cmd *Command) restore(ctx *Context) error {
 	for i := len(cmd.Providers) - 1; i >= 0; i-- {
-		if restorer, ok := cmd.Providers[i].(Transaction); ok {
+		if restorer, ok := cmd.Providers[i].(transaction); ok {
 			if err := restorer.Rollback(ctx); err != nil {
 				return err
 			}

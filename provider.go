@@ -15,9 +15,12 @@ type Provider interface {
 	Provide(*Context) error
 }
 
-// Transaction restore its state
-type Transaction interface {
+type transaction interface {
 	Rollback(*Context) error
+}
+
+type resetter interface {
+	Reset() error
 }
 
 var _ Provider = &FlagProvider{}
@@ -35,7 +38,13 @@ func (p *FlagProvider) Provide(ctx *Context) error {
 	for _, flag := range ctx.Command.Flags {
 		accessor := &FlagAccessor{Flag: flag}
 
-		for _, key := range split(accessor.Name()) {
+		for index, key := range split(accessor.Name()) {
+			if index == 0 {
+				if err := accessor.Reset(); err != nil {
+					return err
+				}
+			}
+
 			key = strings.TrimSpace(key)
 			p.set.Var(flag, key, accessor.Usage())
 		}
@@ -66,7 +75,13 @@ func (p *EnvProvider) Provide(ctx *Context) error {
 			continue
 		}
 
-		for _, value := range split(os.Getenv(env)) {
+		for index, value := range split(os.Getenv(env)) {
+			if index == 0 {
+				if err := accessor.Reset(); err != nil {
+					return err
+				}
+			}
+
 			if value == "" {
 				continue
 			}
@@ -90,7 +105,13 @@ func (p *FileProvider) Provide(ctx *Context) error {
 	for _, flag := range ctx.Command.Flags {
 		accessor := &FlagAccessor{Flag: flag}
 
-		for _, path := range split(accessor.FilePath()) {
+		for index, path := range split(accessor.FilePath()) {
+			if index == 0 {
+				if err := accessor.Reset(); err != nil {
+					return err
+				}
+			}
+
 			paths, err := filepath.Glob(path)
 			if err != nil {
 				return err
@@ -114,7 +135,7 @@ func (p *FileProvider) Provide(ctx *Context) error {
 
 var (
 	_ Provider    = &DefaultValueProvider{}
-	_ Transaction = &DefaultValueProvider{}
+	_ transaction = &DefaultValueProvider{}
 )
 
 // DefaultValueProvider keeps the default values

@@ -184,6 +184,36 @@ var _ = Describe("Provider", func() {
 			Expect(flag.Value).To(Equal("9292"))
 		})
 
+		Context("when the flag is slice", func() {
+			var flagS *cli.StringSliceFlag
+
+			BeforeEach(func() {
+				flagS = &cli.StringSliceFlag{
+					Name:  "listen, l",
+					Usage: "listen address of HTTP server",
+					Value: []string{"7272"},
+				}
+
+				ctx = &cli.Context{
+					Args: []string{"-listen=9292", "-l=8282"},
+					Command: &cli.Command{
+						Name: "app",
+						Flags: []cli.Flag{
+							flagS,
+						},
+					},
+				}
+			})
+
+			It("sets the value successfully", func() {
+				Expect(parser.Provide(ctx)).To(Succeed())
+
+				Expect(flagS.Value).To(HaveLen(2))
+				Expect(flagS.Value).To(ContainElement("8282"))
+				Expect(flagS.Value).To(ContainElement("9292"))
+			})
+		})
+
 		Context("when setting the value fails", func() {
 			var ip *cli.IPFlag
 
