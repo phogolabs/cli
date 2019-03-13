@@ -101,6 +101,7 @@ func (app *App) Run(args []string) error {
 		Args:      args[1:],
 		Writer:    app.Writer,
 		ErrWriter: app.ErrWriter,
+		Metadata:  make(map[string]interface{}),
 		Manifest: &Manifest{
 			HideVersion: app.HideVersion,
 			Version:     app.Version,

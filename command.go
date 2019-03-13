@@ -251,6 +251,7 @@ func (cmd *Command) fork(ctx *Context) error {
 
 	ctx = &Context{
 		Parent:    ctx,
+		Metadata:  make(map[string]interface{}),
 		Manifest:  ctx.Manifest,
 		Writer:    ctx.Writer,
 		ErrWriter: ctx.ErrWriter,
