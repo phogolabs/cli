@@ -38,9 +38,11 @@ import (
 
 var flags = []cli.Flag{
 	&cli.StringFlag{
-		Name:   "aws-region",
-		Usage:  "AWS Region",
-		EnvVar: "AWS_REGION, AWS_DEFAULT_REGION",
+		Name:     "config",
+		Usage:    "Application Config",
+		EnvVar:   "APP_CONFIG",
+		FilePath: "/etc/app/app.config",
+		Required: true,
 	},
 }
 
