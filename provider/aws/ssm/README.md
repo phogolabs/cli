@@ -1,4 +1,4 @@
-# AWS S3 Provider
+# AWS SSM Provider
 
 A package that facilitates working with http://vaultproject.io/ in context of
 [CLI](https://github.com/phogolabs/cli). It increases the security of Golang
@@ -13,13 +13,13 @@ Make sure you have a working Go environment. Go version 1.2+ is supported.
 To install vault, simply run:
 
 ```
-$ go get github.com/phogolabs/cli/provider/aws/s3
+$ go get github.com/phogolabs/cli/provider/aws/ssm
 ```
 
 ## Getting Started
 
-As you can see in order to match the flag with a file on S3 you should set
-the `FilePath` field in the following format:
+As you can see in order to match the flag with a param on AWS SSM you should set
+the `ssm_param` field in the meta data:
 
 ```
 s3://<your_file_name>
@@ -30,7 +30,7 @@ import (
 	"os"
 
 	"github.com/phogolabs/cli"
-	"github.com/phogolabs/cli/provider/aws/s3"
+	"github.com/phogolabs/cli/provider/aws/ssm"
 )
 
 func main() {
@@ -42,7 +42,7 @@ func main() {
 		Version:   "1.0-beta-04",
 		Action:    run,
 		Providers: []cli.Provider{
-			&s3.Provider{},
+			&ssm.Provider{},
 		},
 		Flags: []cli.Flag{
 			&cli.StringFlag{
@@ -61,15 +61,11 @@ func main() {
 				EnvVar: "AWS_DEFAULT_REGION",
 			},
 			&cli.StringFlag{
-				Name:   "aws-bucket",
-				Usage:  "AWS S3 Bucket",
-				EnvVar: "AWS_BUCKET",
-			},
-			&cli.StringFlag{
-				Name:   "config",
-				Usage:  "Aplication's config",
-				EnvVar: "APP_CONFIG",
-				FilePath: "s3://config.json",
+				Name:   "secret",
+				Usage:  "Aplication's secret",
+				Metadata: map[string]string{
+				  "ssm_param": "/your/key/name",
+				},
 			},
 		},
 	}

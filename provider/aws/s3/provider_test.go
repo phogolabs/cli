@@ -60,8 +60,11 @@ var _ = Describe("Provider", func() {
 		})
 
 		Context("when the globbing fails", func() {
-			It("returns an error", func() {
+			BeforeEach(func() {
 				fileSystem.GlobReturns(nil, fmt.Errorf("oh no!"))
+			})
+
+			It("returns an error", func() {
 				Expect(provider.Provide(ctx)).To(MatchError("oh no!"))
 			})
 		})
