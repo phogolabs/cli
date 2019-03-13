@@ -4,6 +4,7 @@ import (
 	"io"
 	"net"
 	"net/url"
+	"os"
 	"strings"
 	"time"
 )
@@ -24,6 +25,8 @@ type Manifest struct {
 type Context struct {
 	// Args are the command line arguments
 	Args []string
+	// Signal from the system
+	Signal os.Signal
 	// Command that owns the context
 	Command *Command
 	// Parent Context

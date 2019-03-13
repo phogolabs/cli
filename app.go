@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"os/signal"
 	"path"
 	"time"
 )
@@ -35,6 +36,8 @@ type App struct {
 	Version string
 	// Boolean to hide built-in version flag and the VERSION section of help
 	HideVersion bool
+	// Signals are the signals that we want to handle
+	Signals []os.Signal
 	// List of commands to execute
 	Commands []*Command
 	// List of flags to parse
@@ -56,6 +59,8 @@ type App struct {
 	Action ActionFunc
 	// Execute this function if a usage error occurs.
 	OnUsageError OnUsageErrorFunc
+	// OnSignal occurs on system signal
+	OnSignal OnSignalFunc
 	// Execute this function to handle ExitErrors. If not provided, HandleExitCoder is provided to
 	// function as a default, so this is optional.
 	OnExitErr ExitErrHandlerFunc
@@ -104,7 +109,29 @@ func (app *App) Run(args []string) error {
 		},
 	}
 
+	app.notify(ctx)
+
 	return app.error(cmd.RunWithContext(ctx))
+}
+
+func (app *App) notify(ctx *Context) {
+	if len(app.Signals) == 0 {
+		return
+	}
+
+	if app.OnSignal == nil {
+		return
+	}
+
+	ch := make(chan os.Signal, 1)
+	signal.Notify(ch, app.Signals...)
+
+	go func() {
+		ctx.Signal = <-ch
+
+		err := app.OnSignal(ctx)
+		app.error(err)
+	}()
 }
 
 func (app *App) prepare(args []string) []string {

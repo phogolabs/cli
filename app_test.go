@@ -3,6 +3,8 @@ package cli_test
 import (
 	"bytes"
 	"fmt"
+	"os"
+	"syscall"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -76,6 +78,36 @@ var _ = Describe("App", func() {
 		}
 
 		Expect(app.Run([]string{"app"})).To(Succeed())
+	})
+
+	Context("when the operation system sends a signal", func() {
+		It("handles the signal", func() {
+			count := 0
+
+			app.Signals = []os.Signal{syscall.SIGUSR1}
+			app.Action = func(ctx *cli.Context) error {
+				return nil
+			}
+
+			app.OnSignal = func(ctx *cli.Context) error {
+				count++
+
+				cmd := ctx.Command
+				Expect(cmd).NotTo(BeNil())
+				Expect(cmd.Name).To(Equal(app.Name))
+
+				Expect(ctx.Signal).To(Equal(syscall.SIGUSR1))
+				return nil
+			}
+
+			Expect(app.Run([]string{"app"})).To(Succeed())
+
+			process, err := os.FindProcess(os.Getpid())
+			Expect(err).NotTo(HaveOccurred())
+			Expect(process.Signal(syscall.SIGUSR1)).To(Succeed())
+
+			Eventually(func() int { return count }).Should(Equal(1))
+		})
 	})
 
 	Context("when the app name is not provided", func() {

@@ -8,6 +8,9 @@ type BeforeFunc func(*Context) error
 // subcommand has finished it is run even if Action() panics
 type AfterFunc func(*Context) error
 
+// OnSignalFunc is an action to execute after a system signal
+type OnSignalFunc func(*Context) error
+
 // ActionFunc is the action to execute when no subcommands are specified
 type ActionFunc func(*Context) error
 
