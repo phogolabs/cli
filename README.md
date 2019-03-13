@@ -56,7 +56,7 @@ func main() {
 		Version:   "1.0-beta-04",
 		Flags:     flags,
 		Action:    run,
-		Signals:   []os.Signal{system.SIGTERM},
+		Signals:   []os.Signal{syscall.SIGTERM},
 		OnSignal:  signal,
 	}
 
