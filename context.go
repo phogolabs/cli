@@ -37,6 +37,8 @@ type Context struct {
 	ErrWriter io.Writer
 	// Manifest of the app
 	Manifest *Manifest
+	// Metadata store
+	Metadata map[string]interface{}
 }
 
 // Bool looks up the value of a local BoolFlag, returns
