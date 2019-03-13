@@ -21,9 +21,6 @@ $ go get github.com/phogolabs/cli/provider/aws/ssm
 As you can see in order to match the flag with a param on AWS SSM you should set
 the `ssm_param` field in the meta data:
 
-```
-s3://<your_file_name>
-```
 
 ```golang
 import (
