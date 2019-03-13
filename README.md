@@ -31,9 +31,19 @@ $ go get github.com/phogolabs/cli
 ```golang
 import (
 	"os"
+	"syscall"
 
 	"github.com/phogolabs/cli"
 )
+
+var flags = []cli.Flag{
+	&cli.StringFlag{
+		Name:   "aws-region",
+		Usage:  "AWS Region",
+		EnvVar: "AWS_REGION, AWS_DEFAULT_REGION",
+	},
+}
+
 
 func main() {
 	app := &cli.App{
@@ -42,7 +52,10 @@ func main() {
 		Usage:     "Golang Database Manager",
 		UsageText: "prana [global options]",
 		Version:   "1.0-beta-04",
+		Flags:     flags,
 		Action:    run,
+		Signals:   []os.Signal{system.SIGTERM},
+		OnSignal:  signal,
 	}
 
 	if err := app.Run(os.Args); err != nil {
@@ -50,8 +63,15 @@ func main() {
 	}
 }
 
+// run executes the application
 func run(ctx *cli.Context) error {
 	fmt.Println("Application started")
+	return nil
+}
+
+// signal handles OS signal
+func signal(ctx *cli.Context) error {
+	fmt.Println("Application signal", ctx.Signal)
 	return nil
 }
 ```
@@ -83,7 +103,7 @@ converter to `cli.JSONPath`:
 flag := &cli.StringFlag{
 	Name:   "password",
 	Usage:  "Aplication's password",
-	EnvVar: "APP_PASSWORD",
+	FilePath: "app.config",
 	Converter: cli.JSONPath("$.password"),
 }
 ```
