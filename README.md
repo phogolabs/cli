@@ -62,6 +62,7 @@ The providers allow setting the flag's value from external sources:
 
 - [Vault](https://github.com/phogolabs/vault/blob/master/docs/provider.md) - reads a flag's value from Hashi Corp Vault Secret
 - [AWS S3](./provider/aws/s3/README.md) - reads a flag's value from AWS S3 bucket object
+- [AWS SSM](./provider/aws/ssm/README.md) - reads a flag's value from AWS SSM Parameter store
 
 ## Converters
 

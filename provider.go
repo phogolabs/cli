@@ -66,28 +66,25 @@ type EnvProvider struct{}
 
 // Provide parses the args
 func (p *EnvProvider) Provide(ctx *Context) error {
-	var env string
-
 	for _, flag := range ctx.Command.Flags {
 		accessor := &FlagAccessor{Flag: flag}
 
-		if env = accessor.EnvVar(); env == "" {
-			continue
-		}
+		for _, env := range split(accessor.EnvVar()) {
 
-		for index, value := range split(os.Getenv(env)) {
-			if index == 0 {
-				if err := accessor.Reset(); err != nil {
+			for index, value := range split(os.Getenv(env)) {
+				if index == 0 {
+					if err := accessor.Reset(); err != nil {
+						return err
+					}
+				}
+
+				if value == "" {
+					continue
+				}
+
+				if err := accessor.SetValue(value); err != nil {
 					return err
 				}
-			}
-
-			if value == "" {
-				continue
-			}
-
-			if err := accessor.SetValue(value); err != nil {
-				return err
 			}
 		}
 	}

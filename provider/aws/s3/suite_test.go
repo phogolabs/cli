@@ -9,5 +9,5 @@ import (
 
 func TestS3(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "S3 Suite")
+	RunSpecs(t, "AWS S3 Suite")
 }

@@ -18,6 +18,14 @@ type Provider struct {
 
 // Provide parses the args
 func (m *Provider) Provide(ctx *cli.Context) error {
+	if err := m.init(ctx); err != nil {
+		return err
+	}
+
+	if m.Client == nil {
+		return nil
+	}
+
 	for _, flag := range ctx.Command.Flags {
 		accessor := &cli.FlagAccessor{Flag: flag}
 

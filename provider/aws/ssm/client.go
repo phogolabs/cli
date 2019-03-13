@@ -21,7 +21,11 @@ type Client struct {
 // Get gets the value param from ssm
 func (c *Client) Get(pattern string) (string, error) {
 	client := c.client()
-	params := &ssm.GetParameterInput{}
+
+	params := &ssm.GetParameterInput{
+		Name:           aws.String(pattern),
+		WithDecryption: aws.Bool(true),
+	}
 
 	response, err := client.GetParameter(params)
 	if err != nil {

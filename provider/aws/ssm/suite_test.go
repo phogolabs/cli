@@ -9,5 +9,5 @@ import (
 
 func TestSsm(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "Ssm Suite")
+	RunSpecs(t, "AWS SSM Suite")
 }
