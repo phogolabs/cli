@@ -153,7 +153,7 @@ func toString(value interface{}) string {
 
 	zero := reflect.Zero(v.Type())
 
-	if v.Interface() == zero.Interface() {
+	if reflect.DeepEqual(v.Interface(), zero.Interface()) {
 		return ""
 	}
 
