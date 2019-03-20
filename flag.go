@@ -318,6 +318,11 @@ type JSONFlag struct {
 	Validator Validator
 }
 
+// IsComplex returns true if the flag contains a complex value
+func (f *JSONFlag) IsComplex() bool {
+	return true
+}
+
 // String returns the value as string
 func (f *JSONFlag) String() string {
 	return FlagFormat(f)
@@ -372,6 +377,11 @@ type YAMLFlag struct {
 	Validator Validator
 }
 
+// IsComplex returns true if the flag contains a complex value
+func (f *YAMLFlag) IsComplex() bool {
+	return true
+}
+
 // String returns the value as string
 func (f *YAMLFlag) String() string {
 	return FlagFormat(f)
@@ -424,6 +434,11 @@ type XMLFlag struct {
 	Required  bool
 	Converter Converter
 	Validator Validator
+}
+
+// IsComplex returns true if the flag contains a complex value
+func (f *XMLFlag) IsComplex() bool {
+	return true
 }
 
 // String returns the value as string

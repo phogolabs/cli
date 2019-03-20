@@ -23,6 +23,10 @@ type resetter interface {
 	Reset() error
 }
 
+type complexer interface {
+	IsComplex() bool
+}
+
 var _ Provider = &FlagProvider{}
 
 // FlagProvider parses the CLI flags
@@ -68,10 +72,24 @@ type EnvProvider struct{}
 func (p *EnvProvider) Provide(ctx *Context) error {
 	for _, flag := range ctx.Command.Flags {
 		accessor := &FlagAccessor{Flag: flag}
+		isComplex := false
+
+		if complexType, ok := flag.(complexer); ok {
+			isComplex = complexType.IsComplex()
+		}
 
 		for _, env := range split(accessor.EnvVar()) {
+			value := os.Getenv(env)
 
-			for index, value := range split(os.Getenv(env)) {
+			if isComplex {
+				if err := accessor.SetValue(value); err != nil {
+					return err
+				}
+
+				continue
+			}
+
+			for index, value := range split(value) {
 				if index == 0 {
 					if err := accessor.Reset(); err != nil {
 						return err
