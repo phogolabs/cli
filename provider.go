@@ -115,12 +115,17 @@ func (p *FileProvider) Provide(ctx *Context) error {
 			}
 
 			for _, path := range paths {
-				value, err := ioutil.ReadFile(path)
+				content, err := ioutil.ReadFile(path)
 				if err != nil {
 					continue
 				}
 
-				if err := accessor.SetValue(string(value)); err != nil {
+				value := string(content)
+				if value == "" {
+					continue
+				}
+
+				if err := accessor.SetValue(value); err != nil {
 					return err
 				}
 			}
