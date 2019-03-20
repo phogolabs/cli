@@ -288,12 +288,14 @@ var _ = Describe("JSONFlag", func() {
 	var flag *cli.JSONFlag
 
 	BeforeEach(func() {
+		value := &map[string]interface{}{
+			"id":   0,
+			"user": "root",
+		}
+
 		flag = &cli.JSONFlag{
-			Name: "map",
-			Value: map[string]interface{}{
-				"id":   0,
-				"user": "root",
-			},
+			Name:   "map",
+			Value:  value,
 			EnvVar: "APP_MAP",
 		}
 	})
@@ -313,9 +315,11 @@ var _ = Describe("JSONFlag", func() {
 
 				data, err := json.Marshal(&m)
 				Expect(err).To(BeNil())
-
 				Expect(flag.Set(string(data))).To(Succeed())
-				Expect(flag.Value).To(HaveKeyWithValue("key", "value"))
+
+				value, ok := flag.Value.(*map[string]interface{})
+				Expect(ok).To(BeTrue())
+				Expect(*value).To(HaveKeyWithValue("key", "value"))
 			})
 		}
 
@@ -326,7 +330,29 @@ var _ = Describe("JSONFlag", func() {
 				flag.Value = nil
 			})
 			ItSetsTheValue()
+		})
 
+		Context("when the value is map of map", func() {
+			It("sets the value successfully", func() {
+				type User struct {
+					Name string `json:"name"`
+				}
+
+				flag.Value = &User{}
+
+				m := map[string]string{
+					"name": "John",
+				}
+
+				data, err := json.Marshal(&m)
+				Expect(err).To(BeNil())
+
+				Expect(flag.Set(string(data))).To(Succeed())
+
+				user, ok := flag.Value.(*User)
+				Expect(ok).To(BeTrue())
+				Expect(user.Name).To(Equal("John"))
+			})
 		})
 	})
 
@@ -381,7 +407,7 @@ var _ = Describe("YAMLFlag", func() {
 	BeforeEach(func() {
 		flag = &cli.YAMLFlag{
 			Name: "map",
-			Value: map[string]interface{}{
+			Value: &map[string]interface{}{
 				"id":   0,
 				"user": "root",
 			},
@@ -406,7 +432,10 @@ var _ = Describe("YAMLFlag", func() {
 				Expect(err).To(BeNil())
 
 				Expect(flag.Set(string(data))).To(Succeed())
-				Expect(flag.Value).To(HaveKeyWithValue("key", "value"))
+
+				value, ok := flag.Value.(*map[string]interface{})
+				Expect(ok).To(BeTrue())
+				Expect(*value).To(HaveKeyWithValue("key", "value"))
 			})
 		}
 
@@ -471,7 +500,7 @@ var _ = Describe("XMLFlag", func() {
 	BeforeEach(func() {
 		flag = &cli.XMLFlag{
 			Name: "map",
-			Value: T{
+			Value: &T{
 				ID:   0,
 				Name: "root",
 			},

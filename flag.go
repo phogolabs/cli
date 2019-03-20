@@ -328,10 +328,10 @@ func (f *JSONFlag) String() string {
 // such as a nil pointer.
 func (f *JSONFlag) Set(value string) error {
 	if f.Value == nil {
-		f.Value = make(map[string]interface{})
+		f.Value = &map[string]interface{}{}
 	}
 
-	return json.Unmarshal([]byte(value), &f.Value)
+	return json.Unmarshal([]byte(value), f.Value)
 }
 
 // Get is a function that allows the contents of a Value to be retrieved.
@@ -381,10 +381,10 @@ func (f *YAMLFlag) String() string {
 // such as a nil pointer.
 func (f *YAMLFlag) Set(value string) error {
 	if f.Value == nil {
-		f.Value = make(map[string]interface{})
+		f.Value = &map[string]interface{}{}
 	}
 
-	return yaml.Unmarshal([]byte(value), &f.Value)
+	return yaml.Unmarshal([]byte(value), f.Value)
 }
 
 // Get is a function that allows the contents of a Value to be retrieved.
@@ -436,7 +436,7 @@ func (f *XMLFlag) Set(value string) error {
 	if f.Value == nil {
 		return nil
 	}
-	return xml.Unmarshal([]byte(value), &f.Value)
+	return xml.Unmarshal([]byte(value), f.Value)
 }
 
 // Get is a function that allows the contents of a Value to be retrieved.
