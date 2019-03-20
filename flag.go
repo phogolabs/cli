@@ -331,6 +331,7 @@ func (f *JSONFlag) Set(value string) error {
 		f.Value = &map[string]interface{}{}
 	}
 
+	value = unquote(value)
 	return json.Unmarshal([]byte(value), f.Value)
 }
 
@@ -384,6 +385,7 @@ func (f *YAMLFlag) Set(value string) error {
 		f.Value = &map[string]interface{}{}
 	}
 
+	value = unquote(value)
 	return yaml.Unmarshal([]byte(value), f.Value)
 }
 
@@ -436,6 +438,8 @@ func (f *XMLFlag) Set(value string) error {
 	if f.Value == nil {
 		return nil
 	}
+
+	value = unquote(value)
 	return xml.Unmarshal([]byte(value), f.Value)
 }
 

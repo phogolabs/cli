@@ -164,3 +164,9 @@ func isBool(value interface{}) bool {
 	v := reflect.Indirect(reflect.ValueOf(value))
 	return v.Kind() == reflect.Bool
 }
+
+func unquote(text string) string {
+	text = strings.TrimPrefix(text, "'")
+	text = strings.TrimSuffix(text, "'")
+	return text
+}
