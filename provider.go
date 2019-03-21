@@ -82,6 +82,10 @@ func (p *EnvProvider) Provide(ctx *Context) error {
 		for _, env := range split(accessor.EnvVar()) {
 			value := os.Getenv(env)
 
+			if value == "" {
+				continue
+			}
+
 			if isComplex {
 				if err := accessor.SetValue(value); err != nil {
 					return FlagError(accessor, err)
