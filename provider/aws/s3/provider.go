@@ -52,7 +52,7 @@ func (m *Provider) Provide(ctx *cli.Context) error {
 				}
 
 				if err := accessor.SetValue(string(value)); err != nil {
-					return err
+					return cli.FlagError(accessor, err)
 				}
 			}
 		}

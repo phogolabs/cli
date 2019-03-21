@@ -93,7 +93,7 @@ var _ = Describe("Provider", func() {
 			})
 
 			It("returns an error", func() {
-				Expect(parser.Provide(ctx)).To(MatchError("strconv.ParseInt: parsing \"yep\": invalid syntax"))
+				Expect(parser.Provide(ctx)).To(MatchError("num: strconv.ParseInt: parsing \"yep\": invalid syntax"))
 			})
 		})
 	})
@@ -166,7 +166,7 @@ var _ = Describe("Provider", func() {
 			})
 
 			It("returns an error", func() {
-				Expect(parser.Provide(ctx)).To(MatchError("invalid IP Address: 9292"))
+				Expect(parser.Provide(ctx)).To(MatchError("listen-addr: invalid IP Address: 9292"))
 			})
 		})
 	})

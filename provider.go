@@ -2,6 +2,7 @@ package cli
 
 import (
 	"flag"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -83,7 +84,7 @@ func (p *EnvProvider) Provide(ctx *Context) error {
 
 			if isComplex {
 				if err := accessor.SetValue(value); err != nil {
-					return err
+					return FlagError(accessor, err)
 				}
 
 				continue
@@ -101,7 +102,7 @@ func (p *EnvProvider) Provide(ctx *Context) error {
 				}
 
 				if err := accessor.SetValue(value); err != nil {
-					return err
+					return FlagError(accessor, err)
 				}
 			}
 		}
@@ -144,7 +145,7 @@ func (p *FileProvider) Provide(ctx *Context) error {
 				}
 
 				if err := accessor.SetValue(value); err != nil {
-					return err
+					return FlagError(accessor, err)
 				}
 			}
 		}
@@ -187,10 +188,15 @@ func (p *DefaultValueProvider) Rollback(ctx *Context) error {
 
 		if value, ok := p.values[accessor.Name()]; ok {
 			if err := accessor.SetValue(value); err != nil {
-				return err
+				return FlagError(accessor, err)
 			}
 		}
 	}
 
 	return nil
+}
+
+// FlagError returns flag error
+func FlagError(accessor *FlagAccessor, err error) error {
+	return fmt.Errorf("%v: %v", accessor.Name(), err)
 }
