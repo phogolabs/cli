@@ -86,18 +86,24 @@ func (m *Provider) init(ctx *cli.Context) error {
 }
 
 func split(text string) []string {
-	uri, err := url.Parse(text)
+	var (
+		result []string
+		items  = strings.Split(text, ",")
+	)
 
-	if err != nil || uri.Scheme != "s3" {
-		return []string{}
+	for _, item := range items {
+		item = strings.TrimSpace(item)
+
+		uri, err := url.Parse(item)
+		if err != nil {
+			continue
+		}
+
+		if uri.Scheme == "s3" {
+			item = strings.TrimPrefix(item, "s3://")
+			result = append(result, item)
+		}
 	}
 
-	text = strings.TrimPrefix(text, "s3://")
-	items := strings.Split(text, ",")
-
-	for index, item := range items {
-		items[index] = strings.TrimSpace(item)
-	}
-
-	return items
+	return result
 }

@@ -39,7 +39,31 @@ type JSONPath string
 
 // Convert converts the value
 func (path JSONPath) Convert(v interface{}) (interface{}, error) {
-	return jsonpath.JsonPathLookup(v, string(path))
+	text, transform := v.(string)
+
+	if transform {
+		v = make(map[string]interface{})
+
+		if err := json.Unmarshal([]byte(text), &v); err != nil {
+			return nil, err
+		}
+	}
+
+	result, err := jsonpath.JsonPathLookup(v, string(path))
+	if err != nil {
+		return nil, err
+	}
+
+	if transform {
+		data, err := json.Marshal(result)
+		if err != nil {
+			return nil, err
+		}
+
+		result = string(data)
+	}
+
+	return result, nil
 }
 
 //go:generate counterfeiter -fake-name Validator -o ./fake/validator.go . Validator
@@ -318,11 +342,6 @@ type JSONFlag struct {
 	Validator Validator
 }
 
-// IsComplex returns true if the flag contains a complex value
-func (f *JSONFlag) IsComplex() bool {
-	return true
-}
-
 // String returns the value as string
 func (f *JSONFlag) String() string {
 	return FlagFormat(f)
@@ -336,7 +355,6 @@ func (f *JSONFlag) Set(value string) error {
 		f.Value = &map[string]interface{}{}
 	}
 
-	value = unquote(value)
 	return json.Unmarshal([]byte(value), f.Value)
 }
 
@@ -377,11 +395,6 @@ type YAMLFlag struct {
 	Validator Validator
 }
 
-// IsComplex returns true if the flag contains a complex value
-func (f *YAMLFlag) IsComplex() bool {
-	return true
-}
-
 // String returns the value as string
 func (f *YAMLFlag) String() string {
 	return FlagFormat(f)
@@ -395,7 +408,6 @@ func (f *YAMLFlag) Set(value string) error {
 		f.Value = &map[string]interface{}{}
 	}
 
-	value = unquote(value)
 	return yaml.Unmarshal([]byte(value), f.Value)
 }
 
@@ -436,11 +448,6 @@ type XMLFlag struct {
 	Validator Validator
 }
 
-// IsComplex returns true if the flag contains a complex value
-func (f *XMLFlag) IsComplex() bool {
-	return true
-}
-
 // String returns the value as string
 func (f *XMLFlag) String() string {
 	return FlagFormat(f)
@@ -454,7 +461,6 @@ func (f *XMLFlag) Set(value string) error {
 		return nil
 	}
 
-	value = unquote(value)
 	return xml.Unmarshal([]byte(value), f.Value)
 }
 
@@ -1117,6 +1123,12 @@ func (f *FlagAccessor) Hidden() bool {
 	value := reflect.ValueOf(f.Flag)
 	value = reflect.Indirect(value)
 	return value.FieldByName("Hidden").Bool()
+}
+
+// IsResetable returns true if it's resetable
+func (f *FlagAccessor) IsResetable() bool {
+	_, ok := f.Flag.(resetter)
+	return ok
 }
 
 // Reset the value
