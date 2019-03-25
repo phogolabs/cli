@@ -315,7 +315,7 @@ var _ = Describe("JSONFlag", func() {
 
 				data, err := json.Marshal(&m)
 				Expect(err).To(BeNil())
-				Expect(flag.Set(fmt.Sprintf("'%v'", string(data)))).To(Succeed())
+				Expect(flag.Set(string(data))).To(Succeed())
 
 				value, ok := flag.Value.(*map[string]interface{})
 				Expect(ok).To(BeTrue())
