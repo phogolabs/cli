@@ -6,14 +6,16 @@ import (
 	"path/filepath"
 
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/credentials/stscreds"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
 )
 
 // ClientConfig is the client's config
 type ClientConfig struct {
-	Region string
-	Bucket string
+	Region  string
+	Bucket  string
+	RoleARN string
 }
 
 var _ FileSystem = &Client{}
@@ -80,5 +82,12 @@ func (c *Client) client() *s3.S3 {
 		Region: aws.String(c.Config.Region),
 	}
 
-	return s3.New(session.New(config))
+	cookie := session.New(config)
+
+	if c.Config.RoleARN != "" {
+		creds := stscreds.NewCredentials(cookie, c.Config.RoleARN)
+		return s3.New(cookie, &aws.Config{Credentials: creds})
+	}
+
+	return s3.New(cookie)
 }
