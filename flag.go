@@ -189,7 +189,7 @@ func (f *StringSliceFlag) Set(value string) error {
 	return nil
 }
 
-// Reset resets the value
+// Reset resets the valle
 func (f *StringSliceFlag) Reset() error {
 	f.Value = []string{}
 	return nil
@@ -1015,14 +1015,44 @@ func (f *HardwareAddrFlag) Validate() error {
 	return nil
 }
 
+type toggle interface {
+	IsBoolFlag() bool
+}
+
+type resetter interface {
+	Reset() error
+}
+
 // FlagAccessor access the flag's field
 type FlagAccessor struct {
-	Flag Flag
+	Flag  Flag
+	IsSet bool
 }
 
 // Value of the flag
 func (f *FlagAccessor) Value() interface{} {
 	return f.Flag.Get()
+}
+
+// Set is called once, in command line order, for each flag present.
+// The flag package may call the String method with a zero-valued receiver,
+// such as a nil pointer.
+func (f *FlagAccessor) Set(value string) error {
+	if value == "" {
+		return nil
+	}
+
+	if !f.IsSet {
+		f.IsSet = true
+
+		if flag, ok := f.Flag.(resetter); ok {
+			if err := flag.Reset(); err != nil {
+				return err
+			}
+		}
+	}
+
+	return f.Flag.Set(value)
 }
 
 // SetValue sets the value
@@ -1043,7 +1073,7 @@ func (f *FlagAccessor) SetValue(v interface{}) (err error) {
 
 	switch value.Kind() {
 	case reflect.String:
-		return f.Flag.Set(value.String())
+		return f.Set(value.String())
 	default:
 		flag := reflect.ValueOf(f.Flag)
 		flag = reflect.Indirect(flag)
@@ -1125,23 +1155,6 @@ func (f *FlagAccessor) Hidden() bool {
 	return value.FieldByName("Hidden").Bool()
 }
 
-// IsResetable returns true if it's resetable
-func (f *FlagAccessor) IsResetable() bool {
-	_, ok := f.Flag.(resetter)
-	return ok
-}
-
-// Reset the value
-func (f *FlagAccessor) Reset() error {
-	if r, ok := f.Flag.(resetter); ok {
-		if err := r.Reset(); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
 func (f *FlagAccessor) error(v interface{}) error {
 	switch err := v.(type) {
 	case *reflect.ValueError:
@@ -1149,6 +1162,24 @@ func (f *FlagAccessor) error(v interface{}) error {
 	default:
 		return fmt.Errorf("%v", err)
 	}
+}
+
+// String returns the flag as string
+func (f *FlagAccessor) String() string {
+	if f.Flag == nil {
+		return ""
+	}
+
+	return f.Flag.String()
+}
+
+// IsBoolFlag returns true if the flag is bool
+func (f *FlagAccessor) IsBoolFlag() bool {
+	if flag, ok := f.Flag.(toggle); ok {
+		return flag.IsBoolFlag()
+	}
+
+	return false
 }
 
 // RequiredErr returns the required error

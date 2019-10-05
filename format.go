@@ -3,6 +3,8 @@ package cli
 import (
 	"bytes"
 	"fmt"
+	"io/ioutil"
+	"os"
 	"reflect"
 	"strings"
 )
@@ -165,8 +167,18 @@ func isBool(value interface{}) bool {
 	return v.Kind() == reflect.Bool
 }
 
-func unquote(text string) string {
-	text = strings.TrimPrefix(text, "'")
-	text = strings.TrimSuffix(text, "'")
-	return text
+func getEnv(name string) string {
+	value := os.Getenv(name)
+	value = strings.TrimPrefix(value, "'")
+	value = strings.TrimSuffix(value, "'")
+	return value
+}
+
+func readFile(path string) (string, error) {
+	content, err := ioutil.ReadFile(path)
+	if err != nil {
+		return "", nil
+	}
+
+	return string(content), nil
 }

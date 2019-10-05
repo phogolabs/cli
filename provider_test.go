@@ -13,8 +13,9 @@ import (
 
 var _ = Describe("Provider", func() {
 	var (
-		flag *cli.StringFlag
-		ctx  *cli.Context
+		flag  *cli.StringFlag
+		slice *cli.StringSliceFlag
+		ctx   *cli.Context
 	)
 
 	BeforeEach(func() {
@@ -23,10 +24,18 @@ var _ = Describe("Provider", func() {
 			Usage: "listen address of HTTP server",
 		}
 
+		slice = &cli.StringSliceFlag{
+			Name:  "user",
+			Usage: "User list",
+		}
+
 		ctx = &cli.Context{
 			Command: &cli.Command{
-				Name:  "app",
-				Flags: []cli.Flag{flag},
+				Name: "app",
+				Flags: []cli.Flag{
+					flag,
+					slice,
+				},
 			},
 		}
 	})
@@ -36,18 +45,31 @@ var _ = Describe("Provider", func() {
 
 		BeforeEach(func() {
 			flag.EnvVar = "APP_LISTEN_ADDR"
+			slice.EnvVar = "APP_USERS"
 
 			parser = &cli.EnvProvider{}
 			Expect(os.Setenv(flag.EnvVar, "8080")).To(Succeed())
+			Expect(os.Setenv(slice.EnvVar, "root,guest")).To(Succeed())
 		})
 
 		AfterEach(func() {
 			Expect(os.Unsetenv(flag.EnvVar)).To(Succeed())
+			Expect(os.Unsetenv(slice.EnvVar)).To(Succeed())
 		})
 
 		It("sets the value from env variable", func() {
 			Expect(parser.Provide(ctx)).To(Succeed())
 			Expect(flag.Value).To(Equal("8080"))
+		})
+
+		Context("when the flag is slice", func() {
+			It("sets the value from env variable", func() {
+				Expect(parser.Provide(ctx)).To(Succeed())
+
+				Expect(slice.Value).To(HaveLen(2))
+				Expect(slice.Value).To(ContainElement("root"))
+				Expect(slice.Value).To(ContainElement("guest"))
+			})
 		})
 
 		Context("when the env var key is not set", func() {

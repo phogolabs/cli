@@ -4,9 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"io/ioutil"
-	"os"
 	"path/filepath"
-	"strings"
 )
 
 //go:generate counterfeiter -fake-name Provider -o ./fake/provider.go . Provider
@@ -18,10 +16,6 @@ type Provider interface {
 
 type transaction interface {
 	Rollback(*Context) error
-}
-
-type resetter interface {
-	Reset() error
 }
 
 var _ Provider = &FlagProvider{}
@@ -39,15 +33,8 @@ func (p *FlagProvider) Provide(ctx *Context) error {
 	for _, flag := range ctx.Command.Flags {
 		accessor := &FlagAccessor{Flag: flag}
 
-		for index, key := range split(accessor.Name()) {
-			if index == 0 {
-				if err := accessor.Reset(); err != nil {
-					return err
-				}
-			}
-
-			key = strings.TrimSpace(key)
-			p.set.Var(flag, key, accessor.Usage())
+		for _, key := range split(accessor.Name()) {
+			p.set.Var(accessor, key, accessor.Usage())
 		}
 	}
 
@@ -71,31 +58,9 @@ func (p *EnvProvider) Provide(ctx *Context) error {
 		accessor := &FlagAccessor{Flag: flag}
 
 		for _, env := range split(accessor.EnvVar()) {
-			value := os.Getenv(env)
+			value := getEnv(env)
 
-			if value == "" {
-				continue
-			}
-
-			values := []string{value}
-
-			if accessor.IsResetable() {
-				values = split(value)
-			}
-
-			for index, value := range values {
-				if index == 0 {
-					if err := accessor.Reset(); err != nil {
-						return err
-					}
-				}
-
-				if value == "" {
-					continue
-				}
-
-				value = unquote(value)
-
+			for _, value := range split(value) {
 				if err := accessor.SetValue(value); err != nil {
 					return FlagError(accessor, err)
 				}
@@ -116,26 +81,16 @@ func (p *FileProvider) Provide(ctx *Context) error {
 	for _, flag := range ctx.Command.Flags {
 		accessor := &FlagAccessor{Flag: flag}
 
-		for index, path := range split(accessor.FilePath()) {
-			if index == 0 {
-				if err := accessor.Reset(); err != nil {
-					return err
-				}
-			}
-
+		for _, path := range split(accessor.FilePath()) {
 			paths, err := filepath.Glob(path)
+
 			if err != nil {
 				return err
 			}
 
 			for _, path := range paths {
-				content, err := ioutil.ReadFile(path)
+				value, err := readFile(path)
 				if err != nil {
-					continue
-				}
-
-				value := string(content)
-				if value == "" {
 					continue
 				}
 
