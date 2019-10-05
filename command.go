@@ -105,7 +105,7 @@ func (cmd *Command) VisibleFlags() []Flag {
 	flags := []Flag{}
 
 	for _, flag := range cmd.Flags {
-		accessor := &FlagAccessor{Flag: flag}
+		accessor := NewFlagAccessor(flag)
 
 		if accessor.Hidden() {
 			continue
@@ -122,6 +122,7 @@ func (cmd *Command) VisibleCommands() []*Command {
 	category := &CommandCategory{
 		Commands: cmd.Commands,
 	}
+
 	return category.VisibleCommands()
 }
 
@@ -176,9 +177,13 @@ func (cmd *Command) provide(ctx *Context) (err error) {
 		}
 	}
 
+	return nil
+}
+
+func (cmd *Command) validate(ctx *Context) error {
 	for _, flag := range cmd.Flags {
-		if err = flag.Validate(); err != nil {
-			return err
+		if err := flag.Validate(); err != nil {
+			return cmd.error(ctx, err)
 		}
 	}
 
@@ -243,6 +248,17 @@ func (cmd *Command) fork(ctx *Context) error {
 		return ErrCommandNotFound
 	}
 
+	switch {
+	case child.Name == "help":
+		break
+	case child.Name == "version":
+		break
+	default:
+		if err := cmd.validate(ctx); err != nil {
+			return err
+		}
+	}
+
 	ctx = &Context{
 		Parent:    ctx,
 		Metadata:  ctx.Metadata,
@@ -297,6 +313,10 @@ func (cmd *Command) exec(ctx *Context) (err error) {
 	}
 
 	if err != nil {
+		return err
+	}
+
+	if err = cmd.validate(ctx); err != nil {
 		return err
 	}
 

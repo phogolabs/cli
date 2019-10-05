@@ -1028,8 +1028,16 @@ var _ Flag = &FlagAccessor{}
 // FlagAccessor access the flag's field
 type FlagAccessor struct {
 	Flag  Flag
-	IsSet bool
 	Text  string
+	IsSet bool
+}
+
+// NewFlagAccessor returns new flag accessor
+func NewFlagAccessor(flag Flag) *FlagAccessor {
+	return &FlagAccessor{
+		Flag: flag,
+		Text: flag.String(),
+	}
 }
 
 // SetValue sets the value
