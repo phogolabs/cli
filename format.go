@@ -13,7 +13,10 @@ import (
 func FlagFormat(flag Flag) string {
 	buffer := &bytes.Buffer{}
 
-	accessor := &FlagAccessor{Flag: flag}
+	accessor, ok := flag.(*FlagAccessor)
+	if !ok {
+		accessor = &FlagAccessor{Flag: flag}
+	}
 
 	formatName(buffer, accessor)
 	formatUsage(buffer, accessor)
