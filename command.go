@@ -111,7 +111,7 @@ func (cmd *Command) VisibleFlags() []Flag {
 			continue
 		}
 
-		flags = append(flags, flag)
+		flags = append(flags, accessor)
 	}
 
 	return flags
@@ -186,27 +186,33 @@ func (cmd *Command) provide(ctx *Context) (err error) {
 }
 
 func (cmd *Command) prepare() {
+	cmd.providers()
+	cmd.commands()
+}
+
+func (cmd *Command) providers() {
 	providers := []Provider{
-		&DefaultValueProvider{},
 		&FileProvider{},
 		&EnvProvider{},
 		&FlagProvider{},
 	}
 
 	cmd.Providers = append(providers, cmd.Providers...)
+}
 
+func (cmd *Command) commands() {
 	if cmd.HelpName == "" {
 		cmd.HelpName = cmd.Name
 	}
 
 	if !cmd.HideHelp {
-		cmd.Commands = append(cmd.Commands, HelpCommand)
-
 		help := &BoolFlag{
 			Name:  "help, h",
 			Usage: "shows help",
 		}
+
 		cmd.Flags = append(cmd.Flags, help)
+		cmd.Commands = append(cmd.Commands, HelpCommand)
 	}
 
 	for _, command := range cmd.Commands {
@@ -214,18 +220,6 @@ func (cmd *Command) prepare() {
 			command.HelpName = fmt.Sprintf("%s %s", cmd.HelpName, command.Name)
 		}
 	}
-}
-
-func (cmd *Command) restore(ctx *Context) error {
-	for i := len(cmd.Providers) - 1; i >= 0; i-- {
-		if restorer, ok := cmd.Providers[i].(transaction); ok {
-			if err := restorer.Rollback(ctx); err != nil {
-				return err
-			}
-		}
-	}
-
-	return nil
 }
 
 func (cmd *Command) fork(ctx *Context) error {

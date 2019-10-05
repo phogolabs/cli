@@ -258,26 +258,4 @@ var _ = Describe("Provider", func() {
 			})
 		})
 	})
-
-	Describe("DefaultValueProvider", func() {
-		var parser *cli.DefaultValueProvider
-
-		BeforeEach(func() {
-			flag.Value = "9292"
-			parser = &cli.DefaultValueProvider{}
-		})
-
-		It("parses the flags successfully", func() {
-			Expect(parser.Provide(ctx)).To(Succeed())
-		})
-
-		It("rollbacks the values successfully", func() {
-			Expect(parser.Provide(ctx)).To(Succeed())
-
-			flag.Value = "1010"
-
-			Expect(parser.Rollback(ctx)).To(Succeed())
-			Expect(flag.Value).To(Equal("9292"))
-		})
-	})
 })

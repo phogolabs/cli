@@ -1023,36 +1023,13 @@ type resetter interface {
 	Reset() error
 }
 
+var _ Flag = &FlagAccessor{}
+
 // FlagAccessor access the flag's field
 type FlagAccessor struct {
 	Flag  Flag
 	IsSet bool
-}
-
-// Value of the flag
-func (f *FlagAccessor) Value() interface{} {
-	return f.Flag.Get()
-}
-
-// Set is called once, in command line order, for each flag present.
-// The flag package may call the String method with a zero-valued receiver,
-// such as a nil pointer.
-func (f *FlagAccessor) Set(value string) error {
-	if value == "" {
-		return nil
-	}
-
-	if !f.IsSet {
-		f.IsSet = true
-
-		if flag, ok := f.Flag.(resetter); ok {
-			if err := flag.Reset(); err != nil {
-				return err
-			}
-		}
-	}
-
-	return f.Flag.Set(value)
+	Text  string
 }
 
 // SetValue sets the value
@@ -1085,6 +1062,47 @@ func (f *FlagAccessor) SetValue(v interface{}) (err error) {
 	}
 
 	return err
+}
+
+// Set is called once, in command line order, for each flag present.
+// The flag package may call the String method with a zero-valued receiver,
+// such as a nil pointer.
+func (f *FlagAccessor) Set(value string) error {
+	if value == "" {
+		return nil
+	}
+
+	if !f.IsSet {
+		// reset the value
+		if err := f.Reset(); err != nil {
+			return err
+		}
+
+		f.IsSet = true
+	}
+
+	return f.Flag.Set(value)
+}
+
+// Get of the flag's value
+func (f *FlagAccessor) Get() interface{} {
+	return f.Flag.Get()
+}
+
+// Value of the flag
+func (f *FlagAccessor) Value() interface{} {
+	return f.Flag.Get()
+}
+
+// Reset resets the value
+func (f *FlagAccessor) Reset() error {
+	if flag, ok := f.Flag.(resetter); ok {
+		if err := flag.Reset(); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 // Converter returns the converter
@@ -1137,6 +1155,7 @@ func (f *FlagAccessor) Metadata() map[string]string {
 	if !ok {
 		return nil
 	}
+
 	return metadata
 }
 
@@ -1155,6 +1174,11 @@ func (f *FlagAccessor) Hidden() bool {
 	return value.FieldByName("Hidden").Bool()
 }
 
+// Validate validates the flag
+func (f *FlagAccessor) Validate() error {
+	return f.Flag.Validate()
+}
+
 func (f *FlagAccessor) error(v interface{}) error {
 	switch err := v.(type) {
 	case *reflect.ValueError:
@@ -1166,11 +1190,7 @@ func (f *FlagAccessor) error(v interface{}) error {
 
 // String returns the flag as string
 func (f *FlagAccessor) String() string {
-	if f.Flag == nil {
-		return ""
-	}
-
-	return f.Flag.String()
+	return f.Text
 }
 
 // IsBoolFlag returns true if the flag is bool

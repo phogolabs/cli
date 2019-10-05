@@ -61,7 +61,7 @@ func (p *EnvProvider) Provide(ctx *Context) error {
 			value := getEnv(env)
 
 			for _, value := range split(value) {
-				if err := accessor.SetValue(value); err != nil {
+				if err := accessor.Set(value); err != nil {
 					return FlagError(accessor, err)
 				}
 			}
@@ -94,51 +94,9 @@ func (p *FileProvider) Provide(ctx *Context) error {
 					continue
 				}
 
-				if err := accessor.SetValue(value); err != nil {
+				if err := accessor.Set(value); err != nil {
 					return FlagError(accessor, err)
 				}
-			}
-		}
-	}
-
-	return nil
-}
-
-var (
-	_ Provider    = &DefaultValueProvider{}
-	_ transaction = &DefaultValueProvider{}
-)
-
-// DefaultValueProvider keeps the default values
-type DefaultValueProvider struct {
-	values map[string]interface{}
-}
-
-// Provide parses the args
-func (p *DefaultValueProvider) Provide(ctx *Context) error {
-	if p.values == nil {
-		p.values = make(map[string]interface{})
-	}
-
-	for _, flag := range ctx.Command.Flags {
-		accessor := &FlagAccessor{Flag: flag}
-
-		if value := accessor.Value(); value != nil {
-			p.values[accessor.Name()] = value
-		}
-	}
-
-	return nil
-}
-
-// Rollback rollbacks the values
-func (p *DefaultValueProvider) Rollback(ctx *Context) error {
-	for _, flag := range ctx.Command.Flags {
-		accessor := &FlagAccessor{Flag: flag}
-
-		if value, ok := p.values[accessor.Name()]; ok {
-			if err := accessor.SetValue(value); err != nil {
-				return FlagError(accessor, err)
 			}
 		}
 	}

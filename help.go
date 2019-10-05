@@ -47,8 +47,6 @@ func help(ctx *Context) error {
 		return nil
 	}
 
-	cmd.restore(ctx)
-
 	help, _ := parcello.Open(man)
 	content, _ := ioutil.ReadAll(help)
 	writer := tabwriter.NewWriter(ctx.Writer, 1, 8, 2, ' ', 0)

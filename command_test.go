@@ -238,9 +238,15 @@ var _ = Describe("Command", func() {
 
 	Describe("VisibleFlags", func() {
 		It("returns the visible flags", func() {
+			ctx := &cli.Context{
+				Writer:  GinkgoWriter,
+				Command: cmd,
+			}
+
+			Expect(cmd.RunWithContext(ctx)).To(Succeed())
+
 			flags := cmd.VisibleFlags()
-			Expect(flags).To(HaveLen(1))
-			Expect(flags).To(ContainElement(cmd.Flags[0]))
+			Expect(flags).To(HaveLen(2))
 		})
 	})
 
