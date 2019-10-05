@@ -1,6 +1,8 @@
 package ssm
 
 import (
+	"fmt"
+
 	"github.com/phogolabs/cli"
 )
 
@@ -29,10 +31,12 @@ func (m *Provider) Provide(ctx *cli.Context) error {
 	for _, flag := range ctx.Command.Flags {
 		accessor := &cli.FlagAccessor{Flag: flag}
 
-		path := accessor.MetaKey("ssm_param")
-		if path == "" {
+		meta := accessor.MetaKey("ssm_param")
+		if meta == nil {
 			continue
 		}
+
+		path := fmt.Sprintf("%v", meta)
 
 		value, err := m.Client.Get(path)
 		if err != nil {

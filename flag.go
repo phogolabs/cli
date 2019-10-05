@@ -117,7 +117,7 @@ type StringFlag struct {
 	EnvVar    string
 	FilePath  string
 	Value     string
-	Metadata  map[string]string
+	Metadata  map[string]interface{}
 	Hidden    bool
 	Required  bool
 	Converter Converter
@@ -169,7 +169,7 @@ type StringSliceFlag struct {
 	EnvVar    string
 	FilePath  string
 	Value     []string
-	Metadata  map[string]string
+	Metadata  map[string]interface{}
 	Hidden    bool
 	Required  bool
 	Converter Converter
@@ -227,7 +227,7 @@ type BoolFlag struct {
 	EnvVar    string
 	FilePath  string
 	Value     bool
-	Metadata  map[string]string
+	Metadata  map[string]interface{}
 	Hidden    bool
 	Converter Converter
 	Validator Validator
@@ -280,7 +280,7 @@ type URLFlag struct {
 	EnvVar    string
 	FilePath  string
 	Value     *url.URL
-	Metadata  map[string]string
+	Metadata  map[string]interface{}
 	Hidden    bool
 	Required  bool
 	Converter Converter
@@ -335,7 +335,7 @@ type JSONFlag struct {
 	EnvVar    string
 	FilePath  string
 	Value     interface{}
-	Metadata  map[string]string
+	Metadata  map[string]interface{}
 	Hidden    bool
 	Required  bool
 	Converter Converter
@@ -388,7 +388,7 @@ type YAMLFlag struct {
 	EnvVar    string
 	FilePath  string
 	Value     interface{}
-	Metadata  map[string]string
+	Metadata  map[string]interface{}
 	Hidden    bool
 	Required  bool
 	Converter Converter
@@ -441,7 +441,7 @@ type XMLFlag struct {
 	EnvVar    string
 	FilePath  string
 	Value     interface{}
-	Metadata  map[string]string
+	Metadata  map[string]interface{}
 	Hidden    bool
 	Required  bool
 	Converter Converter
@@ -495,7 +495,7 @@ type TimeFlag struct {
 	FilePath  string
 	Format    string
 	Value     time.Time
-	Metadata  map[string]string
+	Metadata  map[string]interface{}
 	Hidden    bool
 	Required  bool
 	Converter Converter
@@ -549,7 +549,7 @@ type DurationFlag struct {
 	EnvVar    string
 	FilePath  string
 	Value     time.Duration
-	Metadata  map[string]string
+	Metadata  map[string]interface{}
 	Hidden    bool
 	Required  bool
 	Converter Converter
@@ -599,7 +599,7 @@ type IntFlag struct {
 	EnvVar    string
 	FilePath  string
 	Value     int
-	Metadata  map[string]string
+	Metadata  map[string]interface{}
 	Hidden    bool
 	Required  bool
 	Converter Converter
@@ -654,7 +654,7 @@ type Int64Flag struct {
 	EnvVar    string
 	FilePath  string
 	Value     int64
-	Metadata  map[string]string
+	Metadata  map[string]interface{}
 	Hidden    bool
 	Required  bool
 	Converter Converter
@@ -704,7 +704,7 @@ type UIntFlag struct {
 	EnvVar    string
 	FilePath  string
 	Value     uint
-	Metadata  map[string]string
+	Metadata  map[string]interface{}
 	Hidden    bool
 	Required  bool
 	Converter Converter
@@ -759,7 +759,7 @@ type UInt64Flag struct {
 	EnvVar    string
 	FilePath  string
 	Value     uint64
-	Metadata  map[string]string
+	Metadata  map[string]interface{}
 	Hidden    bool
 	Required  bool
 	Converter Converter
@@ -809,7 +809,7 @@ type Float32Flag struct {
 	EnvVar    string
 	FilePath  string
 	Value     float32
-	Metadata  map[string]string
+	Metadata  map[string]interface{}
 	Hidden    bool
 	Required  bool
 	Converter Converter
@@ -864,7 +864,7 @@ type Float64Flag struct {
 	EnvVar    string
 	FilePath  string
 	Value     float64
-	Metadata  map[string]string
+	Metadata  map[string]interface{}
 	Hidden    bool
 	Required  bool
 	Converter Converter
@@ -914,7 +914,7 @@ type IPFlag struct {
 	EnvVar    string
 	FilePath  string
 	Value     net.IP
-	Metadata  map[string]string
+	Metadata  map[string]interface{}
 	Hidden    bool
 	Required  bool
 	Converter Converter
@@ -972,7 +972,7 @@ type HardwareAddrFlag struct {
 	EnvVar    string
 	FilePath  string
 	Value     net.HardwareAddr
-	Metadata  map[string]string
+	Metadata  map[string]interface{}
 	Hidden    bool
 	Required  bool
 	Converter Converter
@@ -1155,11 +1155,11 @@ func (f *FlagAccessor) FilePath() string {
 }
 
 // Metadata of the flag
-func (f *FlagAccessor) Metadata() map[string]string {
+func (f *FlagAccessor) Metadata() map[string]interface{} {
 	value := reflect.ValueOf(f.Flag)
 	value = reflect.Indirect(value)
 
-	metadata, ok := value.FieldByName("Metadata").Interface().(map[string]string)
+	metadata, ok := value.FieldByName("Metadata").Interface().(map[string]interface{})
 	if !ok {
 		return nil
 	}
@@ -1168,11 +1168,12 @@ func (f *FlagAccessor) Metadata() map[string]string {
 }
 
 // MetaKey returns a metadata by key
-func (f *FlagAccessor) MetaKey(path string) string {
+func (f *FlagAccessor) MetaKey(path string) interface{} {
 	if value, ok := f.Metadata()[path]; ok {
 		return value
 	}
-	return ""
+
+	return nil
 }
 
 // Hidden of the flag

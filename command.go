@@ -77,6 +77,8 @@ type Command struct {
 	Action ActionFunc
 	// Execute this function if a usage error occurs.
 	OnUsageError OnUsageErrorFunc
+	// Metadata information
+	Metadata map[string]interface{}
 }
 
 // RunWithContext runs the command
@@ -192,6 +194,7 @@ func (cmd *Command) validate(ctx *Context) error {
 
 func (cmd *Command) prepare() {
 	cmd.providers()
+	cmd.flags()
 	cmd.commands()
 }
 
@@ -211,12 +214,6 @@ func (cmd *Command) commands() {
 	}
 
 	if !cmd.HideHelp {
-		help := &BoolFlag{
-			Name:  "help, h",
-			Usage: "shows help",
-		}
-
-		cmd.Flags = append(cmd.Flags, help)
 		cmd.Commands = append(cmd.Commands, HelpCommand)
 	}
 
@@ -225,6 +222,23 @@ func (cmd *Command) commands() {
 			command.HelpName = fmt.Sprintf("%s %s", cmd.HelpName, command.Name)
 		}
 	}
+}
+
+func (cmd *Command) flags() {
+	if !cmd.HideHelp {
+		help := &BoolFlag{
+			Name:  "help, h",
+			Usage: "shows help",
+		}
+
+		cmd.Flags = append(cmd.Flags, help)
+	}
+
+	if cmd.Metadata == nil {
+		cmd.Metadata = make(map[string]interface{})
+	}
+
+	cmd.Metadata["VisibleFlags"] = cmd.VisibleFlags()
 }
 
 func (cmd *Command) fork(ctx *Context) error {

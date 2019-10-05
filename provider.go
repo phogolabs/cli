@@ -7,6 +7,9 @@ import (
 	"path/filepath"
 )
 
+// Map of key value pairs
+type Map map[string]interface{}
+
 //go:generate counterfeiter -fake-name Provider -o ./fake/provider.go . Provider
 
 // Provider is the interface that parses the flags

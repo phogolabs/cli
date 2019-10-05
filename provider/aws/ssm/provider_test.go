@@ -21,7 +21,7 @@ var _ = Describe("Provider", func() {
 		flag = &cli.StringFlag{
 			Name:  "listen-addr",
 			Usage: "listen address of HTTP server",
-			Metadata: map[string]string{
+			Metadata: cli.Map{
 				"ssm_param": "/terraform/secret",
 			},
 		}
@@ -59,7 +59,7 @@ var _ = Describe("Provider", func() {
 
 		Context("when the file path is not set", func() {
 			BeforeEach(func() {
-				flag.Metadata = map[string]string{}
+				flag.Metadata = cli.Map{}
 			})
 
 			It("does not set the value", func() {
