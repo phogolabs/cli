@@ -136,22 +136,18 @@ func (app *App) notify(ctx *Context) {
 }
 
 func (app *App) prepare(args []string) []string {
+	app.flags()
+	app.commands()
+	return app.app(args)
+}
+
+func (app *App) app(args []string) []string {
 	if len(args) == 0 {
 		args = []string{"unknown"}
 	}
 
 	if app.Name == "" {
 		app.Name = path.Base(args[0])
-	}
-
-	if !app.HideVersion {
-		version := &BoolFlag{
-			Name:  "version, v",
-			Usage: "prints the version",
-		}
-
-		app.Flags = append(app.Flags, version)
-		app.Commands = append(app.Commands, VersionCommand)
 	}
 
 	if app.Compiled.IsZero() {
@@ -177,6 +173,24 @@ func (app *App) prepare(args []string) []string {
 	}
 
 	return args
+}
+
+func (app *App) flags() {
+	if !app.HideVersion {
+		version := &BoolFlag{
+			Name:  "version, v",
+			Usage: "prints the version",
+		}
+
+		app.Flags = append(app.Flags, version)
+	}
+}
+
+func (app *App) commands() {
+	if !app.HideVersion {
+		version := NewVersionCommand()
+		app.Commands = append(app.Commands, version)
+	}
 }
 
 func (app *App) error(err error) error {

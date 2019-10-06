@@ -7,31 +7,6 @@ import (
 
 //go:generate parcello -d ./template
 
-var (
-	// HelpCommand represents a help command
-	HelpCommand = &Command{
-		Name:            "help",
-		Aliases:         []string{"h"},
-		Usage:           "Shows a list of commands or help for one command",
-		ArgsUsage:       "[command]",
-		HideHelp:        true,
-		SkipFlagParsing: true,
-		Action:          help,
-	}
-
-	// VersionCommand represents a version command
-	VersionCommand = &Command{
-		Name:            "version",
-		Aliases:         []string{"v"},
-		Usage:           "Prints the version",
-		ArgsUsage:       "[command]",
-		HideHelp:        true,
-		Hidden:          true,
-		SkipFlagParsing: true,
-		Action:          version,
-	}
-)
-
 // Command is a command for a cli.App.
 type Command struct {
 	// The name of the command
@@ -79,6 +54,35 @@ type Command struct {
 	OnUsageError OnUsageErrorFunc
 	// Metadata information
 	Metadata map[string]interface{}
+}
+
+// NewHelpCommand creates a new help command
+func NewHelpCommand() *Command {
+	help := &Command{
+		Name:            "help",
+		Aliases:         []string{"h"},
+		Usage:           "Shows a list of commands or help for one command",
+		ArgsUsage:       "[command]",
+		HideHelp:        true,
+		SkipFlagParsing: true,
+		Action:          help,
+	}
+
+	return help
+}
+
+// NewVersionCommand creates a version command
+func NewVersionCommand() *Command {
+	return &Command{
+		Name:            "version",
+		Aliases:         []string{"v"},
+		Usage:           "Prints the version",
+		ArgsUsage:       "[command]",
+		HideHelp:        true,
+		Hidden:          true,
+		SkipFlagParsing: true,
+		Action:          version,
+	}
 }
 
 // RunWithContext runs the command
@@ -215,7 +219,8 @@ func (cmd *Command) commands() {
 	}
 
 	if !cmd.HideHelp {
-		cmd.Commands = append(cmd.Commands, HelpCommand)
+		help := NewHelpCommand()
+		cmd.Commands = append(cmd.Commands, help)
 	}
 
 	for _, command := range cmd.Commands {

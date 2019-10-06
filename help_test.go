@@ -35,7 +35,7 @@ var _ = Describe("ShowHelp", func() {
 				Usage:     "root_usage",
 				UsageText: "root_usage_text",
 				Commands: []*cli.Command{
-					cli.HelpCommand,
+					cli.NewHelpCommand(),
 					&cli.Command{
 						Name:      "action",
 						HelpName:  "action_help",
@@ -50,7 +50,7 @@ var _ = Describe("ShowHelp", func() {
 
 	Context("when the command is main command", func() {
 		It("shows the help for the command", func() {
-			Expect(cli.HelpCommand.Action(parent)).To(Succeed())
+			Expect(cli.NewHelpCommand().Action(parent)).To(Succeed())
 			Expect(buffer).To(Say("COPYRIGHT"))
 		})
 	})
@@ -63,7 +63,7 @@ var _ = Describe("ShowHelp", func() {
 		})
 
 		It("returns an error", func() {
-			Expect(cli.HelpCommand.Action(parent)).To(MatchError("oh no!"))
+			Expect(cli.NewHelpCommand().Action(parent)).To(MatchError("oh no!"))
 		})
 	})
 
@@ -72,13 +72,13 @@ var _ = Describe("ShowHelp", func() {
 			ctx = &cli.Context{
 				Parent:  parent,
 				Writer:  parent.Writer,
-				Command: cli.HelpCommand,
+				Command: cli.NewHelpCommand(),
 				Args:    []string{"action"},
 			}
 		})
 
 		It("shows the help for the command", func() {
-			Expect(cli.HelpCommand.Action(ctx)).To(Succeed())
+			Expect(cli.NewHelpCommand().Action(ctx)).To(Succeed())
 			Expect(buffer).To(Say("action_help - action_usage"))
 		})
 	})
@@ -88,13 +88,13 @@ var _ = Describe("ShowHelp", func() {
 			ctx = &cli.Context{
 				Parent:  parent,
 				Writer:  parent.Writer,
-				Command: cli.HelpCommand,
+				Command: cli.NewHelpCommand(),
 				Args:    []string{"exec"},
 			}
 		})
 
 		It("shows the help for the command", func() {
-			Expect(cli.HelpCommand.Action(ctx)).To(Succeed())
+			Expect(cli.NewHelpCommand().Action(ctx)).To(Succeed())
 			Expect(buffer).To(Say("No help topic for 'exec'"))
 		})
 	})
@@ -104,12 +104,12 @@ var _ = Describe("ShowHelp", func() {
 			ctx = &cli.Context{
 				Parent:  parent,
 				Writer:  parent.Writer,
-				Command: cli.HelpCommand,
+				Command: cli.NewHelpCommand(),
 			}
 		})
 
 		It("shows the help for the command", func() {
-			Expect(cli.HelpCommand.Action(ctx)).To(Succeed())
+			Expect(cli.NewHelpCommand().Action(ctx)).To(Succeed())
 			Expect(buffer).To(Say("root_help - root_usage"))
 		})
 	})
@@ -132,7 +132,7 @@ var _ = Describe("ShowVersion", func() {
 			},
 		}
 
-		Expect(cli.VersionCommand.Action(ctx)).To(Succeed())
+		Expect(cli.NewVersionCommand().Action(ctx)).To(Succeed())
 		Expect(buffer).To(Say("app version BETA"))
 	})
 })

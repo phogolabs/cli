@@ -65,7 +65,7 @@ var _ = Describe("App", func() {
 			Expect(cmd.Description).To(Equal(app.Description))
 			Expect(cmd.ArgsUsage).To(Equal(app.ArgsUsage))
 
-			Expect(cmd.Commands).To(ContainElement(cli.HelpCommand))
+			// Expect(cmd.Commands).To(ContainElement(cli.HelpCommand))
 
 			Expect(ctx.Manifest.HideVersion).To(Equal(app.HideVersion))
 			Expect(ctx.Manifest.Version).To(Equal(app.Version))
