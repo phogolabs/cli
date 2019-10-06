@@ -1,19 +1,19 @@
 NAME:
    {{.Name}}{{if .Usage}} - {{.Usage}}{{end}}
 USAGE:
-   {{if .UsageText}}{{.UsageText}}{{else}}{{.HelpName}} {{if .VisibleFlags}}[global options]{{end}}{{if .Commands}} command [command options]{{end}} {{if .ArgsUsage}}{{.ArgsUsage}}{{else}}[arguments...]{{end}}{{end}}{{if .Version}}{{if not .HideVersion}}
+   {{if .UsageText}}{{.UsageText}}{{else}}{{.HelpName}} {{if .VisibleFlags}}[global options]{{end}}{{if .Commands}} command [command options]{{end}} {{if .ArgsUsage}}{{.ArgsUsage}}{{else}}[arguments...]{{end}}{{end}}{{if .Metadata.Version}}{{if not .Metadata.HideVersion}}
 VERSION:
-   {{.Version}}{{end}}{{end}}{{if .Description}}
+   {{.Metadata.Version}}{{end}}{{end}}{{if .Description}}
 DESCRIPTION:
-   {{.Description}}{{end}}{{if len .Authors}}
-AUTHOR{{with $length := len .Authors}}{{if ne 1 $length}}S{{end}}{{end}}:
-   {{range $index, $author := .Authors}}{{if $index}}
+   {{.Description}}{{end}}{{if len .Metadata.Authors}}
+AUTHOR{{with $length := len .Metadata.Authors}}{{if ne 1 $length}}S{{end}}{{end}}:
+   {{range $index, $author := .Metadata.Authors}}{{if $index}}
    {{end}}{{$author}}{{end}}{{end}}{{if .VisibleCommands}}
 COMMANDS:{{range .VisibleCategories}}{{if .Name}}
    {{.Name}}:{{end}}{{range .VisibleCommands}}
      {{join .Names ", "}}{{"\t"}}{{.Usage}}{{end}}{{end}}{{end}}{{if .Metadata.VisibleFlags}}
 GLOBAL OPTIONS:
    {{range $index, $option := .Metadata.VisibleFlags}}{{if $index}}
-   {{end}}{{$option}}{{end}}{{end}}{{if .Copyright}}
+   {{end}}{{$option}}{{end}}{{end}}{{if .Metadata.Copyright}}
 COPYRIGHT:
-   {{.Copyright}}{{end}}
+   {{.Metadata.Copyright}}{{end}}

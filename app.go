@@ -94,6 +94,12 @@ func (app *App) Run(args []string) error {
 		Action:       app.Action,
 		Providers:    app.Providers,
 		OnUsageError: app.OnUsageError,
+		Metadata: Map{
+			"HideVersion": app.HideVersion,
+			"Version":     app.Version,
+			"Authors":     app.Authors,
+			"Copyright":   app.Copyright,
+		},
 	}
 
 	ctx := &Context{
@@ -102,12 +108,6 @@ func (app *App) Run(args []string) error {
 		Writer:    app.Writer,
 		ErrWriter: app.ErrWriter,
 		Metadata:  make(map[string]interface{}),
-		Manifest: &Manifest{
-			HideVersion: app.HideVersion,
-			Version:     app.Version,
-			Authors:     app.Authors,
-			Copyright:   app.Copyright,
-		},
 	}
 
 	app.notify(ctx)

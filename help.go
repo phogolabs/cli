@@ -10,11 +10,6 @@ import (
 	"github.com/phogolabs/parcello"
 )
 
-type documentation struct {
-	*Command
-	*Manifest
-}
-
 func help(ctx *Context) error {
 	var (
 		man  string
@@ -54,12 +49,7 @@ func help(ctx *Context) error {
 	tmpl := template.New("help").Funcs(templateFuncMap)
 	tmpl = template.Must(tmpl.Parse(string(content)))
 
-	docs := &documentation{
-		Command:  cmd,
-		Manifest: ctx.Manifest,
-	}
-
-	if err := tmpl.Execute(writer, docs); err != nil {
+	if err := tmpl.Execute(writer, cmd); err != nil {
 		return err
 	}
 
@@ -71,6 +61,12 @@ func version(ctx *Context) error {
 		ctx = ctx.Parent
 	}
 
-	fmt.Fprintf(ctx.Writer, "%v version %v\n", ctx.Command.Name, ctx.Manifest.Version)
+	tmpl := template.New("version")
+	tmpl = template.Must(tmpl.Parse("{{ .Name }} version {{ .Metadata.Version }}\n"))
+
+	if err := tmpl.Execute(ctx.Writer, ctx.Command); err != nil {
+		return err
+	}
+
 	return nil
 }

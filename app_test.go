@@ -64,14 +64,6 @@ var _ = Describe("App", func() {
 			Expect(cmd.HelpName).To(Equal(app.HelpName))
 			Expect(cmd.Description).To(Equal(app.Description))
 			Expect(cmd.ArgsUsage).To(Equal(app.ArgsUsage))
-
-			// Expect(cmd.Commands).To(ContainElement(cli.HelpCommand))
-
-			Expect(ctx.Manifest.HideVersion).To(Equal(app.HideVersion))
-			Expect(ctx.Manifest.Version).To(Equal(app.Version))
-			Expect(ctx.Manifest.Copyright).To(Equal(app.Copyright))
-			Expect(ctx.Manifest.Authors).To(Equal(app.Authors))
-
 			Expect(ctx.Args).To(BeEmpty())
 
 			return nil
