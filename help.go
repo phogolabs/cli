@@ -10,11 +10,6 @@ import (
 	"github.com/phogolabs/parcello"
 )
 
-// TemplateFuncMap exposes a map of function used in the templates
-var TemplateFuncMap = template.FuncMap{
-	"join": strings.Join,
-}
-
 type documentation struct {
 	*Command
 	*Manifest
@@ -47,11 +42,16 @@ func help(ctx *Context) error {
 		return nil
 	}
 
-	help, _ := parcello.Open(man)
-	content, _ := ioutil.ReadAll(help)
-	writer := tabwriter.NewWriter(ctx.Writer, 1, 8, 2, ' ', 0)
+	var (
+		help, _         = parcello.Open(man)
+		content, _      = ioutil.ReadAll(help)
+		writer          = tabwriter.NewWriter(ctx.Writer, 1, 8, 2, ' ', 0)
+		templateFuncMap = template.FuncMap{
+			"join": strings.Join,
+		}
+	)
 
-	tmpl := template.New("help").Funcs(TemplateFuncMap)
+	tmpl := template.New("help").Funcs(templateFuncMap)
 	tmpl = template.Must(tmpl.Parse(string(content)))
 
 	docs := &documentation{
