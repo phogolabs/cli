@@ -74,7 +74,7 @@ type App struct {
 
 // Run is the entry point to the cli app. Parses the arguments slice and routes
 // to the proper flag/args combination
-func (app *App) Run(args []string) error {
+func (app *App) Run(args []string) {
 	args = app.prepare(args)
 
 	cmd := &Command{
@@ -111,8 +111,7 @@ func (app *App) Run(args []string) error {
 	}
 
 	app.notify(ctx)
-
-	return app.error(cmd.RunWithContext(ctx))
+	app.error(cmd.RunWithContext(ctx))
 }
 
 func (app *App) notify(ctx *Context) {
@@ -193,9 +192,9 @@ func (app *App) commands() {
 	}
 }
 
-func (app *App) error(err error) error {
+func (app *App) error(err error) {
 	if err == nil {
-		return nil
+		return
 	}
 
 	if app.OnExitErr != nil {
@@ -209,7 +208,6 @@ func (app *App) error(err error) error {
 
 	fmt.Fprintln(app.ErrWriter, err)
 	app.Exit(exitErr.ExitCode())
-	return err
 }
 
 // Author represents someone who has contributed to a cli project.

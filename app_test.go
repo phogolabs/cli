@@ -69,7 +69,7 @@ var _ = Describe("App", func() {
 			return nil
 		}
 
-		Expect(app.Run([]string{"app"})).To(Succeed())
+		app.Run([]string{"app"})
 	})
 
 	Context("when the operation system sends a signal", func() {
@@ -92,7 +92,7 @@ var _ = Describe("App", func() {
 				return nil
 			}
 
-			Expect(app.Run([]string{"app"})).To(Succeed())
+			app.Run([]string{"app"})
 
 			process, err := os.FindProcess(os.Getpid())
 			Expect(err).NotTo(HaveOccurred())
@@ -113,7 +113,7 @@ var _ = Describe("App", func() {
 				return nil
 			}
 
-			Expect(app.Run([]string{"app"})).To(Succeed())
+			app.Run([]string{"app"})
 		})
 	})
 
@@ -126,7 +126,8 @@ var _ = Describe("App", func() {
 		})
 
 		It("shows the version", func() {
-			Expect(app.Run([]string{"app", "-v"})).To(Succeed())
+			app.Run([]string{"app", "-v"})
+
 			Expect(buffer.String()).To(Equal("prana version 1.0-beta-04\n"))
 		})
 	})
@@ -141,7 +142,7 @@ var _ = Describe("App", func() {
 				Expect(code).To(Equal(78))
 			}
 
-			Expect(app.Run([]string{"app"})).To(MatchError("oh no!"))
+			app.Run([]string{"app"})
 		})
 
 		Context("when the error is not exit error", func() {
@@ -159,7 +160,7 @@ var _ = Describe("App", func() {
 					Expect(code).To(Equal(1))
 				}
 
-				Expect(app.Run([]string{"app"})).To(MatchError("oh no!"))
+				app.Run([]string{"app"})
 			})
 		})
 	})

@@ -60,9 +60,7 @@ func main() {
 		OnSignal:  signal,
 	}
 
-	if err := app.Run(os.Args); err != nil {
-		panic(err)
-	}
+	app.Run(os.Args)
 }
 
 // run executes the application
