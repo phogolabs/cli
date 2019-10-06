@@ -1040,38 +1040,6 @@ func NewFlagAccessor(flag Flag) *FlagAccessor {
 	}
 }
 
-// SetValue sets the value
-func (f *FlagAccessor) SetValue(v interface{}) (err error) {
-	defer func() {
-		if r := recover(); r != nil {
-			err = f.error(r)
-		}
-	}()
-
-	if converter := f.Converter(); converter != nil {
-		if v, err = converter.Convert(v); err != nil {
-			return err
-		}
-	}
-
-	value := reflect.ValueOf(v)
-
-	switch value.Kind() {
-	case reflect.String:
-		return f.Set(value.String())
-	default:
-		flag := reflect.ValueOf(f.Flag)
-		flag = reflect.Indirect(flag)
-		field := flag.FieldByName("Value")
-
-		if field.CanSet() {
-			field.Set(value)
-		}
-	}
-
-	return err
-}
-
 // Set is called once, in command line order, for each flag present.
 // The flag package may call the String method with a zero-valued receiver,
 // such as a nil pointer.

@@ -34,7 +34,7 @@ func (p *FlagProvider) Provide(ctx *Context) error {
 	p.set.SetOutput(ioutil.Discard)
 
 	for _, flag := range ctx.Command.Flags {
-		accessor := &FlagAccessor{Flag: flag}
+		accessor := NewFlagAccessor(flag)
 
 		for _, key := range split(accessor.Name()) {
 			p.set.Var(accessor, key, accessor.Usage())
@@ -58,7 +58,7 @@ type EnvProvider struct{}
 // Provide parses the args
 func (p *EnvProvider) Provide(ctx *Context) error {
 	for _, flag := range ctx.Command.Flags {
-		accessor := &FlagAccessor{Flag: flag}
+		accessor := NewFlagAccessor(flag)
 
 		for _, env := range split(accessor.EnvVar()) {
 			value := getEnv(env)
@@ -82,7 +82,7 @@ type FileProvider struct{}
 // Provide parses the args
 func (p *FileProvider) Provide(ctx *Context) error {
 	for _, flag := range ctx.Command.Flags {
-		accessor := &FlagAccessor{Flag: flag}
+		accessor := NewFlagAccessor(flag)
 
 		for _, path := range split(accessor.FilePath()) {
 			paths, err := filepath.Glob(path)
