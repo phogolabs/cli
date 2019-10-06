@@ -18,17 +18,17 @@ import (
 // Validator converts values
 type Validator interface {
 	// Validate validates the value
-	Validate(interface{}) error
+	Validate(ctx *Context, value interface{}) error
 }
 
 var _ Validator = ValidatorFunc(nil)
 
 // ValidatorFunc validates a flag
-type ValidatorFunc func(interface{}) error
+type ValidatorFunc func(ctx *Context, value interface{}) error
 
 // Validate validates the value
-func (fn ValidatorFunc) Validate(v interface{}) error {
-	return fn(v)
+func (fn ValidatorFunc) Validate(ctx *Context, value interface{}) error {
+	return fn(ctx, value)
 }
 
 //go:generate counterfeiter -fake-name Flag -o ./fake/flag.go . Flag
@@ -52,7 +52,6 @@ type Flag interface {
 	String() string
 	Set(string) error
 	Get() interface{}
-	Validate() error
 }
 
 var _ Flag = &StringFlag{}
@@ -92,7 +91,7 @@ func (f *StringFlag) Get() interface{} {
 }
 
 // Validate validates the flag
-func (f *StringFlag) Validate() error {
+func (f *StringFlag) Validate(ctx *Context) error {
 	if f.Required {
 		if f.Value == "" {
 			return RequiredErr(f.Name)
@@ -100,7 +99,7 @@ func (f *StringFlag) Validate() error {
 	}
 
 	if f.Validator != nil {
-		return f.Validator.Validate(f.Value)
+		return f.Validator.Validate(ctx, f.Value)
 	}
 
 	return nil
@@ -149,7 +148,7 @@ func (f *StringSliceFlag) Get() interface{} {
 }
 
 // Validate validates the flag
-func (f *StringSliceFlag) Validate() error {
+func (f *StringSliceFlag) Validate(ctx *Context) error {
 	if f.Required {
 		if f.Value == nil || len(f.Value) == 0 {
 			return RequiredErr(f.Name)
@@ -157,7 +156,7 @@ func (f *StringSliceFlag) Validate() error {
 	}
 
 	if f.Validator != nil {
-		return f.Validator.Validate(f.Value)
+		return f.Validator.Validate(ctx, f.Value)
 	}
 
 	return nil
@@ -209,9 +208,9 @@ func (f *BoolFlag) Get() interface{} {
 }
 
 // Validate validates the flag
-func (f *BoolFlag) Validate() error {
+func (f *BoolFlag) Validate(ctx *Context) error {
 	if f.Validator != nil {
-		return f.Validator.Validate(f.Value)
+		return f.Validator.Validate(ctx, f.Value)
 	}
 
 	return nil
@@ -257,7 +256,7 @@ func (f *URLFlag) Get() interface{} {
 }
 
 // Validate validates the flag
-func (f *URLFlag) Validate() error {
+func (f *URLFlag) Validate(ctx *Context) error {
 	if f.Required {
 		if f.Value == nil {
 			return RequiredErr(f.Name)
@@ -265,7 +264,7 @@ func (f *URLFlag) Validate() error {
 	}
 
 	if f.Validator != nil {
-		return f.Validator.Validate(f.Value)
+		return f.Validator.Validate(ctx, f.Value)
 	}
 
 	return nil
@@ -309,7 +308,7 @@ func (f *JSONFlag) Get() interface{} {
 }
 
 // Validate validates the flag
-func (f *JSONFlag) Validate() error {
+func (f *JSONFlag) Validate(ctx *Context) error {
 	if f.Required {
 		if f.Value == nil {
 			return RequiredErr(f.Name)
@@ -317,7 +316,7 @@ func (f *JSONFlag) Validate() error {
 	}
 
 	if f.Validator != nil {
-		return f.Validator.Validate(f.Value)
+		return f.Validator.Validate(ctx, f.Value)
 	}
 
 	return nil
@@ -361,7 +360,7 @@ func (f *YAMLFlag) Get() interface{} {
 }
 
 // Validate validates the flag
-func (f *YAMLFlag) Validate() error {
+func (f *YAMLFlag) Validate(ctx *Context) error {
 	if f.Required {
 		if f.Value == nil {
 			return RequiredErr(f.Name)
@@ -369,7 +368,7 @@ func (f *YAMLFlag) Validate() error {
 	}
 
 	if f.Validator != nil {
-		return f.Validator.Validate(f.Value)
+		return f.Validator.Validate(ctx, f.Value)
 	}
 
 	return nil
@@ -413,7 +412,7 @@ func (f *XMLFlag) Get() interface{} {
 }
 
 // Validate validates the flag
-func (f *XMLFlag) Validate() error {
+func (f *XMLFlag) Validate(ctx *Context) error {
 	if f.Required {
 		if f.Value == nil {
 			return RequiredErr(f.Name)
@@ -421,7 +420,7 @@ func (f *XMLFlag) Validate() error {
 	}
 
 	if f.Validator != nil {
-		return f.Validator.Validate(f.Value)
+		return f.Validator.Validate(ctx, f.Value)
 	}
 
 	return nil
@@ -467,7 +466,7 @@ func (f *TimeFlag) Get() interface{} {
 }
 
 // Validate validates the flag
-func (f *TimeFlag) Validate() error {
+func (f *TimeFlag) Validate(ctx *Context) error {
 	if f.Required {
 		if f.Value.IsZero() {
 			return RequiredErr(f.Name)
@@ -475,7 +474,7 @@ func (f *TimeFlag) Validate() error {
 	}
 
 	if f.Validator != nil {
-		return f.Validator.Validate(f.Value)
+		return f.Validator.Validate(ctx, f.Value)
 	}
 
 	return nil
@@ -516,7 +515,7 @@ func (f *DurationFlag) Get() interface{} {
 }
 
 // Validate validates the flag
-func (f *DurationFlag) Validate() error {
+func (f *DurationFlag) Validate(ctx *Context) error {
 	if f.Required {
 		if f.Value == 0 {
 			return RequiredErr(f.Name)
@@ -524,7 +523,7 @@ func (f *DurationFlag) Validate() error {
 	}
 
 	if f.Validator != nil {
-		return f.Validator.Validate(f.Value)
+		return f.Validator.Validate(ctx, f.Value)
 	}
 
 	return nil
@@ -570,7 +569,7 @@ func (f *IntFlag) Get() interface{} {
 }
 
 // Validate validates the flag
-func (f *IntFlag) Validate() error {
+func (f *IntFlag) Validate(ctx *Context) error {
 	if f.Required {
 		if f.Value == 0 {
 			return RequiredErr(f.Name)
@@ -578,7 +577,7 @@ func (f *IntFlag) Validate() error {
 	}
 
 	if f.Validator != nil {
-		return f.Validator.Validate(f.Value)
+		return f.Validator.Validate(ctx, f.Value)
 	}
 
 	return nil
@@ -619,7 +618,7 @@ func (f *Int64Flag) Get() interface{} {
 }
 
 // Validate validates the flag
-func (f *Int64Flag) Validate() error {
+func (f *Int64Flag) Validate(ctx *Context) error {
 	if f.Required {
 		if f.Value == 0 {
 			return RequiredErr(f.Name)
@@ -627,7 +626,7 @@ func (f *Int64Flag) Validate() error {
 	}
 
 	if f.Validator != nil {
-		return f.Validator.Validate(f.Value)
+		return f.Validator.Validate(ctx, f.Value)
 	}
 
 	return nil
@@ -673,7 +672,7 @@ func (f *UIntFlag) Get() interface{} {
 }
 
 // Validate validates the flag
-func (f *UIntFlag) Validate() error {
+func (f *UIntFlag) Validate(ctx *Context) error {
 	if f.Required {
 		if f.Value == 0 {
 			return RequiredErr(f.Name)
@@ -681,7 +680,7 @@ func (f *UIntFlag) Validate() error {
 	}
 
 	if f.Validator != nil {
-		return f.Validator.Validate(f.Value)
+		return f.Validator.Validate(ctx, f.Value)
 	}
 
 	return nil
@@ -722,7 +721,7 @@ func (f *UInt64Flag) Get() interface{} {
 }
 
 // Validate validates the flag
-func (f *UInt64Flag) Validate() error {
+func (f *UInt64Flag) Validate(ctx *Context) error {
 	if f.Required {
 		if f.Value == 0 {
 			return RequiredErr(f.Name)
@@ -730,7 +729,7 @@ func (f *UInt64Flag) Validate() error {
 	}
 
 	if f.Validator != nil {
-		return f.Validator.Validate(f.Value)
+		return f.Validator.Validate(ctx, f.Value)
 	}
 
 	return nil
@@ -776,7 +775,7 @@ func (f *Float32Flag) Get() interface{} {
 }
 
 // Validate validates the flag
-func (f *Float32Flag) Validate() error {
+func (f *Float32Flag) Validate(ctx *Context) error {
 	if f.Required {
 		if f.Value == 0 {
 			return RequiredErr(f.Name)
@@ -784,7 +783,7 @@ func (f *Float32Flag) Validate() error {
 	}
 
 	if f.Validator != nil {
-		return f.Validator.Validate(f.Value)
+		return f.Validator.Validate(ctx, f.Value)
 	}
 
 	return nil
@@ -825,7 +824,7 @@ func (f *Float64Flag) Get() interface{} {
 }
 
 // Validate validates the flag
-func (f *Float64Flag) Validate() error {
+func (f *Float64Flag) Validate(ctx *Context) error {
 	if f.Required {
 		if f.Value == 0 {
 			return RequiredErr(f.Name)
@@ -833,7 +832,7 @@ func (f *Float64Flag) Validate() error {
 	}
 
 	if f.Validator != nil {
-		return f.Validator.Validate(f.Value)
+		return f.Validator.Validate(ctx, f.Value)
 	}
 
 	return nil
@@ -882,7 +881,7 @@ func (f *IPFlag) Get() interface{} {
 }
 
 // Validate validates the flag
-func (f *IPFlag) Validate() error {
+func (f *IPFlag) Validate(ctx *Context) error {
 	if f.Required {
 		if f.Value == nil {
 			return RequiredErr(f.Name)
@@ -890,7 +889,7 @@ func (f *IPFlag) Validate() error {
 	}
 
 	if f.Validator != nil {
-		return f.Validator.Validate(f.Value)
+		return f.Validator.Validate(ctx, f.Value)
 	}
 
 	return nil
@@ -931,7 +930,7 @@ func (f *HardwareAddrFlag) Get() interface{} {
 }
 
 // Validate validates the flag
-func (f *HardwareAddrFlag) Validate() error {
+func (f *HardwareAddrFlag) Validate(ctx *Context) error {
 	if f.Required {
 		if f.Value == nil {
 			return RequiredErr(f.Name)
@@ -939,7 +938,7 @@ func (f *HardwareAddrFlag) Validate() error {
 	}
 
 	if f.Validator != nil {
-		return f.Validator.Validate(f.Value)
+		return f.Validator.Validate(ctx, f.Value)
 	}
 
 	return nil
@@ -947,6 +946,10 @@ func (f *HardwareAddrFlag) Validate() error {
 
 type toggle interface {
 	IsBoolFlag() bool
+}
+
+type validator interface {
+	Validate(ctx *Context) error
 }
 
 type resetter interface {
@@ -1069,8 +1072,12 @@ func (f *FlagAccessor) Hidden() bool {
 }
 
 // Validate validates the flag
-func (f *FlagAccessor) Validate() error {
-	return f.Flag.Validate()
+func (f *FlagAccessor) Validate(ctx *Context) error {
+	if validator, ok := f.Flag.(validator); ok {
+		return validator.Validate(ctx)
+	}
+
+	return nil
 }
 
 func (f *FlagAccessor) error(v interface{}) error {

@@ -184,7 +184,8 @@ func (cmd *Command) provide(ctx *Context) (err error) {
 
 func (cmd *Command) validate(ctx *Context) error {
 	for _, flag := range cmd.Flags {
-		if err := flag.Validate(); err != nil {
+		accessor := NewFlagAccessor(flag)
+		if err := accessor.Validate(ctx); err != nil {
 			return cmd.error(ctx, err)
 		}
 	}

@@ -8,10 +8,10 @@ import (
 )
 
 type Client struct {
-	GetStub        func(name string) (string, error)
+	GetStub        func(string) (string, error)
 	getMutex       sync.RWMutex
 	getArgsForCall []struct {
-		name string
+		arg1 string
 	}
 	getReturns struct {
 		result1 string
@@ -25,21 +25,22 @@ type Client struct {
 	invocationsMutex sync.RWMutex
 }
 
-func (fake *Client) Get(name string) (string, error) {
+func (fake *Client) Get(arg1 string) (string, error) {
 	fake.getMutex.Lock()
 	ret, specificReturn := fake.getReturnsOnCall[len(fake.getArgsForCall)]
 	fake.getArgsForCall = append(fake.getArgsForCall, struct {
-		name string
-	}{name})
-	fake.recordInvocation("Get", []interface{}{name})
+		arg1 string
+	}{arg1})
+	fake.recordInvocation("Get", []interface{}{arg1})
 	fake.getMutex.Unlock()
 	if fake.GetStub != nil {
-		return fake.GetStub(name)
+		return fake.GetStub(arg1)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	return fake.getReturns.result1, fake.getReturns.result2
+	fakeReturns := fake.getReturns
+	return fakeReturns.result1, fakeReturns.result2
 }
 
 func (fake *Client) GetCallCount() int {
@@ -48,13 +49,22 @@ func (fake *Client) GetCallCount() int {
 	return len(fake.getArgsForCall)
 }
 
+func (fake *Client) GetCalls(stub func(string) (string, error)) {
+	fake.getMutex.Lock()
+	defer fake.getMutex.Unlock()
+	fake.GetStub = stub
+}
+
 func (fake *Client) GetArgsForCall(i int) string {
 	fake.getMutex.RLock()
 	defer fake.getMutex.RUnlock()
-	return fake.getArgsForCall[i].name
+	argsForCall := fake.getArgsForCall[i]
+	return argsForCall.arg1
 }
 
 func (fake *Client) GetReturns(result1 string, result2 error) {
+	fake.getMutex.Lock()
+	defer fake.getMutex.Unlock()
 	fake.GetStub = nil
 	fake.getReturns = struct {
 		result1 string
@@ -63,6 +73,8 @@ func (fake *Client) GetReturns(result1 string, result2 error) {
 }
 
 func (fake *Client) GetReturnsOnCall(i int, result1 string, result2 error) {
+	fake.getMutex.Lock()
+	defer fake.getMutex.Unlock()
 	fake.GetStub = nil
 	if fake.getReturnsOnCall == nil {
 		fake.getReturnsOnCall = make(map[int]struct {

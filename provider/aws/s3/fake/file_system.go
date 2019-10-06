@@ -8,10 +8,10 @@ import (
 )
 
 type FileSystem struct {
-	GlobStub        func(pattern string) ([]string, error)
+	GlobStub        func(string) ([]string, error)
 	globMutex       sync.RWMutex
 	globArgsForCall []struct {
-		pattern string
+		arg1 string
 	}
 	globReturns struct {
 		result1 []string
@@ -21,10 +21,10 @@ type FileSystem struct {
 		result1 []string
 		result2 error
 	}
-	ReadFileStub        func(path string) ([]byte, error)
+	ReadFileStub        func(string) ([]byte, error)
 	readFileMutex       sync.RWMutex
 	readFileArgsForCall []struct {
-		path string
+		arg1 string
 	}
 	readFileReturns struct {
 		result1 []byte
@@ -38,21 +38,22 @@ type FileSystem struct {
 	invocationsMutex sync.RWMutex
 }
 
-func (fake *FileSystem) Glob(pattern string) ([]string, error) {
+func (fake *FileSystem) Glob(arg1 string) ([]string, error) {
 	fake.globMutex.Lock()
 	ret, specificReturn := fake.globReturnsOnCall[len(fake.globArgsForCall)]
 	fake.globArgsForCall = append(fake.globArgsForCall, struct {
-		pattern string
-	}{pattern})
-	fake.recordInvocation("Glob", []interface{}{pattern})
+		arg1 string
+	}{arg1})
+	fake.recordInvocation("Glob", []interface{}{arg1})
 	fake.globMutex.Unlock()
 	if fake.GlobStub != nil {
-		return fake.GlobStub(pattern)
+		return fake.GlobStub(arg1)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	return fake.globReturns.result1, fake.globReturns.result2
+	fakeReturns := fake.globReturns
+	return fakeReturns.result1, fakeReturns.result2
 }
 
 func (fake *FileSystem) GlobCallCount() int {
@@ -61,13 +62,22 @@ func (fake *FileSystem) GlobCallCount() int {
 	return len(fake.globArgsForCall)
 }
 
+func (fake *FileSystem) GlobCalls(stub func(string) ([]string, error)) {
+	fake.globMutex.Lock()
+	defer fake.globMutex.Unlock()
+	fake.GlobStub = stub
+}
+
 func (fake *FileSystem) GlobArgsForCall(i int) string {
 	fake.globMutex.RLock()
 	defer fake.globMutex.RUnlock()
-	return fake.globArgsForCall[i].pattern
+	argsForCall := fake.globArgsForCall[i]
+	return argsForCall.arg1
 }
 
 func (fake *FileSystem) GlobReturns(result1 []string, result2 error) {
+	fake.globMutex.Lock()
+	defer fake.globMutex.Unlock()
 	fake.GlobStub = nil
 	fake.globReturns = struct {
 		result1 []string
@@ -76,6 +86,8 @@ func (fake *FileSystem) GlobReturns(result1 []string, result2 error) {
 }
 
 func (fake *FileSystem) GlobReturnsOnCall(i int, result1 []string, result2 error) {
+	fake.globMutex.Lock()
+	defer fake.globMutex.Unlock()
 	fake.GlobStub = nil
 	if fake.globReturnsOnCall == nil {
 		fake.globReturnsOnCall = make(map[int]struct {
@@ -89,21 +101,22 @@ func (fake *FileSystem) GlobReturnsOnCall(i int, result1 []string, result2 error
 	}{result1, result2}
 }
 
-func (fake *FileSystem) ReadFile(path string) ([]byte, error) {
+func (fake *FileSystem) ReadFile(arg1 string) ([]byte, error) {
 	fake.readFileMutex.Lock()
 	ret, specificReturn := fake.readFileReturnsOnCall[len(fake.readFileArgsForCall)]
 	fake.readFileArgsForCall = append(fake.readFileArgsForCall, struct {
-		path string
-	}{path})
-	fake.recordInvocation("ReadFile", []interface{}{path})
+		arg1 string
+	}{arg1})
+	fake.recordInvocation("ReadFile", []interface{}{arg1})
 	fake.readFileMutex.Unlock()
 	if fake.ReadFileStub != nil {
-		return fake.ReadFileStub(path)
+		return fake.ReadFileStub(arg1)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	return fake.readFileReturns.result1, fake.readFileReturns.result2
+	fakeReturns := fake.readFileReturns
+	return fakeReturns.result1, fakeReturns.result2
 }
 
 func (fake *FileSystem) ReadFileCallCount() int {
@@ -112,13 +125,22 @@ func (fake *FileSystem) ReadFileCallCount() int {
 	return len(fake.readFileArgsForCall)
 }
 
+func (fake *FileSystem) ReadFileCalls(stub func(string) ([]byte, error)) {
+	fake.readFileMutex.Lock()
+	defer fake.readFileMutex.Unlock()
+	fake.ReadFileStub = stub
+}
+
 func (fake *FileSystem) ReadFileArgsForCall(i int) string {
 	fake.readFileMutex.RLock()
 	defer fake.readFileMutex.RUnlock()
-	return fake.readFileArgsForCall[i].path
+	argsForCall := fake.readFileArgsForCall[i]
+	return argsForCall.arg1
 }
 
 func (fake *FileSystem) ReadFileReturns(result1 []byte, result2 error) {
+	fake.readFileMutex.Lock()
+	defer fake.readFileMutex.Unlock()
 	fake.ReadFileStub = nil
 	fake.readFileReturns = struct {
 		result1 []byte
@@ -127,6 +149,8 @@ func (fake *FileSystem) ReadFileReturns(result1 []byte, result2 error) {
 }
 
 func (fake *FileSystem) ReadFileReturnsOnCall(i int, result1 []byte, result2 error) {
+	fake.readFileMutex.Lock()
+	defer fake.readFileMutex.Unlock()
 	fake.ReadFileStub = nil
 	if fake.readFileReturnsOnCall == nil {
 		fake.readFileReturnsOnCall = make(map[int]struct {

@@ -92,16 +92,16 @@ var _ = Describe("StringFlag", func() {
 
 	Describe("Validate", func() {
 		It("validates the flag successfully", func() {
-			Expect(flag.Validate()).To(Succeed())
+			Expect(flag.Validate(&cli.Context{})).To(Succeed())
 		})
 
 		Context("when the validation fails", func() {
 			It("returns an error", func() {
-				flag.Validator = cli.ValidatorFunc(func(v interface{}) error {
+				flag.Validator = cli.ValidatorFunc(func(_ *cli.Context, _ interface{}) error {
 					return fmt.Errorf("oh no!")
 				})
 
-				Expect(flag.Validate()).To(MatchError("oh no!"))
+				Expect(flag.Validate(&cli.Context{})).To(MatchError("oh no!"))
 			})
 		})
 
@@ -116,7 +116,7 @@ var _ = Describe("StringFlag", func() {
 				})
 
 				It("returns an error", func() {
-					Expect(flag.Validate()).To(MatchError("cli: flag -listen-addr is missing"))
+					Expect(flag.Validate(&cli.Context{})).To(MatchError("cli: flag -listen-addr is missing"))
 				})
 			})
 		})
@@ -163,16 +163,16 @@ var _ = Describe("StringSliceFlag", func() {
 
 	Describe("Validate", func() {
 		It("validates the flag successfully", func() {
-			Expect(flag.Validate()).To(Succeed())
+			Expect(flag.Validate(&cli.Context{})).To(Succeed())
 		})
 
 		Context("when the validation fails", func() {
 			It("returns an error", func() {
-				flag.Validator = cli.ValidatorFunc(func(v interface{}) error {
+				flag.Validator = cli.ValidatorFunc(func(ctx *cli.Context, v interface{}) error {
 					return fmt.Errorf("oh no!")
 				})
 
-				Expect(flag.Validate()).To(MatchError("oh no!"))
+				Expect(flag.Validate(&cli.Context{})).To(MatchError("oh no!"))
 			})
 		})
 
@@ -187,7 +187,7 @@ var _ = Describe("StringSliceFlag", func() {
 				})
 
 				It("returns an error", func() {
-					Expect(flag.Validate()).To(MatchError("cli: flag -user is missing"))
+					Expect(flag.Validate(&cli.Context{})).To(MatchError("cli: flag -user is missing"))
 				})
 			})
 		})
@@ -237,16 +237,16 @@ var _ = Describe("URLFlag", func() {
 
 	Describe("Validate", func() {
 		It("validates the flag successfully", func() {
-			Expect(flag.Validate()).To(Succeed())
+			Expect(flag.Validate(&cli.Context{})).To(Succeed())
 		})
 
 		Context("when the validation fails", func() {
 			It("returns an error", func() {
-				flag.Validator = cli.ValidatorFunc(func(_ interface{}) error {
+				flag.Validator = cli.ValidatorFunc(func(_ *cli.Context, _ interface{}) error {
 					return fmt.Errorf("oh no!")
 				})
 
-				Expect(flag.Validate()).To(MatchError("oh no!"))
+				Expect(flag.Validate(&cli.Context{})).To(MatchError("oh no!"))
 			})
 		})
 
@@ -261,7 +261,7 @@ var _ = Describe("URLFlag", func() {
 				})
 
 				It("returns an error", func() {
-					Expect(flag.Validate()).To(MatchError("cli: flag -listen-addr is missing"))
+					Expect(flag.Validate(&cli.Context{})).To(MatchError("cli: flag -listen-addr is missing"))
 				})
 			})
 		})
@@ -354,16 +354,16 @@ var _ = Describe("JSONFlag", func() {
 
 	Describe("Validate", func() {
 		It("validates the flag successfully", func() {
-			Expect(flag.Validate()).To(Succeed())
+			Expect(flag.Validate(&cli.Context{})).To(Succeed())
 		})
 
 		Context("when the validation fails", func() {
 			It("returns an error", func() {
-				flag.Validator = cli.ValidatorFunc(func(_ interface{}) error {
+				flag.Validator = cli.ValidatorFunc(func(ctx *cli.Context, _ interface{}) error {
 					return fmt.Errorf("oh no!")
 				})
 
-				Expect(flag.Validate()).To(MatchError("oh no!"))
+				Expect(flag.Validate(&cli.Context{})).To(MatchError("oh no!"))
 			})
 		})
 
@@ -378,7 +378,7 @@ var _ = Describe("JSONFlag", func() {
 				})
 
 				It("returns an error", func() {
-					Expect(flag.Validate()).To(MatchError("cli: flag -map is missing"))
+					Expect(flag.Validate(&cli.Context{})).To(MatchError("cli: flag -map is missing"))
 				})
 			})
 		})
@@ -442,16 +442,16 @@ var _ = Describe("YAMLFlag", func() {
 
 	Describe("Validate", func() {
 		It("validates the flag successfully", func() {
-			Expect(flag.Validate()).To(Succeed())
+			Expect(flag.Validate(&cli.Context{})).To(Succeed())
 		})
 
 		Context("when the validation fails", func() {
 			It("returns an error", func() {
-				flag.Validator = cli.ValidatorFunc(func(_ interface{}) error {
+				flag.Validator = cli.ValidatorFunc(func(ctx *cli.Context, _ interface{}) error {
 					return fmt.Errorf("oh no!")
 				})
 
-				Expect(flag.Validate()).To(MatchError("oh no!"))
+				Expect(flag.Validate(&cli.Context{})).To(MatchError("oh no!"))
 			})
 		})
 
@@ -466,7 +466,7 @@ var _ = Describe("YAMLFlag", func() {
 				})
 
 				It("returns an error", func() {
-					Expect(flag.Validate()).To(MatchError("cli: flag -map is missing"))
+					Expect(flag.Validate(&cli.Context{})).To(MatchError("cli: flag -map is missing"))
 				})
 			})
 		})
@@ -536,16 +536,16 @@ var _ = Describe("XMLFlag", func() {
 
 	Describe("Validate", func() {
 		It("validates the flag successfully", func() {
-			Expect(flag.Validate()).To(Succeed())
+			Expect(flag.Validate(&cli.Context{})).To(Succeed())
 		})
 
 		Context("when the validation fails", func() {
 			It("returns an error", func() {
-				flag.Validator = cli.ValidatorFunc(func(_ interface{}) error {
+				flag.Validator = cli.ValidatorFunc(func(_ *cli.Context, _ interface{}) error {
 					return fmt.Errorf("oh no!")
 				})
 
-				Expect(flag.Validate()).To(MatchError("oh no!"))
+				Expect(flag.Validate(&cli.Context{})).To(MatchError("oh no!"))
 			})
 		})
 
@@ -560,7 +560,7 @@ var _ = Describe("XMLFlag", func() {
 				})
 
 				It("returns an error", func() {
-					Expect(flag.Validate()).To(MatchError("cli: flag -map is missing"))
+					Expect(flag.Validate(&cli.Context{})).To(MatchError("cli: flag -map is missing"))
 				})
 			})
 		})
@@ -600,16 +600,16 @@ var _ = Describe("TimeFlag", func() {
 
 	Describe("Validate", func() {
 		It("validates the flag successfully", func() {
-			Expect(flag.Validate()).To(Succeed())
+			Expect(flag.Validate(&cli.Context{})).To(Succeed())
 		})
 
 		Context("when the validation fails", func() {
 			It("returns an error", func() {
-				flag.Validator = cli.ValidatorFunc(func(_ interface{}) error {
+				flag.Validator = cli.ValidatorFunc(func(_ *cli.Context, _ interface{}) error {
 					return fmt.Errorf("oh no!")
 				})
 
-				Expect(flag.Validate()).To(MatchError("oh no!"))
+				Expect(flag.Validate(&cli.Context{})).To(MatchError("oh no!"))
 			})
 		})
 
@@ -624,7 +624,7 @@ var _ = Describe("TimeFlag", func() {
 				})
 
 				It("returns an error", func() {
-					Expect(flag.Validate()).To(MatchError("cli: flag -time is missing"))
+					Expect(flag.Validate(&cli.Context{})).To(MatchError("cli: flag -time is missing"))
 				})
 			})
 		})
@@ -663,16 +663,16 @@ var _ = Describe("DurationFlag", func() {
 
 	Describe("Validate", func() {
 		It("validates the flag successfully", func() {
-			Expect(flag.Validate()).To(Succeed())
+			Expect(flag.Validate(&cli.Context{})).To(Succeed())
 		})
 
 		Context("when the validation fails", func() {
 			It("returns an error", func() {
-				flag.Validator = cli.ValidatorFunc(func(_ interface{}) error {
+				flag.Validator = cli.ValidatorFunc(func(_ *cli.Context, _ interface{}) error {
 					return fmt.Errorf("oh no!")
 				})
 
-				Expect(flag.Validate()).To(MatchError("oh no!"))
+				Expect(flag.Validate(&cli.Context{})).To(MatchError("oh no!"))
 			})
 		})
 
@@ -687,7 +687,7 @@ var _ = Describe("DurationFlag", func() {
 				})
 
 				It("returns an error", func() {
-					Expect(flag.Validate()).To(MatchError("cli: flag -time is missing"))
+					Expect(flag.Validate(&cli.Context{})).To(MatchError("cli: flag -time is missing"))
 				})
 			})
 		})
@@ -731,16 +731,16 @@ var _ = Describe("IntFlag", func() {
 
 	Describe("Validate", func() {
 		It("validates the flag successfully", func() {
-			Expect(flag.Validate()).To(Succeed())
+			Expect(flag.Validate(&cli.Context{})).To(Succeed())
 		})
 
 		Context("when the validation fails", func() {
 			It("returns an error", func() {
-				flag.Validator = cli.ValidatorFunc(func(_ interface{}) error {
+				flag.Validator = cli.ValidatorFunc(func(_ *cli.Context, _ interface{}) error {
 					return fmt.Errorf("oh no!")
 				})
 
-				Expect(flag.Validate()).To(MatchError("oh no!"))
+				Expect(flag.Validate(&cli.Context{})).To(MatchError("oh no!"))
 			})
 		})
 
@@ -755,7 +755,7 @@ var _ = Describe("IntFlag", func() {
 				})
 
 				It("returns an error", func() {
-					Expect(flag.Validate()).To(MatchError("cli: flag -num is missing"))
+					Expect(flag.Validate(&cli.Context{})).To(MatchError("cli: flag -num is missing"))
 				})
 			})
 		})
@@ -793,16 +793,16 @@ var _ = Describe("Int64Flag", func() {
 
 	Describe("Validate", func() {
 		It("validates the flag successfully", func() {
-			Expect(flag.Validate()).To(Succeed())
+			Expect(flag.Validate(&cli.Context{})).To(Succeed())
 		})
 
 		Context("when the validation fails", func() {
 			It("returns an error", func() {
-				flag.Validator = cli.ValidatorFunc(func(_ interface{}) error {
+				flag.Validator = cli.ValidatorFunc(func(_ *cli.Context, _ interface{}) error {
 					return fmt.Errorf("oh no!")
 				})
 
-				Expect(flag.Validate()).To(MatchError("oh no!"))
+				Expect(flag.Validate(&cli.Context{})).To(MatchError("oh no!"))
 			})
 		})
 
@@ -817,7 +817,7 @@ var _ = Describe("Int64Flag", func() {
 				})
 
 				It("returns an error", func() {
-					Expect(flag.Validate()).To(MatchError("cli: flag -num is missing"))
+					Expect(flag.Validate(&cli.Context{})).To(MatchError("cli: flag -num is missing"))
 				})
 			})
 		})
@@ -861,16 +861,16 @@ var _ = Describe("UIntFlag", func() {
 
 	Describe("Validate", func() {
 		It("validates the flag successfully", func() {
-			Expect(flag.Validate()).To(Succeed())
+			Expect(flag.Validate(&cli.Context{})).To(Succeed())
 		})
 
 		Context("when the validation fails", func() {
 			It("returns an error", func() {
-				flag.Validator = cli.ValidatorFunc(func(_ interface{}) error {
+				flag.Validator = cli.ValidatorFunc(func(_ *cli.Context, _ interface{}) error {
 					return fmt.Errorf("oh no!")
 				})
 
-				Expect(flag.Validate()).To(MatchError("oh no!"))
+				Expect(flag.Validate(&cli.Context{})).To(MatchError("oh no!"))
 			})
 		})
 
@@ -885,7 +885,7 @@ var _ = Describe("UIntFlag", func() {
 				})
 
 				It("returns an error", func() {
-					Expect(flag.Validate()).To(MatchError("cli: flag -num is missing"))
+					Expect(flag.Validate(&cli.Context{})).To(MatchError("cli: flag -num is missing"))
 				})
 			})
 		})
@@ -923,16 +923,16 @@ var _ = Describe("UInt64Flag", func() {
 
 	Describe("Validate", func() {
 		It("validates the flag successfully", func() {
-			Expect(flag.Validate()).To(Succeed())
+			Expect(flag.Validate(&cli.Context{})).To(Succeed())
 		})
 
 		Context("when the validation fails", func() {
 			It("returns an error", func() {
-				flag.Validator = cli.ValidatorFunc(func(_ interface{}) error {
+				flag.Validator = cli.ValidatorFunc(func(_ *cli.Context, _ interface{}) error {
 					return fmt.Errorf("oh no!")
 				})
 
-				Expect(flag.Validate()).To(MatchError("oh no!"))
+				Expect(flag.Validate(&cli.Context{})).To(MatchError("oh no!"))
 			})
 		})
 
@@ -947,7 +947,7 @@ var _ = Describe("UInt64Flag", func() {
 				})
 
 				It("returns an error", func() {
-					Expect(flag.Validate()).To(MatchError("cli: flag -num is missing"))
+					Expect(flag.Validate(&cli.Context{})).To(MatchError("cli: flag -num is missing"))
 				})
 			})
 		})
@@ -991,16 +991,16 @@ var _ = Describe("Float32Flag", func() {
 
 	Describe("Validate", func() {
 		It("validates the flag successfully", func() {
-			Expect(flag.Validate()).To(Succeed())
+			Expect(flag.Validate(&cli.Context{})).To(Succeed())
 		})
 
 		Context("when the validation fails", func() {
 			It("returns an error", func() {
-				flag.Validator = cli.ValidatorFunc(func(_ interface{}) error {
+				flag.Validator = cli.ValidatorFunc(func(_ *cli.Context, _ interface{}) error {
 					return fmt.Errorf("oh no!")
 				})
 
-				Expect(flag.Validate()).To(MatchError("oh no!"))
+				Expect(flag.Validate(&cli.Context{})).To(MatchError("oh no!"))
 			})
 		})
 
@@ -1015,7 +1015,7 @@ var _ = Describe("Float32Flag", func() {
 				})
 
 				It("returns an error", func() {
-					Expect(flag.Validate()).To(MatchError("cli: flag -num is missing"))
+					Expect(flag.Validate(&cli.Context{})).To(MatchError("cli: flag -num is missing"))
 				})
 			})
 		})
@@ -1053,16 +1053,16 @@ var _ = Describe("Float64Flag", func() {
 
 	Describe("Validate", func() {
 		It("validates the flag successfully", func() {
-			Expect(flag.Validate()).To(Succeed())
+			Expect(flag.Validate(&cli.Context{})).To(Succeed())
 		})
 
 		Context("when the validation fails", func() {
 			It("returns an error", func() {
-				flag.Validator = cli.ValidatorFunc(func(_ interface{}) error {
+				flag.Validator = cli.ValidatorFunc(func(_ *cli.Context, _ interface{}) error {
 					return fmt.Errorf("oh no!")
 				})
 
-				Expect(flag.Validate()).To(MatchError("oh no!"))
+				Expect(flag.Validate(&cli.Context{})).To(MatchError("oh no!"))
 			})
 		})
 
@@ -1077,7 +1077,7 @@ var _ = Describe("Float64Flag", func() {
 				})
 
 				It("returns an error", func() {
-					Expect(flag.Validate()).To(MatchError("cli: flag -num is missing"))
+					Expect(flag.Validate(&cli.Context{})).To(MatchError("cli: flag -num is missing"))
 				})
 			})
 		})
@@ -1121,16 +1121,16 @@ var _ = Describe("IPFlag", func() {
 
 	Describe("Validate", func() {
 		It("validates the flag successfully", func() {
-			Expect(flag.Validate()).To(Succeed())
+			Expect(flag.Validate(&cli.Context{})).To(Succeed())
 		})
 
 		Context("when the validation fails", func() {
 			It("returns an error", func() {
-				flag.Validator = cli.ValidatorFunc(func(_ interface{}) error {
+				flag.Validator = cli.ValidatorFunc(func(_ *cli.Context, _ interface{}) error {
 					return fmt.Errorf("oh no!")
 				})
 
-				Expect(flag.Validate()).To(MatchError("oh no!"))
+				Expect(flag.Validate(&cli.Context{})).To(MatchError("oh no!"))
 			})
 		})
 
@@ -1145,7 +1145,7 @@ var _ = Describe("IPFlag", func() {
 				})
 
 				It("returns an error", func() {
-					Expect(flag.Validate()).To(MatchError("cli: flag -ip is missing"))
+					Expect(flag.Validate(&cli.Context{})).To(MatchError("cli: flag -ip is missing"))
 				})
 			})
 		})
@@ -1191,16 +1191,16 @@ var _ = Describe("HardwareAddrFlag", func() {
 
 	Describe("Validate", func() {
 		It("validates the flag successfully", func() {
-			Expect(flag.Validate()).To(Succeed())
+			Expect(flag.Validate(&cli.Context{})).To(Succeed())
 		})
 
 		Context("when the validation fails", func() {
 			It("returns an error", func() {
-				flag.Validator = cli.ValidatorFunc(func(_ interface{}) error {
+				flag.Validator = cli.ValidatorFunc(func(_ *cli.Context, _ interface{}) error {
 					return fmt.Errorf("oh no!")
 				})
 
-				Expect(flag.Validate()).To(MatchError("oh no!"))
+				Expect(flag.Validate(&cli.Context{})).To(MatchError("oh no!"))
 			})
 		})
 
@@ -1215,7 +1215,7 @@ var _ = Describe("HardwareAddrFlag", func() {
 				})
 
 				It("returns an error", func() {
-					Expect(flag.Validate()).To(MatchError("cli: flag -mac is missing"))
+					Expect(flag.Validate(&cli.Context{})).To(MatchError("cli: flag -mac is missing"))
 				})
 			})
 		})

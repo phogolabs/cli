@@ -43,7 +43,7 @@ func (m *Provider) Provide(ctx *cli.Context) error {
 			return err
 		}
 
-		if err := accessor.SetValue(value); err != nil {
+		if err := accessor.Set(value); err != nil {
 			return cli.FlagError(accessor, err)
 		}
 	}

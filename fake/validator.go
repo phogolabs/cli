@@ -8,10 +8,11 @@ import (
 )
 
 type Validator struct {
-	ValidateStub        func(interface{}) error
+	ValidateStub        func(*cli.Context, interface{}) error
 	validateMutex       sync.RWMutex
 	validateArgsForCall []struct {
-		arg1 interface{}
+		arg1 *cli.Context
+		arg2 interface{}
 	}
 	validateReturns struct {
 		result1 error
@@ -23,21 +24,23 @@ type Validator struct {
 	invocationsMutex sync.RWMutex
 }
 
-func (fake *Validator) Validate(arg1 interface{}) error {
+func (fake *Validator) Validate(arg1 *cli.Context, arg2 interface{}) error {
 	fake.validateMutex.Lock()
 	ret, specificReturn := fake.validateReturnsOnCall[len(fake.validateArgsForCall)]
 	fake.validateArgsForCall = append(fake.validateArgsForCall, struct {
-		arg1 interface{}
-	}{arg1})
-	fake.recordInvocation("Validate", []interface{}{arg1})
+		arg1 *cli.Context
+		arg2 interface{}
+	}{arg1, arg2})
+	fake.recordInvocation("Validate", []interface{}{arg1, arg2})
 	fake.validateMutex.Unlock()
 	if fake.ValidateStub != nil {
-		return fake.ValidateStub(arg1)
+		return fake.ValidateStub(arg1, arg2)
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	return fake.validateReturns.result1
+	fakeReturns := fake.validateReturns
+	return fakeReturns.result1
 }
 
 func (fake *Validator) ValidateCallCount() int {
@@ -46,13 +49,22 @@ func (fake *Validator) ValidateCallCount() int {
 	return len(fake.validateArgsForCall)
 }
 
-func (fake *Validator) ValidateArgsForCall(i int) interface{} {
+func (fake *Validator) ValidateCalls(stub func(*cli.Context, interface{}) error) {
+	fake.validateMutex.Lock()
+	defer fake.validateMutex.Unlock()
+	fake.ValidateStub = stub
+}
+
+func (fake *Validator) ValidateArgsForCall(i int) (*cli.Context, interface{}) {
 	fake.validateMutex.RLock()
 	defer fake.validateMutex.RUnlock()
-	return fake.validateArgsForCall[i].arg1
+	argsForCall := fake.validateArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2
 }
 
 func (fake *Validator) ValidateReturns(result1 error) {
+	fake.validateMutex.Lock()
+	defer fake.validateMutex.Unlock()
 	fake.ValidateStub = nil
 	fake.validateReturns = struct {
 		result1 error
@@ -60,6 +72,8 @@ func (fake *Validator) ValidateReturns(result1 error) {
 }
 
 func (fake *Validator) ValidateReturnsOnCall(i int, result1 error) {
+	fake.validateMutex.Lock()
+	defer fake.validateMutex.Unlock()
 	fake.ValidateStub = nil
 	if fake.validateReturnsOnCall == nil {
 		fake.validateReturnsOnCall = make(map[int]struct {
