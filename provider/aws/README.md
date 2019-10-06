@@ -135,7 +135,7 @@ func main() {
 			&cli.StringFlag{
 				Name:   "secret",
 				Usage:  "Aplication's secret",
-				Metadata: map[string]string{
+				Metadata: cli.Map{
 				  "ssm_param": "/your/key/name",
 				},
 			},
