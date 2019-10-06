@@ -1,4 +1,4 @@
-package s3_test
+package aws_test
 
 import (
 	"testing"
@@ -7,7 +7,7 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-func TestS3(t *testing.T) {
+func TestAWS(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "AWS S3 Suite")
+	RunSpecs(t, "AWS Provider Suite")
 }

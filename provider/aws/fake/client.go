@@ -4,7 +4,7 @@ package fake
 import (
 	"sync"
 
-	"github.com/phogolabs/cli/provider/aws/ssm"
+	"github.com/phogolabs/cli/provider/aws"
 )
 
 type Client struct {
@@ -112,4 +112,4 @@ func (fake *Client) recordInvocation(key string, args []interface{}) {
 	fake.invocations[key] = append(fake.invocations[key], args)
 }
 
-var _ ssm.Getter = new(Client)
+var _ aws.Getter = new(Client)

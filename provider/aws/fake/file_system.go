@@ -4,14 +4,15 @@ package fake
 import (
 	"sync"
 
-	"github.com/phogolabs/cli/provider/aws/s3"
+	"github.com/phogolabs/cli/provider/aws"
 )
 
 type FileSystem struct {
-	GlobStub        func(string) ([]string, error)
+	GlobStub        func(string, string) ([]string, error)
 	globMutex       sync.RWMutex
 	globArgsForCall []struct {
 		arg1 string
+		arg2 string
 	}
 	globReturns struct {
 		result1 []string
@@ -21,10 +22,11 @@ type FileSystem struct {
 		result1 []string
 		result2 error
 	}
-	ReadFileStub        func(string) ([]byte, error)
+	ReadFileStub        func(string, string) ([]byte, error)
 	readFileMutex       sync.RWMutex
 	readFileArgsForCall []struct {
 		arg1 string
+		arg2 string
 	}
 	readFileReturns struct {
 		result1 []byte
@@ -38,16 +40,17 @@ type FileSystem struct {
 	invocationsMutex sync.RWMutex
 }
 
-func (fake *FileSystem) Glob(arg1 string) ([]string, error) {
+func (fake *FileSystem) Glob(arg1 string, arg2 string) ([]string, error) {
 	fake.globMutex.Lock()
 	ret, specificReturn := fake.globReturnsOnCall[len(fake.globArgsForCall)]
 	fake.globArgsForCall = append(fake.globArgsForCall, struct {
 		arg1 string
-	}{arg1})
-	fake.recordInvocation("Glob", []interface{}{arg1})
+		arg2 string
+	}{arg1, arg2})
+	fake.recordInvocation("Glob", []interface{}{arg1, arg2})
 	fake.globMutex.Unlock()
 	if fake.GlobStub != nil {
-		return fake.GlobStub(arg1)
+		return fake.GlobStub(arg1, arg2)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
@@ -62,17 +65,17 @@ func (fake *FileSystem) GlobCallCount() int {
 	return len(fake.globArgsForCall)
 }
 
-func (fake *FileSystem) GlobCalls(stub func(string) ([]string, error)) {
+func (fake *FileSystem) GlobCalls(stub func(string, string) ([]string, error)) {
 	fake.globMutex.Lock()
 	defer fake.globMutex.Unlock()
 	fake.GlobStub = stub
 }
 
-func (fake *FileSystem) GlobArgsForCall(i int) string {
+func (fake *FileSystem) GlobArgsForCall(i int) (string, string) {
 	fake.globMutex.RLock()
 	defer fake.globMutex.RUnlock()
 	argsForCall := fake.globArgsForCall[i]
-	return argsForCall.arg1
+	return argsForCall.arg1, argsForCall.arg2
 }
 
 func (fake *FileSystem) GlobReturns(result1 []string, result2 error) {
@@ -101,16 +104,17 @@ func (fake *FileSystem) GlobReturnsOnCall(i int, result1 []string, result2 error
 	}{result1, result2}
 }
 
-func (fake *FileSystem) ReadFile(arg1 string) ([]byte, error) {
+func (fake *FileSystem) ReadFile(arg1 string, arg2 string) ([]byte, error) {
 	fake.readFileMutex.Lock()
 	ret, specificReturn := fake.readFileReturnsOnCall[len(fake.readFileArgsForCall)]
 	fake.readFileArgsForCall = append(fake.readFileArgsForCall, struct {
 		arg1 string
-	}{arg1})
-	fake.recordInvocation("ReadFile", []interface{}{arg1})
+		arg2 string
+	}{arg1, arg2})
+	fake.recordInvocation("ReadFile", []interface{}{arg1, arg2})
 	fake.readFileMutex.Unlock()
 	if fake.ReadFileStub != nil {
-		return fake.ReadFileStub(arg1)
+		return fake.ReadFileStub(arg1, arg2)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
@@ -125,17 +129,17 @@ func (fake *FileSystem) ReadFileCallCount() int {
 	return len(fake.readFileArgsForCall)
 }
 
-func (fake *FileSystem) ReadFileCalls(stub func(string) ([]byte, error)) {
+func (fake *FileSystem) ReadFileCalls(stub func(string, string) ([]byte, error)) {
 	fake.readFileMutex.Lock()
 	defer fake.readFileMutex.Unlock()
 	fake.ReadFileStub = stub
 }
 
-func (fake *FileSystem) ReadFileArgsForCall(i int) string {
+func (fake *FileSystem) ReadFileArgsForCall(i int) (string, string) {
 	fake.readFileMutex.RLock()
 	defer fake.readFileMutex.RUnlock()
 	argsForCall := fake.readFileArgsForCall[i]
-	return argsForCall.arg1
+	return argsForCall.arg1, argsForCall.arg2
 }
 
 func (fake *FileSystem) ReadFileReturns(result1 []byte, result2 error) {
@@ -190,4 +194,4 @@ func (fake *FileSystem) recordInvocation(key string, args []interface{}) {
 	fake.invocations[key] = append(fake.invocations[key], args)
 }
 
-var _ s3.FileSystem = new(FileSystem)
+var _ aws.FileSystem = new(FileSystem)

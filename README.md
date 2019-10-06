@@ -11,7 +11,7 @@ influenced by https://github.com/urfave/cli package, but it is way more
 flexible. It provides the following features:
 
 - Data conversion that allow conversion of data to a compatible data type accepted by the declared flag
-- Data providers that allow setting the flag's value from different sources such as environment variables, files, AWS S3 and SSM as well as Hashi Vault
+- Data providers that allow setting the flag's value from different sources such as environment variables, files, AWS S3 and SSM
 - More extensible flag types such as URL, IP, JSON, YAML and so on. For more information see the [docs][godoc-url]
 
 ## Installation
@@ -80,9 +80,8 @@ func signal(ctx *cli.Context) error {
 
 The providers allow setting the flag's value from external sources:
 
-- [Vault](https://github.com/phogolabs/vault/blob/master/docs/provider.md) - reads a flag's value from Hashi Corp Vault Secret
-- [AWS S3](./provider/aws/s3/README.md) - reads a flag's value from AWS S3 bucket object
-- [AWS SSM](./provider/aws/ssm/README.md) - reads a flag's value from AWS SSM Parameter store
+- [AWS S3 Provider](./provider/aws/README.md) - reads a flag's value from AWS S3 bucket object
+- [AWS SSM Provider](./provider/aws/README.md) - reads a flag's value from AWS SSM Parameter store
 
 ## Converters
 
