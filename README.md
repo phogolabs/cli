@@ -76,6 +76,49 @@ func signal(ctx *cli.Context) error {
 }
 ```
 
+## Validation
+
+You can set the `Required` field to `true` if you want to make some flags
+mandatory. If you need some customized validation, you can create a custom
+validator in the following way:
+
+```golang
+// define the validator as function
+validate := cli.ValidatorFunc(func(ctx *cli.Context, value interface{}) error {
+        //TODO: your validation logic
+	return nil
+})
+```
+
+``` golang
+// validate the validator as struct
+type Validator struct {}
+
+func (v *Validator) Validate(ctx *cli.Context, value interface{}) error {
+        //TODO: your validation logic
+	return nil
+}
+```
+
+Then you can set the validator like that:
+
+```golang
+var flags = []cli.Flag{
+	&cli.StringSliceFlag{
+		Name:     "endpoint",
+		Usage:    "Endpoint URL",
+		EnvVar:   "APP_ENDPOINT",
+		Required: true,
+		Validator: validate,
+	},
+	&cli.StringFlag{
+		Name:      "name",
+		EnvVar:    "APP_NAME",
+		Validator: &Validator{},
+	},
+}
+```
+
 ## Providers
 
 The providers allow setting the flag's value from external sources:
