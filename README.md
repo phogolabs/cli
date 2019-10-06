@@ -80,8 +80,8 @@ func signal(ctx *cli.Context) error {
 
 The providers allow setting the flag's value from external sources:
 
-- [AWS S3 Provider](./provider/aws/README.md) - reads a flag's value from AWS S3 bucket object
-- [AWS SSM Provider](./provider/aws/README.md) - reads a flag's value from AWS SSM Parameter store
+- [AWS S3 Provider](./provider/aws/README.md#s3-provider) - reads a flag's value from AWS S3 bucket object
+- [AWS SSM Provider](./provider/aws/README.md#ssm-provider) - reads a flag's value from AWS SSM Parameter store
 
 ## Converters
 
