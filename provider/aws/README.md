@@ -29,7 +29,7 @@ the `FilePath` field in the following format:
 s3://<your_file_name>
 ```
 
-```
+```golang
 import (
 	"os"
 
@@ -97,7 +97,7 @@ As you can see in order to match the flag with a param on AWS SSM you should set
 the `ssm_param` field in the meta data:
 
 
-```
+```golang
 import (
 	"os"
 
