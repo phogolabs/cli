@@ -10,61 +10,8 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/oliveagle/jsonpath"
 	"gopkg.in/yaml.v2"
 )
-
-//go:generate counterfeiter -fake-name Converter -o ./fake/converter.go . Converter
-
-// Converter converts values
-type Converter interface {
-	// Convert converts the value
-	Convert(interface{}) (interface{}, error)
-}
-
-var _ Converter = ConverterFunc(nil)
-
-// ConverterFunc converts values
-type ConverterFunc func(interface{}) (interface{}, error)
-
-// Convert converts the value
-func (fn ConverterFunc) Convert(v interface{}) (interface{}, error) {
-	return fn(v)
-}
-
-var _ Converter = JSONPath("")
-
-// JSONPath converts a value from JSON by Path
-type JSONPath string
-
-// Convert converts the value
-func (path JSONPath) Convert(v interface{}) (interface{}, error) {
-	text, transform := v.(string)
-
-	if transform {
-		v = make(map[string]interface{})
-
-		if err := json.Unmarshal([]byte(text), &v); err != nil {
-			return nil, err
-		}
-	}
-
-	result, err := jsonpath.JsonPathLookup(v, string(path))
-	if err != nil {
-		return nil, err
-	}
-
-	if transform {
-		data, err := json.Marshal(result)
-		if err != nil {
-			return nil, err
-		}
-
-		result = string(data)
-	}
-
-	return result, nil
-}
 
 //go:generate counterfeiter -fake-name Validator -o ./fake/validator.go . Validator
 
@@ -120,7 +67,6 @@ type StringFlag struct {
 	Metadata  map[string]interface{}
 	Hidden    bool
 	Required  bool
-	Converter Converter
 	Validator Validator
 }
 
@@ -172,7 +118,6 @@ type StringSliceFlag struct {
 	Metadata  map[string]interface{}
 	Hidden    bool
 	Required  bool
-	Converter Converter
 	Validator Validator
 }
 
@@ -229,7 +174,6 @@ type BoolFlag struct {
 	Value     bool
 	Metadata  map[string]interface{}
 	Hidden    bool
-	Converter Converter
 	Validator Validator
 }
 
@@ -283,7 +227,6 @@ type URLFlag struct {
 	Metadata  map[string]interface{}
 	Hidden    bool
 	Required  bool
-	Converter Converter
 	Validator Validator
 }
 
@@ -338,7 +281,6 @@ type JSONFlag struct {
 	Metadata  map[string]interface{}
 	Hidden    bool
 	Required  bool
-	Converter Converter
 	Validator Validator
 }
 
@@ -391,7 +333,6 @@ type YAMLFlag struct {
 	Metadata  map[string]interface{}
 	Hidden    bool
 	Required  bool
-	Converter Converter
 	Validator Validator
 }
 
@@ -444,7 +385,6 @@ type XMLFlag struct {
 	Metadata  map[string]interface{}
 	Hidden    bool
 	Required  bool
-	Converter Converter
 	Validator Validator
 }
 
@@ -498,7 +438,6 @@ type TimeFlag struct {
 	Metadata  map[string]interface{}
 	Hidden    bool
 	Required  bool
-	Converter Converter
 	Validator Validator
 }
 
@@ -552,7 +491,6 @@ type DurationFlag struct {
 	Metadata  map[string]interface{}
 	Hidden    bool
 	Required  bool
-	Converter Converter
 	Validator Validator
 }
 
@@ -602,7 +540,6 @@ type IntFlag struct {
 	Metadata  map[string]interface{}
 	Hidden    bool
 	Required  bool
-	Converter Converter
 	Validator Validator
 }
 
@@ -657,7 +594,6 @@ type Int64Flag struct {
 	Metadata  map[string]interface{}
 	Hidden    bool
 	Required  bool
-	Converter Converter
 	Validator Validator
 }
 
@@ -707,7 +643,6 @@ type UIntFlag struct {
 	Metadata  map[string]interface{}
 	Hidden    bool
 	Required  bool
-	Converter Converter
 	Validator Validator
 }
 
@@ -762,7 +697,6 @@ type UInt64Flag struct {
 	Metadata  map[string]interface{}
 	Hidden    bool
 	Required  bool
-	Converter Converter
 	Validator Validator
 }
 
@@ -812,7 +746,6 @@ type Float32Flag struct {
 	Metadata  map[string]interface{}
 	Hidden    bool
 	Required  bool
-	Converter Converter
 	Validator Validator
 }
 
@@ -867,7 +800,6 @@ type Float64Flag struct {
 	Metadata  map[string]interface{}
 	Hidden    bool
 	Required  bool
-	Converter Converter
 	Validator Validator
 }
 
@@ -917,7 +849,6 @@ type IPFlag struct {
 	Metadata  map[string]interface{}
 	Hidden    bool
 	Required  bool
-	Converter Converter
 	Validator Validator
 }
 
@@ -975,7 +906,6 @@ type HardwareAddrFlag struct {
 	Metadata  map[string]interface{}
 	Hidden    bool
 	Required  bool
-	Converter Converter
 	Validator Validator
 }
 
@@ -1076,19 +1006,6 @@ func (f *FlagAccessor) Reset() error {
 		if err := flag.Reset(); err != nil {
 			return err
 		}
-	}
-
-	return nil
-}
-
-// Converter returns the converter
-func (f *FlagAccessor) Converter() Converter {
-	value := reflect.ValueOf(f.Flag)
-	value = reflect.Indirect(value)
-	field := value.FieldByName("Converter")
-
-	if converter, ok := field.Interface().(Converter); ok {
-		return converter
 	}
 
 	return nil

@@ -56,22 +56,6 @@ var _ = Describe("BoolFlag", func() {
 			Expect(flag.Get()).To(BeFalse())
 		})
 	})
-
-	Describe("Validate", func() {
-		It("validates the flag successfully", func() {
-			Expect(flag.Validate()).To(Succeed())
-		})
-
-		Context("when the validation fails", func() {
-			It("returns an error", func() {
-				flag.Validator = cli.ValidatorFunc(func(v interface{}) error {
-					return fmt.Errorf("oh no!")
-				})
-
-				Expect(flag.Validate()).To(MatchError("oh no!"))
-			})
-		})
-	})
 })
 
 var _ = Describe("StringFlag", func() {
@@ -1269,62 +1253,5 @@ var _ = Describe("FlagAccessor", func() {
 		Expect(accessor.Metadata()).To(Equal(flag.Metadata))
 		Expect(accessor.Value()).To(Equal(flag.Value))
 		Expect(accessor.Metadata()).To(HaveKeyWithValue("key", "meta"))
-	})
-
-	Describe("SetValue", func() {
-		It("sets the value", func() {
-			Expect(accessor.SetValue("1212")).To(Succeed())
-			Expect(flag.Value).To(Equal("1212"))
-		})
-
-		Context("when the value is not compatible", func() {
-			It("returns an error", func() {
-				Expect(accessor.SetValue(1)).To(MatchError("reflect.Set: value of type int is not assignable to type string"))
-			})
-		})
-
-		Context("when the converter returns an error", func() {
-			BeforeEach(func() {
-				flag.Converter = cli.ConverterFunc(func(_ interface{}) (interface{}, error) {
-					return nil, fmt.Errorf("oh no!")
-				})
-			})
-
-			It("returns an error", func() {
-				Expect(accessor.SetValue(1)).To(MatchError("oh no!"))
-			})
-		})
-	})
-})
-
-var _ = Describe("JSONPath", func() {
-	var (
-		converter cli.JSONPath
-		value     map[string]string
-	)
-
-	BeforeEach(func() {
-		value = map[string]string{
-			"password": "swordfish",
-		}
-		converter = cli.JSONPath("$.password")
-	})
-
-	It("converts the value successfully", func() {
-		v, err := converter.Convert(value)
-		Expect(err).NotTo(HaveOccurred())
-		Expect(v).To(Equal("swordfish"))
-	})
-
-	Context("when the expression is wrong", func() {
-		BeforeEach(func() {
-			converter = cli.JSONPath("$.$")
-		})
-
-		It("returns an error", func() {
-			v, err := converter.Convert(value)
-			Expect(err).To(MatchError("expression don't support in filter"))
-			Expect(v).To(BeNil())
-		})
 	})
 })
