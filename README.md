@@ -83,30 +83,6 @@ The providers allow setting the flag's value from external sources:
 - [AWS S3 Provider](./provider/aws/README.md#s3-provider) - reads a flag's value from AWS S3 bucket object
 - [AWS SSM Provider](./provider/aws/README.md#ssm-provider) - reads a flag's value from AWS SSM Parameter store
 
-## Converters
-
-Let's assume that we have the following JSON in your KV config:
-
-```json
-{
-  "username": "root",
-  "password": "swordfish"
-}
-```
-
-If you want to populate a flag's value with the password field you should use
-[JSON Path](https://goessner.net/articles/JsonPath/) by setting the flag's
-converter to `cli.JSONPath`:
-
-```golang
-flag := &cli.StringFlag{
-	Name:   "password",
-	Usage:  "Aplication's password",
-	FilePath: "app.config",
-	Converter: cli.JSONPath("$.password"),
-}
-```
-
 ## Contributing
 
 We are welcome to any contributions. Just fork the
