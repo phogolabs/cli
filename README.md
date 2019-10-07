@@ -70,8 +70,8 @@ func run(ctx *cli.Context) error {
 }
 
 // signal handles OS signal
-func signal(ctx *cli.Context) error {
-	fmt.Println("Application signal", ctx.Signal)
+func signal(ctx *cli.Context, signal os.Signal) error {
+	fmt.Println("Application signal", signal)
 	return nil
 }
 ```
