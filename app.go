@@ -66,7 +66,7 @@ type App struct {
 	OnCommandNotFound CommandNotFoundFunc
 	// Execute this function to handle ExitErrors. If not provided, HandleExitCoder is provided to
 	// function as a default, so this is optional.
-	OnExitErr ExitErrorHandlerFunc
+	OnExitError ExitErrorHandlerFunc
 	// Exit is the function used when the app exits. If not set defaults to os.Exit.
 	Exit ExitFunc
 	// Writer writer to write output to
@@ -201,8 +201,8 @@ func (app *App) error(err error) {
 		return
 	}
 
-	if app.OnExitErr != nil {
-		err = app.OnExitErr(err)
+	if app.OnExitError != nil {
+		err = app.OnExitError(err)
 	}
 
 	fmt.Fprintln(app.ErrWriter, err)
