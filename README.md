@@ -82,7 +82,7 @@ You can set the `Required` field to `true` if you want to make some flags
 mandatory. If you need some customized validation, you can create a custom
 validator in the following way:
 
-##### Validation function
+As a function:
 
 ```golang
 validate := cli.ValidatorFunc(func(ctx *cli.Context, value interface{}) error {
@@ -91,7 +91,7 @@ validate := cli.ValidatorFunc(func(ctx *cli.Context, value interface{}) error {
 })
 ```
 
-##### Validator struct
+As a struct that has a `Validate` function:
 
 ``` golang
 type Validator struct {}
