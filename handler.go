@@ -1,5 +1,7 @@
 package cli
 
+import "os"
+
 // BeforeFunc is an action to execute before any subcommands are run, but after
 // the context is ready if a non-nil error is returned, no subcommands are run
 type BeforeFunc func(*Context) error
@@ -9,7 +11,7 @@ type BeforeFunc func(*Context) error
 type AfterFunc func(*Context) error
 
 // OnSignalFunc is an action to execute after a system signal
-type OnSignalFunc func(*Context) error
+type OnSignalFunc func(*Context, os.Signal) error
 
 // ActionFunc is the action to execute when no subcommands are specified
 type ActionFunc func(*Context) error

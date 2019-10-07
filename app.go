@@ -128,9 +128,9 @@ func (app *App) notify(ctx *Context) {
 	signal.Notify(ch, app.Signals...)
 
 	go func() {
-		ctx.Signal = <-ch
+		signal := <-ch
 
-		err := app.OnSignal(ctx)
+		err := app.OnSignal(ctx, signal)
 		app.error(err)
 	}()
 }

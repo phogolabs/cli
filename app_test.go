@@ -81,14 +81,14 @@ var _ = Describe("App", func() {
 				return nil
 			}
 
-			app.OnSignal = func(ctx *cli.Context) error {
+			app.OnSignal = func(ctx *cli.Context, signal os.Signal) error {
 				count++
 
 				cmd := ctx.Command
 				Expect(cmd).NotTo(BeNil())
 				Expect(cmd.Name).To(Equal(app.Name))
 
-				Expect(ctx.Signal).To(Equal(syscall.SIGUSR1))
+				Expect(signal).To(Equal(syscall.SIGUSR1))
 				return nil
 			}
 
