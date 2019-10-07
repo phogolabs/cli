@@ -2,7 +2,6 @@ package cli
 
 import (
 	"flag"
-	"fmt"
 	"io/ioutil"
 	"path/filepath"
 )
@@ -65,7 +64,7 @@ func (p *EnvProvider) Provide(ctx *Context) error {
 
 			for _, value := range split(value) {
 				if err := accessor.Set(value); err != nil {
-					return FlagError(accessor, err)
+					return ProviderFlagError("env", accessor, err)
 				}
 			}
 		}
@@ -98,16 +97,11 @@ func (p *FileProvider) Provide(ctx *Context) error {
 				}
 
 				if err := accessor.Set(value); err != nil {
-					return FlagError(accessor, err)
+					return ProviderFlagError("file", accessor, err)
 				}
 			}
 		}
 	}
 
 	return nil
-}
-
-// FlagError returns flag error
-func FlagError(accessor *FlagAccessor, err error) error {
-	return fmt.Errorf("%v: %v", accessor.Name(), err)
 }

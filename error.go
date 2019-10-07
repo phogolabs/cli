@@ -8,10 +8,12 @@ import (
 const (
 	// ExitCodeErrorApp is the exit code on application error
 	ExitCodeErrorApp = 1001
+	// ExitCodeErrorProvider is the exit code on provider error
+	ExitCodeErrorProvider = 1002
 	// ExitCodeNotFoundFlag is the exit code when a flag is not found
-	ExitCodeNotFoundFlag = 1002
+	ExitCodeNotFoundFlag = 1003
 	// ExitCodeNotFoundCommand is the exit code when a command is not found
-	ExitCodeNotFoundCommand = 1003
+	ExitCodeNotFoundCommand = 1004
 )
 
 // ExitCoder is the interface checked by `App` and `Command` for a custom exit
@@ -58,6 +60,14 @@ func NotFoundCommandError(name string) *ExitError {
 	return &ExitError{
 		code: ExitCodeNotFoundCommand,
 		err:  fmt.Errorf("command '%s' not found", name),
+	}
+}
+
+// ProviderCommandError makes a new ExitError for missing command
+func ProviderFlagError(name string, flag *FlagAccessor, err error) *ExitError {
+	return &ExitError{
+		code: ExitCodeErrorProvider,
+		err:  fmt.Errorf("provider '%s' failed to set a flag '%v': %w", name, flag.Name(), err),
 	}
 }
 

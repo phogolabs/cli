@@ -59,7 +59,7 @@ func (m *S3Provider) Provide(ctx *cli.Context) error {
 				}
 
 				if err := accessor.Set(string(value)); err != nil {
-					return cli.FlagError(accessor, err)
+					return cli.ProviderFlagError("s3", accessor, err)
 				}
 			}
 		}
@@ -153,7 +153,7 @@ func (m *SSMProvider) Provide(ctx *cli.Context) error {
 		}
 
 		if err := accessor.Set(value); err != nil {
-			return cli.FlagError(accessor, err)
+			return cli.ProviderFlagError("ssm", accessor, err)
 		}
 	}
 
