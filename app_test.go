@@ -151,7 +151,7 @@ var _ = Describe("App", func() {
 					return fmt.Errorf("oh no!")
 				}
 
-				app.OnExitErr = func(err error) error {
+				app.OnExitError = func(err error) error {
 					Expect(err).To(MatchError("oh no!"))
 					return err
 				}
