@@ -333,28 +333,35 @@ func (cmd *Command) find(name string) *Command {
 }
 
 func (cmd *Command) exec(action ActionFunc, ctx *Context) (errx error) {
-	var errs ExitErrorCollector
+	var (
+		errs     ExitErrorCollector
+		eventCtx *Context = ctx
+	)
 
 	defer func() {
 		errx = errs.Unwrap()
 	}()
 
+	if ctx.Command != cmd {
+		eventCtx = ctx.Parent
+	}
+
 	if cmd.After != nil {
 		defer func() {
-			if afterErr := cmd.After(ctx); afterErr != nil {
+			if afterErr := cmd.After(eventCtx); afterErr != nil {
 				errs = append(errs, afterErr)
 			}
 		}()
 	}
 
 	if cmd.Before != nil {
-		if beforeErr := cmd.Before(ctx); beforeErr != nil {
+		if beforeErr := cmd.Before(eventCtx); beforeErr != nil {
 			errs = append(errs, beforeErr)
 			return
 		}
 	}
 
-	if err := cmd.validate(ctx); err != nil {
+	if err := cmd.validate(eventCtx); err != nil {
 		errs = append(errs, err)
 		return
 	}
