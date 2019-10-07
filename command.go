@@ -314,6 +314,10 @@ func (cmd *Command) next(args []string) (*Command, []string) {
 	child := cmd.find(args[0])
 
 	if child == nil {
+		if !cmd.has() {
+			return nil, []string{}
+		}
+
 		child = cmd.find("help")
 		args = args[:1]
 	} else {
@@ -368,6 +372,20 @@ func (cmd *Command) exec(ctx *Context) (errx error) {
 	}
 
 	return
+}
+
+func (cmd *Command) has() bool {
+	count := len(cmd.Commands)
+	for _, sub := range cmd.Commands {
+		switch {
+		case sub.Name == "help":
+			count--
+		case sub.Name == "version":
+			count--
+		}
+	}
+
+	return count > 0
 }
 
 func (cmd *Command) error(ctx *Context, err error) error {
