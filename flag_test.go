@@ -116,7 +116,7 @@ var _ = Describe("StringFlag", func() {
 				})
 
 				It("returns an error", func() {
-					Expect(flag.Validate(&cli.Context{})).To(MatchError("cli: flag -listen-addr is missing"))
+					Expect(flag.Validate(&cli.Context{})).To(MatchError("flag 'listen-addr' not found"))
 				})
 			})
 		})
@@ -187,7 +187,7 @@ var _ = Describe("StringSliceFlag", func() {
 				})
 
 				It("returns an error", func() {
-					Expect(flag.Validate(&cli.Context{})).To(MatchError("cli: flag -user is missing"))
+					Expect(flag.Validate(&cli.Context{})).To(MatchError("flag 'user' not found"))
 				})
 			})
 		})
@@ -261,7 +261,7 @@ var _ = Describe("URLFlag", func() {
 				})
 
 				It("returns an error", func() {
-					Expect(flag.Validate(&cli.Context{})).To(MatchError("cli: flag -listen-addr is missing"))
+					Expect(flag.Validate(&cli.Context{})).To(MatchError("flag 'listen-addr' not found"))
 				})
 			})
 		})
@@ -378,7 +378,7 @@ var _ = Describe("JSONFlag", func() {
 				})
 
 				It("returns an error", func() {
-					Expect(flag.Validate(&cli.Context{})).To(MatchError("cli: flag -map is missing"))
+					Expect(flag.Validate(&cli.Context{})).To(MatchError("flag 'map' not found"))
 				})
 			})
 		})
@@ -466,7 +466,7 @@ var _ = Describe("YAMLFlag", func() {
 				})
 
 				It("returns an error", func() {
-					Expect(flag.Validate(&cli.Context{})).To(MatchError("cli: flag -map is missing"))
+					Expect(flag.Validate(&cli.Context{})).To(MatchError("flag 'map' not found"))
 				})
 			})
 		})
@@ -560,7 +560,7 @@ var _ = Describe("XMLFlag", func() {
 				})
 
 				It("returns an error", func() {
-					Expect(flag.Validate(&cli.Context{})).To(MatchError("cli: flag -map is missing"))
+					Expect(flag.Validate(&cli.Context{})).To(MatchError("flag 'map' not found"))
 				})
 			})
 		})
@@ -624,7 +624,7 @@ var _ = Describe("TimeFlag", func() {
 				})
 
 				It("returns an error", func() {
-					Expect(flag.Validate(&cli.Context{})).To(MatchError("cli: flag -time is missing"))
+					Expect(flag.Validate(&cli.Context{})).To(MatchError("flag 'time' not found"))
 				})
 			})
 		})
@@ -687,7 +687,7 @@ var _ = Describe("DurationFlag", func() {
 				})
 
 				It("returns an error", func() {
-					Expect(flag.Validate(&cli.Context{})).To(MatchError("cli: flag -time is missing"))
+					Expect(flag.Validate(&cli.Context{})).To(MatchError("flag 'time' not found"))
 				})
 			})
 		})
@@ -755,7 +755,7 @@ var _ = Describe("IntFlag", func() {
 				})
 
 				It("returns an error", func() {
-					Expect(flag.Validate(&cli.Context{})).To(MatchError("cli: flag -num is missing"))
+					Expect(flag.Validate(&cli.Context{})).To(MatchError("flag 'num' not found"))
 				})
 			})
 		})
@@ -817,7 +817,7 @@ var _ = Describe("Int64Flag", func() {
 				})
 
 				It("returns an error", func() {
-					Expect(flag.Validate(&cli.Context{})).To(MatchError("cli: flag -num is missing"))
+					Expect(flag.Validate(&cli.Context{})).To(MatchError("flag 'num' not found"))
 				})
 			})
 		})
@@ -885,7 +885,7 @@ var _ = Describe("UIntFlag", func() {
 				})
 
 				It("returns an error", func() {
-					Expect(flag.Validate(&cli.Context{})).To(MatchError("cli: flag -num is missing"))
+					Expect(flag.Validate(&cli.Context{})).To(MatchError("flag 'num' not found"))
 				})
 			})
 		})
@@ -947,7 +947,7 @@ var _ = Describe("UInt64Flag", func() {
 				})
 
 				It("returns an error", func() {
-					Expect(flag.Validate(&cli.Context{})).To(MatchError("cli: flag -num is missing"))
+					Expect(flag.Validate(&cli.Context{})).To(MatchError("flag 'num' not found"))
 				})
 			})
 		})
@@ -1015,7 +1015,7 @@ var _ = Describe("Float32Flag", func() {
 				})
 
 				It("returns an error", func() {
-					Expect(flag.Validate(&cli.Context{})).To(MatchError("cli: flag -num is missing"))
+					Expect(flag.Validate(&cli.Context{})).To(MatchError("flag 'num' not found"))
 				})
 			})
 		})
@@ -1077,7 +1077,7 @@ var _ = Describe("Float64Flag", func() {
 				})
 
 				It("returns an error", func() {
-					Expect(flag.Validate(&cli.Context{})).To(MatchError("cli: flag -num is missing"))
+					Expect(flag.Validate(&cli.Context{})).To(MatchError("flag 'num' not found"))
 				})
 			})
 		})
@@ -1145,7 +1145,7 @@ var _ = Describe("IPFlag", func() {
 				})
 
 				It("returns an error", func() {
-					Expect(flag.Validate(&cli.Context{})).To(MatchError("cli: flag -ip is missing"))
+					Expect(flag.Validate(&cli.Context{})).To(MatchError("flag 'ip' not found"))
 				})
 			})
 		})
@@ -1215,7 +1215,7 @@ var _ = Describe("HardwareAddrFlag", func() {
 				})
 
 				It("returns an error", func() {
-					Expect(flag.Validate(&cli.Context{})).To(MatchError("cli: flag -mac is missing"))
+					Expect(flag.Validate(&cli.Context{})).To(MatchError("flag 'mac' not found"))
 				})
 			})
 		})

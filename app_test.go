@@ -146,7 +146,7 @@ var _ = Describe("App", func() {
 		})
 
 		Context("when the error is not exit error", func() {
-			It("exits with the exit code 1", func() {
+			It("exits with the exit code 1001", func() {
 				app.Action = func(ctx *cli.Context) error {
 					return fmt.Errorf("oh no!")
 				}
@@ -157,7 +157,7 @@ var _ = Describe("App", func() {
 				}
 
 				app.Exit = func(code int) {
-					Expect(code).To(Equal(1))
+					Expect(code).To(Equal(1001))
 				}
 
 				app.Run([]string{"app"})

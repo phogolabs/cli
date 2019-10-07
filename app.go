@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -201,13 +202,15 @@ func (app *App) error(err error) {
 		err = app.OnExitErr(err)
 	}
 
-	exitErr, ok := err.(ExitCoder)
-	if !ok {
-		exitErr = WrapExitError(err, 1)
+	fmt.Fprintln(app.ErrWriter, err)
+
+	var errx *ExitError
+
+	if !errors.As(err, &errx) {
+		errx = WrapError(err, ExitCodeErrorApp)
 	}
 
-	fmt.Fprintln(app.ErrWriter, err)
-	app.Exit(exitErr.ExitCode())
+	app.Exit(errx.ExitCode())
 }
 
 // Author represents someone who has contributed to a cli project.

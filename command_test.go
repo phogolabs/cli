@@ -113,7 +113,7 @@ var _ = Describe("Command", func() {
 			})
 
 			It("returns an error", func() {
-				Expect(cmd.RunWithContext(ctx)).To(MatchError("cli: flag -name, n is missing"))
+				Expect(cmd.RunWithContext(ctx)).To(MatchError("flag 'name, n' not found"))
 			})
 		})
 

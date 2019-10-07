@@ -94,7 +94,7 @@ func (f *StringFlag) Get() interface{} {
 func (f *StringFlag) Validate(ctx *Context) error {
 	if f.Required {
 		if f.Value == "" {
-			return RequiredErr(f.Name)
+			return NotFoundFlagError(f.Name)
 		}
 	}
 
@@ -151,7 +151,7 @@ func (f *StringSliceFlag) Get() interface{} {
 func (f *StringSliceFlag) Validate(ctx *Context) error {
 	if f.Required {
 		if f.Value == nil || len(f.Value) == 0 {
-			return RequiredErr(f.Name)
+			return NotFoundFlagError(f.Name)
 		}
 	}
 
@@ -259,7 +259,7 @@ func (f *URLFlag) Get() interface{} {
 func (f *URLFlag) Validate(ctx *Context) error {
 	if f.Required {
 		if f.Value == nil {
-			return RequiredErr(f.Name)
+			return NotFoundFlagError(f.Name)
 		}
 	}
 
@@ -311,7 +311,7 @@ func (f *JSONFlag) Get() interface{} {
 func (f *JSONFlag) Validate(ctx *Context) error {
 	if f.Required {
 		if f.Value == nil {
-			return RequiredErr(f.Name)
+			return NotFoundFlagError(f.Name)
 		}
 	}
 
@@ -363,7 +363,7 @@ func (f *YAMLFlag) Get() interface{} {
 func (f *YAMLFlag) Validate(ctx *Context) error {
 	if f.Required {
 		if f.Value == nil {
-			return RequiredErr(f.Name)
+			return NotFoundFlagError(f.Name)
 		}
 	}
 
@@ -415,7 +415,7 @@ func (f *XMLFlag) Get() interface{} {
 func (f *XMLFlag) Validate(ctx *Context) error {
 	if f.Required {
 		if f.Value == nil {
-			return RequiredErr(f.Name)
+			return NotFoundFlagError(f.Name)
 		}
 	}
 
@@ -469,7 +469,7 @@ func (f *TimeFlag) Get() interface{} {
 func (f *TimeFlag) Validate(ctx *Context) error {
 	if f.Required {
 		if f.Value.IsZero() {
-			return RequiredErr(f.Name)
+			return NotFoundFlagError(f.Name)
 		}
 	}
 
@@ -518,7 +518,7 @@ func (f *DurationFlag) Get() interface{} {
 func (f *DurationFlag) Validate(ctx *Context) error {
 	if f.Required {
 		if f.Value == 0 {
-			return RequiredErr(f.Name)
+			return NotFoundFlagError(f.Name)
 		}
 	}
 
@@ -572,7 +572,7 @@ func (f *IntFlag) Get() interface{} {
 func (f *IntFlag) Validate(ctx *Context) error {
 	if f.Required {
 		if f.Value == 0 {
-			return RequiredErr(f.Name)
+			return NotFoundFlagError(f.Name)
 		}
 	}
 
@@ -621,7 +621,7 @@ func (f *Int64Flag) Get() interface{} {
 func (f *Int64Flag) Validate(ctx *Context) error {
 	if f.Required {
 		if f.Value == 0 {
-			return RequiredErr(f.Name)
+			return NotFoundFlagError(f.Name)
 		}
 	}
 
@@ -675,7 +675,7 @@ func (f *UIntFlag) Get() interface{} {
 func (f *UIntFlag) Validate(ctx *Context) error {
 	if f.Required {
 		if f.Value == 0 {
-			return RequiredErr(f.Name)
+			return NotFoundFlagError(f.Name)
 		}
 	}
 
@@ -724,7 +724,7 @@ func (f *UInt64Flag) Get() interface{} {
 func (f *UInt64Flag) Validate(ctx *Context) error {
 	if f.Required {
 		if f.Value == 0 {
-			return RequiredErr(f.Name)
+			return NotFoundFlagError(f.Name)
 		}
 	}
 
@@ -778,7 +778,7 @@ func (f *Float32Flag) Get() interface{} {
 func (f *Float32Flag) Validate(ctx *Context) error {
 	if f.Required {
 		if f.Value == 0 {
-			return RequiredErr(f.Name)
+			return NotFoundFlagError(f.Name)
 		}
 	}
 
@@ -827,7 +827,7 @@ func (f *Float64Flag) Get() interface{} {
 func (f *Float64Flag) Validate(ctx *Context) error {
 	if f.Required {
 		if f.Value == 0 {
-			return RequiredErr(f.Name)
+			return NotFoundFlagError(f.Name)
 		}
 	}
 
@@ -884,7 +884,7 @@ func (f *IPFlag) Get() interface{} {
 func (f *IPFlag) Validate(ctx *Context) error {
 	if f.Required {
 		if f.Value == nil {
-			return RequiredErr(f.Name)
+			return NotFoundFlagError(f.Name)
 		}
 	}
 
@@ -933,7 +933,7 @@ func (f *HardwareAddrFlag) Get() interface{} {
 func (f *HardwareAddrFlag) Validate(ctx *Context) error {
 	if f.Required {
 		if f.Value == nil {
-			return RequiredErr(f.Name)
+			return NotFoundFlagError(f.Name)
 		}
 	}
 
@@ -1101,9 +1101,4 @@ func (f *FlagAccessor) IsBoolFlag() bool {
 	}
 
 	return false
-}
-
-// RequiredErr returns the required error
-func RequiredErr(flag string) error {
-	return fmt.Errorf("cli: flag -%s is missing", flag)
 }

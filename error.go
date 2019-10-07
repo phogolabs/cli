@@ -5,98 +5,117 @@ import (
 	"strings"
 )
 
-// ErrCommandNotFound occurs when command is not found
-var ErrCommandNotFound = fmt.Errorf("cli: command not found")
-
-var (
-	_ ExitCoder = &ExitError{}
-	_ ExitCoder = &MultiError{}
+const (
+	// ExitCodeErrorApp is the exit code on application error
+	ExitCodeErrorApp = 1001
+	// ExitCodeNotFoundFlag is the exit code when a flag is not found
+	ExitCodeNotFoundFlag = 1002
+	// ExitCodeNotFoundCommand is the exit code when a command is not found
+	ExitCodeNotFoundCommand = 1003
 )
 
 // ExitCoder is the interface checked by `App` and `Command` for a custom exit
 // code
 type ExitCoder interface {
-	error
+	Error() string
 	ExitCode() int
 }
 
+var _ ExitCoder = &ExitError{}
+
 // ExitError fulfills both the builtin `error` interface and `ExitCoder`
 type ExitError struct {
-	exitCode int
-	message  string
+	code int
+	err  error
 }
 
-// NewExitError makes a new *ExitError
-func NewExitError(message string, exitCode int) *ExitError {
+// NewExitError makes a new ExitError
+func NewExitError(text string, code int) *ExitError {
 	return &ExitError{
-		exitCode: exitCode,
-		message:  message,
+		code: code,
+		err:  fmt.Errorf(text),
 	}
 }
 
-// WrapExitError wraps an error
-func WrapExitError(err error, exitCode int) *ExitError {
-	return NewExitError(err.Error(), exitCode)
+// WrapError wraps an error as ExitError
+func WrapError(err error, code int) *ExitError {
+	return &ExitError{
+		code: code,
+		err:  err,
+	}
+}
+
+// NotFoundFlagError makes a new ExitError for missing flags
+func NotFoundFlagError(name string) *ExitError {
+	return &ExitError{
+		code: ExitCodeNotFoundFlag,
+		err:  fmt.Errorf("flag '%s' not found", name),
+	}
+}
+
+// NotFoundCommandError makes a new ExitError for missing command
+func NotFoundCommandError(name string) *ExitError {
+	return &ExitError{
+		code: ExitCodeNotFoundCommand,
+		err:  fmt.Errorf("command '%s' not found", name),
+	}
 }
 
 // Error returns the string message, fulfilling the interface required by
 // `error`
-func (err *ExitError) Error() string {
-	return fmt.Sprintf("%v", err.message)
+func (x *ExitError) Error() string {
+	return x.err.Error()
 }
 
 // ExitCode returns the exit code, fulfilling the interface required by
 // `ExitCoder`
-func (err *ExitError) ExitCode() int {
-	return err.exitCode
+func (x *ExitError) ExitCode() int {
+	return x.code
 }
 
-// MultiError is an error that wraps multiple errors.
-type MultiError []error
-
-// NewMultiError creates a new MultiError. Pass in one or more errors.
-func NewMultiError(err ...error) *MultiError {
-	errs := MultiError(err)
-	return &errs
+// Unwrap returns the underlying error
+func (x *ExitError) Unwrap() error {
+	return x.err
 }
+
+var _ ExitCoder = &ExitErrorCollector{}
+
+// ExitErrorCollector is an error that wraps multiple errors.
+type ExitErrorCollector []error
 
 // Error implements the error interface.
-func (err *MultiError) Error() string {
-	errs := make([]string, len(*err))
+func (errs ExitErrorCollector) Error() string {
+	messages := make([]string, len(errs))
 
-	for index, item := range *err {
-		errs[index] = item.Error()
+	for index, err := range errs {
+		messages[index] = err.Error()
 	}
 
-	return strings.Join(errs, "\n")
+	return strings.Join(messages, "\n")
 }
 
 // ExitCode returns the exit code, fulfilling the interface required by
-// `ExitCoder`
-func (err *MultiError) ExitCode() int {
-	code := 1
-
-	for _, merr := range *err {
-		if exitErr, ok := merr.(ExitCoder); ok {
-			code = exitErr.ExitCode()
+// ExitCoder
+func (errs ExitErrorCollector) ExitCode() int {
+	for _, err := range errs {
+		if errx, ok := err.(ExitCoder); ok {
+			return errx.ExitCode()
 		}
 	}
 
-	return code
+	return ExitCodeErrorApp
 }
 
-// AppendError appends an error
-func AppendError(errx error, err error) error {
-	if errx == nil {
-		return err
-	}
+// Unwrap unwraps the error
+func (errs ExitErrorCollector) Unwrap() error {
+	count := len(errs)
 
-	errs, ok := errx.(*MultiError)
-	if !ok {
-		errs = &MultiError{}
-		*errs = append(*errs, errx)
+	switch {
+	case count == 0:
+		return nil
+	case count == 1:
+		return errs[0]
+	default:
+		return errs
 	}
-
-	*errs = append(*errs, err)
-	return errs
 }

@@ -41,14 +41,13 @@ type Command struct {
 	// If a non-nil error is returned, no subcommands are run
 	Before BeforeFunc
 	// An action to execute after any subcommands are run, but after the subcommand has finished
-	// It is run even if Action() panics
 	After AfterFunc
 	// An action to execute before provider execution
 	BeforeInit BeforeFunc
 	// An action to execute after provider execution
 	AfterInit AfterFunc
 	// The action to execute when no subcommands are specified
-	// Expects a `cli.ActionFunc` but will accept the *deprecated* signature of `func(*cli.Context) {}`
+	// Expects a cli.ActionFunc
 	Action ActionFunc
 	// Execute this function if a usage error occurs.
 	OnUsageError OnUsageErrorFunc
@@ -93,8 +92,16 @@ func (cmd *Command) RunWithContext(ctx *Context) error {
 		return cmd.error(ctx, err)
 	}
 
-	if err := cmd.fork(ctx); err != ErrCommandNotFound {
-		return err
+	err := cmd.fork(ctx)
+
+	if err == nil {
+		return nil
+	}
+
+	if errx, ok := err.(ExitCoder); ok {
+		if errx.ExitCode() != ExitCodeNotFoundCommand {
+			return err
+		}
 	}
 
 	return cmd.exec(ctx)
@@ -154,36 +161,40 @@ func (cmd *Command) VisibleCategories() []*CommandCategory {
 	return result
 }
 
-func (cmd *Command) provide(ctx *Context) (err error) {
+func (cmd *Command) provide(ctx *Context) (errx error) {
 	if cmd.SkipFlagParsing {
 		return nil
 	}
 
+	var errs ExitErrorCollector
+
+	defer func() {
+		errx = errs.Unwrap()
+	}()
+
 	if cmd.AfterInit != nil {
 		defer func() {
 			if afterErr := cmd.AfterInit(ctx); afterErr != nil {
-				err = AppendError(err, afterErr)
+				errs = append(errs, afterErr)
 			}
 		}()
 	}
 
 	if cmd.BeforeInit != nil {
 		if beforeErr := cmd.BeforeInit(ctx); beforeErr != nil {
-			err = AppendError(err, beforeErr)
+			errs = append(errs, beforeErr)
+			return
 		}
-	}
-
-	if err != nil {
-		return err
 	}
 
 	for _, provider := range cmd.Providers {
-		if err = provider.Provide(ctx); err != nil {
-			return err
+		if err := provider.Provide(ctx); err != nil {
+			errs = append(errs, err)
+			return
 		}
 	}
 
-	return nil
+	return
 }
 
 func (cmd *Command) validate(ctx *Context) error {
@@ -250,6 +261,7 @@ func (cmd *Command) flags() {
 func (cmd *Command) fork(ctx *Context) error {
 	var (
 		child *Command
+		name  string
 		args  []string
 	)
 
@@ -259,13 +271,14 @@ func (cmd *Command) fork(ctx *Context) error {
 	case ctx.Bool("version"):
 		child = cmd.find("version")
 	case len(ctx.Args) > 0:
+		name = ctx.Args[0]
 		child, args = cmd.next(ctx.Args)
 	case cmd.Action == nil:
 		child = cmd.find("help")
 	}
 
 	if child == nil {
-		return ErrCommandNotFound
+		return NotFoundCommandError(name)
 	}
 
 	switch {
@@ -316,30 +329,39 @@ func (cmd *Command) find(name string) *Command {
 	return nil
 }
 
-func (cmd *Command) exec(ctx *Context) (err error) {
+func (cmd *Command) exec(ctx *Context) (errx error) {
+	var errs ExitErrorCollector
+
+	defer func() {
+		errx = errs.Unwrap()
+	}()
+
 	if cmd.After != nil {
 		defer func() {
 			if afterErr := cmd.After(ctx); afterErr != nil {
-				err = AppendError(err, afterErr)
+				errs = append(errs, afterErr)
 			}
 		}()
 	}
 
 	if cmd.Before != nil {
 		if beforeErr := cmd.Before(ctx); beforeErr != nil {
-			err = AppendError(err, beforeErr)
+			errs = append(errs, beforeErr)
+			return
 		}
 	}
 
-	if err != nil {
-		return err
+	if err := cmd.validate(ctx); err != nil {
+		errs = append(errs, err)
+		return
 	}
 
-	if err = cmd.validate(ctx); err != nil {
-		return err
+	if err := cmd.Action(ctx); err != nil {
+		errs = append(errs, err)
+		return
 	}
 
-	return cmd.Action(ctx)
+	return
 }
 
 func (cmd *Command) error(ctx *Context, err error) error {
