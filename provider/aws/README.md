@@ -6,7 +6,7 @@ applications by populating a command line arguments from the vault.
 
 ## Installation
 
-Make sure you have a working Go environment. Go version 1.2+ is supported.
+Make sure you have a working Go environment. Go version 1.13.x is supported.
 
 [See the install instructions for Go](http://golang.org/doc/install.html).
 
