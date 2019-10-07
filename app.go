@@ -58,13 +58,15 @@ type App struct {
 	// The action to execute when no subcommands are specified
 	// Expects a `cli.ActionFunc` but will accept the *deprecated* signature of `func(*cli.Context) {}`
 	Action ActionFunc
-	// Execute this function if a usage error occurs.
-	OnUsageError OnUsageErrorFunc
 	// OnSignal occurs on system signal
-	OnSignal OnSignalFunc
+	OnSignal SignalFunc
+	// Execute this function if a usage error occurs.
+	OnUsageError UsageErrorFunc
+	// OnCommandNotFound is executed if the proper command cannot be found
+	OnCommandNotFound CommandNotFoundFunc
 	// Execute this function to handle ExitErrors. If not provided, HandleExitCoder is provided to
 	// function as a default, so this is optional.
-	OnExitErr ExitErrHandlerFunc
+	OnExitErr ExitErrorHandlerFunc
 	// Exit is the function used when the app exits. If not set defaults to os.Exit.
 	Exit ExitFunc
 	// Writer writer to write output to
@@ -79,22 +81,23 @@ func (app *App) Run(args []string) {
 	args = app.prepare(args)
 
 	cmd := &Command{
-		Name:         app.Name,
-		Usage:        app.Usage,
-		UsageText:    app.UsageText,
-		HideHelp:     app.HideHelp,
-		HelpName:     app.HelpName,
-		Commands:     app.Commands,
-		Description:  app.Description,
-		ArgsUsage:    app.ArgsUsage,
-		Flags:        app.Flags,
-		Before:       app.Before,
-		After:        app.After,
-		BeforeInit:   app.BeforeInit,
-		AfterInit:    app.AfterInit,
-		Action:       app.Action,
-		Providers:    app.Providers,
-		OnUsageError: app.OnUsageError,
+		Name:              app.Name,
+		Usage:             app.Usage,
+		UsageText:         app.UsageText,
+		HideHelp:          app.HideHelp,
+		HelpName:          app.HelpName,
+		Commands:          app.Commands,
+		Description:       app.Description,
+		ArgsUsage:         app.ArgsUsage,
+		Flags:             app.Flags,
+		Before:            app.Before,
+		After:             app.After,
+		BeforeInit:        app.BeforeInit,
+		AfterInit:         app.AfterInit,
+		Action:            app.Action,
+		Providers:         app.Providers,
+		OnUsageError:      app.OnUsageError,
+		OnCommandNotFound: app.OnCommandNotFound,
 		Metadata: Map{
 			"HideVersion": app.HideVersion,
 			"Version":     app.Version,

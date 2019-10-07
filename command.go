@@ -29,6 +29,8 @@ type Command struct {
 	HelpName string
 	// Boolean to hide built-in help command
 	HideHelp bool
+	// Metadata information
+	Metadata map[string]interface{}
 	// List of child commands
 	Commands []*Command
 	// Treat all flags as normal arguments if true
@@ -50,9 +52,9 @@ type Command struct {
 	// Expects a cli.ActionFunc
 	Action ActionFunc
 	// Execute this function if a usage error occurs.
-	OnUsageError OnUsageErrorFunc
-	// Metadata information
-	Metadata map[string]interface{}
+	OnUsageError UsageErrorFunc
+	// OnCommandNotFound is executed if the proper command cannot be found
+	OnCommandNotFound CommandNotFoundFunc
 }
 
 // NewHelpCommand creates a new help command
@@ -278,6 +280,10 @@ func (cmd *Command) fork(ctx *Context) error {
 	}
 
 	if child == nil {
+		if cmd.OnCommandNotFound != nil {
+			cmd.OnCommandNotFound(ctx, name)
+		}
+
 		return NotFoundCommandError(name)
 	}
 
