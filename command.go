@@ -106,7 +106,7 @@ func (cmd *Command) RunWithContext(ctx *Context) error {
 		}
 	}
 
-	return cmd.exec(ctx)
+	return cmd.exec(cmd.Action, ctx)
 }
 
 // Names returns the names including short names and aliases.
@@ -287,17 +287,6 @@ func (cmd *Command) fork(ctx *Context) error {
 		return NotFoundCommandError(name)
 	}
 
-	switch {
-	case child.Name == "help":
-		break
-	case child.Name == "version":
-		break
-	default:
-		if err := cmd.validate(ctx); err != nil {
-			return err
-		}
-	}
-
 	ctx = &Context{
 		Parent:    ctx,
 		Metadata:  ctx.Metadata,
@@ -305,6 +294,10 @@ func (cmd *Command) fork(ctx *Context) error {
 		ErrWriter: ctx.ErrWriter,
 		Command:   child,
 		Args:      args,
+	}
+
+	if child.Name != "help" && child.Name != "version" {
+		return cmd.exec(child.RunWithContext, ctx)
 	}
 
 	return child.RunWithContext(ctx)
@@ -339,7 +332,7 @@ func (cmd *Command) find(name string) *Command {
 	return nil
 }
 
-func (cmd *Command) exec(ctx *Context) (errx error) {
+func (cmd *Command) exec(action ActionFunc, ctx *Context) (errx error) {
 	var errs ExitErrorCollector
 
 	defer func() {
@@ -366,12 +359,12 @@ func (cmd *Command) exec(ctx *Context) (errx error) {
 		return
 	}
 
-	if err := cmd.Action(ctx); err != nil {
+	if err := action(ctx); err != nil {
 		errs = append(errs, err)
 		return
 	}
 
-	return
+	return nil
 }
 
 func (cmd *Command) has() bool {
