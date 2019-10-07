@@ -1,8 +1,7 @@
 # AWS Provider
 
-A package that facilitates working with http://vaultproject.io/ in context of
-[CLI](https://github.com/phogolabs/cli). It increases the security of Golang
-applications by populating a command line arguments from the vault.
+A package that contains a providers that populates flags from Amazon S3 or
+Amazon SSM.
 
 ## Installation
 
