@@ -1102,3 +1102,23 @@ func (f *FlagAccessor) IsBoolFlag() bool {
 
 	return false
 }
+
+// FlagsByName is a slice of Flag
+type FlagsByName []Flag
+
+// Len returns the length of the slice
+func (f FlagsByName) Len() int {
+	return len(f)
+}
+
+// Less returns true if item at index i < item at index j
+func (f FlagsByName) Less(i, j int) bool {
+	x := NewFlagAccessor(f[i])
+	y := NewFlagAccessor(f[j])
+	return lexicographicLess(x.Name(), y.Name())
+}
+
+// Swap swaps two items
+func (f FlagsByName) Swap(i, j int) {
+	f[i], f[j] = f[j], f[i]
+}

@@ -388,3 +388,21 @@ func (cmd *Command) error(ctx *Context, err error) error {
 
 	return err
 }
+
+// CommandsByName is a slice of Command
+type CommandsByName []*Command
+
+// Len returns the length of the slice
+func (c CommandsByName) Len() int {
+	return len(c)
+}
+
+// Less returns true if item at index i < item at index j
+func (c CommandsByName) Less(i, j int) bool {
+	return lexicographicLess(c[i].Name, c[j].Name)
+}
+
+// Swap swaps two items
+func (c CommandsByName) Swap(i, j int) {
+	c[i], c[j] = c[j], c[i]
+}
