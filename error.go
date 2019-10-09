@@ -121,11 +121,9 @@ func (errs ExitErrorCollector) Unwrap() error {
 	count := len(errs)
 
 	switch {
-	case count == 0:
-		return nil
 	case count == 1:
 		return errs[0]
 	default:
-		return errs
+		return nil
 	}
 }
