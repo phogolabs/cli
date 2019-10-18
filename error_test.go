@@ -11,20 +11,20 @@ import (
 var _ = Describe("ExitErrorCollector", func() {
 	It("creates a new error", func() {
 		err := cli.ExitErrorCollector{
-			fmt.Errorf("oh no!"),
+			fmt.Errorf("oh no"),
 		}
 
 		Expect(err).To(HaveLen(1))
-		Expect(err[0]).To(MatchError("oh no!"))
+		Expect(err[0]).To(MatchError("oh no"))
 	})
 
 	It("formats the error", func() {
 		err := cli.ExitErrorCollector{
-			fmt.Errorf("oh no!"),
-			fmt.Errorf("oh ye!"),
+			fmt.Errorf("oh no"),
+			fmt.Errorf("oh ye"),
 		}
 
-		Expect(err).To(MatchError("oh no!\noh ye!"))
+		Expect(err).To(MatchError("oh no\noh ye"))
 	})
 })
 
@@ -37,7 +37,18 @@ var _ = Describe("ExitError", func() {
 
 	It("wraps an error", func() {
 		err := fmt.Errorf("oh no")
-		errx := cli.WrapError(err, 1)
+		errx := cli.WrapError(err)
 		Expect(errx.Unwrap()).To(Equal(err))
+	})
+
+	Context("WithCode", func() {
+		It("returns a error with new code", func() {
+			err := cli.NewExitError("oh no", 69)
+			errx := err.WithCode(129)
+
+			Expect(errx).To(MatchError("oh no"))
+			Expect(errx.Code()).To(Equal(129))
+			Expect(errx.Code()).NotTo(Equal(err.Code()))
+		})
 	})
 })

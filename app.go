@@ -210,7 +210,7 @@ func (app *App) error(err error) {
 	var errx *ExitError
 
 	if !errors.As(err, &errx) {
-		errx = WrapError(err, ExitCodeErrorApp)
+		errx = WrapError(err)
 	}
 
 	app.Exit(errx.Code())

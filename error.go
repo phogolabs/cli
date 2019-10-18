@@ -40,9 +40,9 @@ func NewExitError(text string, code int) *ExitError {
 }
 
 // WrapError wraps an error as ExitError
-func WrapError(err error, code int) *ExitError {
+func WrapError(err error) *ExitError {
 	return &ExitError{
-		code: code,
+		code: ExitCodeErrorApp,
 		err:  err,
 	}
 }
@@ -69,6 +69,12 @@ func NotFoundCommandError(name string) *ExitError {
 		code: ExitCodeNotFoundCommand,
 		err:  fmt.Errorf("command '%s' not found", name),
 	}
+}
+
+// WithCode creates a copy of the error with a code
+func (x ExitError) WithCode(code int) *ExitError {
+	x.code = code
+	return &x
 }
 
 // Error returns the string message, fulfilling the interface required by
