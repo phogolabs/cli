@@ -101,7 +101,7 @@ func (cmd *Command) RunWithContext(ctx *Context) error {
 	}
 
 	if errx, ok := err.(ExitCoder); ok {
-		if errx.ExitCode() != ExitCodeNotFoundCommand {
+		if errx.Code() != ExitCodeNotFoundCommand {
 			return err
 		}
 	}
@@ -171,27 +171,29 @@ func (cmd *Command) provide(ctx *Context) (errx error) {
 	var errs ExitErrorCollector
 
 	defer func() {
-		errx = errs.Unwrap()
+		if len(errs) > 0 {
+			errx = errs
+		}
 	}()
 
 	if cmd.AfterInit != nil {
 		defer func() {
 			if afterErr := cmd.AfterInit(ctx); afterErr != nil {
-				errs = append(errs, afterErr)
+				errs.Wrap(afterErr)
 			}
 		}()
 	}
 
 	if cmd.BeforeInit != nil {
 		if beforeErr := cmd.BeforeInit(ctx); beforeErr != nil {
-			errs = append(errs, beforeErr)
+			errs.Wrap(beforeErr)
 			return
 		}
 	}
 
 	for _, provider := range cmd.Providers {
 		if err := provider.Provide(ctx); err != nil {
-			errs = append(errs, err)
+			errs.Wrap(err)
 			return
 		}
 	}

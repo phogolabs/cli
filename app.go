@@ -213,7 +213,7 @@ func (app *App) error(err error) {
 		errx = WrapError(err, ExitCodeErrorApp)
 	}
 
-	app.Exit(errx.ExitCode())
+	app.Exit(errx.Code())
 }
 
 // Author represents someone who has contributed to a cli project.

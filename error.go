@@ -8,8 +8,8 @@ import (
 const (
 	// ExitCodeErrorApp is the exit code on application error
 	ExitCodeErrorApp = 1001
-	// ExitCodeErrorProvider is the exit code on provider error
-	ExitCodeErrorProvider = 1002
+	// ExitCodeErrorFlag is the exit code on flag error
+	ExitCodeErrorFlag = 1002
 	// ExitCodeNotFoundFlag is the exit code when a flag is not found
 	ExitCodeNotFoundFlag = 1003
 	// ExitCodeNotFoundCommand is the exit code when a command is not found
@@ -20,7 +20,7 @@ const (
 // code
 type ExitCoder interface {
 	Error() string
-	ExitCode() int
+	Code() int
 }
 
 var _ ExitCoder = &ExitError{}
@@ -55,19 +55,19 @@ func NotFoundFlagError(name string) *ExitError {
 	}
 }
 
+// FlagError makes a new ExitError for missing command
+func FlagError(prefix, name string, err error) *ExitError {
+	return &ExitError{
+		code: ExitCodeErrorFlag,
+		err:  fmt.Errorf("%s: failed to set a flag '%v': %w", prefix, name, err),
+	}
+}
+
 // NotFoundCommandError makes a new ExitError for missing command
 func NotFoundCommandError(name string) *ExitError {
 	return &ExitError{
 		code: ExitCodeNotFoundCommand,
 		err:  fmt.Errorf("command '%s' not found", name),
-	}
-}
-
-// ProviderCommandError makes a new ExitError for missing command
-func ProviderFlagError(name string, flag *FlagAccessor, err error) *ExitError {
-	return &ExitError{
-		code: ExitCodeErrorProvider,
-		err:  fmt.Errorf("provider '%s' failed to set a flag '%v': %w", name, flag.Name(), err),
 	}
 }
 
@@ -77,10 +77,15 @@ func (x *ExitError) Error() string {
 	return x.err.Error()
 }
 
-// ExitCode returns the exit code, fulfilling the interface required by
+// Code returns the exit code, fulfilling the interface required by
 // `ExitCoder`
-func (x *ExitError) ExitCode() int {
+func (x *ExitError) Code() int {
 	return x.code
+}
+
+// Wrap wraps an error
+func (x *ExitError) Wrap(err error) {
+	x.err = err
 }
 
 // Unwrap returns the underlying error
@@ -104,16 +109,20 @@ func (errs ExitErrorCollector) Error() string {
 	return strings.Join(messages, "\n")
 }
 
-// ExitCode returns the exit code, fulfilling the interface required by
-// ExitCoder
-func (errs ExitErrorCollector) ExitCode() int {
+// Code returns the exit code, fulfilling the interface required by ExitCoder
+func (errs ExitErrorCollector) Code() int {
 	for _, err := range errs {
 		if errx, ok := err.(ExitCoder); ok {
-			return errx.ExitCode()
+			return errx.Code()
 		}
 	}
 
 	return ExitCodeErrorApp
+}
+
+// Wrap wraps an error
+func (errs *ExitErrorCollector) Wrap(err error) {
+	*errs = append(*errs, err)
 }
 
 // Unwrap unwraps the error

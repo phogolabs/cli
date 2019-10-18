@@ -64,7 +64,7 @@ func (p *EnvProvider) Provide(ctx *Context) error {
 
 			for _, value := range split(value) {
 				if err := accessor.Set(value); err != nil {
-					return ProviderFlagError("env", accessor, err)
+					return FlagError("env", accessor.Name(), err)
 				}
 			}
 		}
@@ -97,7 +97,7 @@ func (p *FileProvider) Provide(ctx *Context) error {
 				}
 
 				if err := accessor.Set(value); err != nil {
-					return ProviderFlagError("file", accessor, err)
+					return FlagError("file", accessor.Name(), err)
 				}
 			}
 		}

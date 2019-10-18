@@ -32,7 +32,7 @@ var _ = Describe("ExitError", func() {
 	It("creates a new exit error", func() {
 		err := cli.NewExitError("oh no!", 69)
 		Expect(err.Error()).To(Equal("oh no!"))
-		Expect(err.ExitCode()).To(Equal(69))
+		Expect(err.Code()).To(Equal(69))
 	})
 
 	It("wraps an error", func() {
