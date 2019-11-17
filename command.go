@@ -368,9 +368,11 @@ func (cmd *Command) exec(action ActionFunc, ctx *Context) (errx error) {
 		return
 	}
 
-	if err := action(ctx); err != nil {
-		errs = append(errs, err)
-		return
+	if action != nil {
+		if err := action(ctx); err != nil {
+			errs = append(errs, err)
+			return
+		}
 	}
 
 	return nil
