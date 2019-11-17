@@ -96,17 +96,13 @@ func (cmd *Command) RunWithContext(ctx *Context) error {
 
 	err := cmd.fork(ctx)
 
-	if err == nil {
-		return nil
-	}
-
 	if errx, ok := err.(ExitCoder); ok {
-		if errx.Code() != ExitCodeNotFoundCommand {
-			return err
+		if errx.Code() == ExitCodeNotFoundCommand {
+			return cmd.exec(cmd.Action, ctx)
 		}
 	}
 
-	return cmd.exec(cmd.Action, ctx)
+	return err
 }
 
 // Names returns the names including short names and aliases.
@@ -341,7 +337,9 @@ func (cmd *Command) exec(action ActionFunc, ctx *Context) (errx error) {
 	)
 
 	defer func() {
-		errx = errs.Unwrap()
+		if !errs.IsEmpty() {
+			errx = errs
+		}
 	}()
 
 	if ctx.Command != cmd {
@@ -351,28 +349,26 @@ func (cmd *Command) exec(action ActionFunc, ctx *Context) (errx error) {
 	if cmd.After != nil {
 		defer func() {
 			if afterErr := cmd.After(eventCtx); afterErr != nil {
-				errs = append(errs, afterErr)
+				errs.Wrap(afterErr)
 			}
 		}()
 	}
 
 	if cmd.Before != nil {
 		if beforeErr := cmd.Before(eventCtx); beforeErr != nil {
-			errs = append(errs, beforeErr)
+			errs.Wrap(beforeErr)
 			return
 		}
 	}
 
 	if err := cmd.validate(eventCtx); err != nil {
-		errs = append(errs, err)
+		errs.Wrap(err)
 		return
 	}
 
-	if action != nil {
-		if err := action(ctx); err != nil {
-			errs = append(errs, err)
-			return
-		}
+	if err := action(ctx); err != nil {
+		errs.Wrap(err)
+		return
 	}
 
 	return nil

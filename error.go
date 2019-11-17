@@ -104,6 +104,11 @@ var _ ExitCoder = &ExitErrorCollector{}
 // ExitErrorCollector is an error that wraps multiple errors.
 type ExitErrorCollector []error
 
+// IsEmpty returns true if the collector is empty
+func (errs ExitErrorCollector) IsEmpty() bool {
+	return len(errs) == 0
+}
+
 // Error implements the error interface.
 func (errs ExitErrorCollector) Error() string {
 	messages := make([]string, len(errs))
