@@ -2,7 +2,7 @@
 
 [![Documentation][godoc-img]][godoc-url]
 ![License][license-img]
-[![Build Status][travis-img]][travis-url]
+[![Build Status][action-img]][action-url]
 [![Coverage][codecov-img]][codecov-url]
 [![Go Report Card][report-img]][report-url]
 
@@ -130,15 +130,15 @@ The providers allow setting the flag's value from external sources:
 
 ## Contributing
 
-We are welcome to any contributions. Just fork the
+We are open for any contributions. Just fork the
 [project](https://github.com/phogolabs/cli).
 
-[travis-img]: https://travis-ci.org/phogolabs/cli.svg?branch=master
-[travis-url]: https://travis-ci.org/phogolabs/cli
 [report-img]: https://goreportcard.com/badge/github.com/phogolabs/cli
 [report-url]: https://goreportcard.com/report/github.com/phogolabs/cli
 [codecov-url]: https://codecov.io/gh/phogolabs/cli
 [codecov-img]: https://codecov.io/gh/phogolabs/cli/branch/master/graph/badge.svg
+[action-img]: https://github.com/phogolabs/cli/workflows/pipeline/badge.svg
+[action-url]: https://github.com/phogolabs/cli/actions
 [godoc-url]: https://godoc.org/github.com/phogolabs/cli
 [godoc-img]: https://godoc.org/github.com/phogolabs/cli?status.svg
 [license-img]: https://img.shields.io/badge/license-MIT-blue.svg
