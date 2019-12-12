@@ -1,13 +1,15 @@
-name: pipeline
+name: main
 on:
   push:
     branches:
       - master
+    ignore-tags:
+      - 'v*'
   pull_request:
 
 jobs:
   pipeline:
-    name: test
+    name: pipeline
     runs-on: ubuntu-latest
     steps:
       - name: Check out code
