@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"os"
+	"sync"
 	"syscall"
 
 	. "github.com/onsi/ginkgo"
@@ -74,7 +75,10 @@ var _ = Describe("App", func() {
 
 	Context("when the operation system sends a signal", func() {
 		It("handles the signal", func() {
-			count := 0
+			var (
+				count = 0
+				rw    sync.RWMutex
+			)
 
 			app.Signals = []os.Signal{syscall.SIGUSR1}
 			app.Action = func(ctx *cli.Context) error {
@@ -82,6 +86,9 @@ var _ = Describe("App", func() {
 			}
 
 			app.OnSignal = func(ctx *cli.Context, signal os.Signal) error {
+				rw.Lock()
+				defer rw.Unlock()
+
 				count++
 
 				cmd := ctx.Command
@@ -98,7 +105,11 @@ var _ = Describe("App", func() {
 			Expect(err).NotTo(HaveOccurred())
 			Expect(process.Signal(syscall.SIGUSR1)).To(Succeed())
 
-			Eventually(func() int { return count }).Should(Equal(1))
+			Eventually(func() int {
+				rw.RLock()
+				defer rw.RUnlock()
+				return count
+			}).Should(Equal(1))
 		})
 	})
 
@@ -148,11 +159,11 @@ var _ = Describe("App", func() {
 		Context("when the error is not exit error", func() {
 			It("exits with the exit code 1001", func() {
 				app.Action = func(ctx *cli.Context) error {
-					return fmt.Errorf("oh no!")
+					return fmt.Errorf("oh no")
 				}
 
 				app.OnExitError = func(err error) error {
-					Expect(err).To(MatchError("oh no!"))
+					Expect(err).To(MatchError("oh no"))
 					return err
 				}
 
