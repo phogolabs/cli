@@ -137,7 +137,7 @@ We are open for any contributions. Just fork the
 [report-url]: https://goreportcard.com/report/github.com/phogolabs/cli
 [codecov-url]: https://codecov.io/gh/phogolabs/cli
 [codecov-img]: https://codecov.io/gh/phogolabs/cli/branch/master/graph/badge.svg
-[action-img]: https://github.com/phogolabs/cli/workflows/pipeline/badge.svg
+[action-img]: https://github.com/phogolabs/cli/workflows/main/badge.svg
 [action-url]: https://github.com/phogolabs/cli/actions
 [godoc-url]: https://godoc.org/github.com/phogolabs/cli
 [godoc-img]: https://godoc.org/github.com/phogolabs/cli?status.svg
