@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"encoding/base64"
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
@@ -296,7 +297,13 @@ func (f *JSONFlag) Set(value string) error {
 		f.Value = &map[string]interface{}{}
 	}
 
-	return json.Unmarshal([]byte(value), f.Value)
+	data := []byte(value)
+
+	if content, err := base64.StdEncoding.DecodeString(value); err == nil {
+		data = content
+	}
+
+	return json.Unmarshal(data, f.Value)
 }
 
 // Get is a function that allows the contents of a Value to be retrieved.
@@ -348,7 +355,13 @@ func (f *YAMLFlag) Set(value string) error {
 		f.Value = &map[string]interface{}{}
 	}
 
-	return yaml.Unmarshal([]byte(value), f.Value)
+	data := []byte(value)
+
+	if content, err := base64.StdEncoding.DecodeString(value); err == nil {
+		data = content
+	}
+
+	return yaml.Unmarshal(data, f.Value)
 }
 
 // Get is a function that allows the contents of a Value to be retrieved.
