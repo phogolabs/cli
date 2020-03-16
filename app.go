@@ -234,3 +234,8 @@ func (author *Author) String() string {
 
 	return fmt.Sprintf("%v%v", author.Name, value)
 }
+
+// Copyright creates a copyright message
+func Copyright(name string) string {
+	return fmt.Sprintf("%s (C) %d", name, time.Now().Year())
+}
