@@ -8,5 +8,5 @@ require (
 	github.com/onsi/gomega v1.8.1
 	github.com/phogolabs/parcello v0.8.2
 	github.com/stretchr/testify v1.5.1 // indirect
-	gopkg.in/yaml.v2 v2.2.7
+	gopkg.in/yaml.v2 v2.2.8
 )
