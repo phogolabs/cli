@@ -3,7 +3,7 @@ module github.com/phogolabs/cli
 go 1.13
 
 require (
-	github.com/aws/aws-sdk-go v1.26.7
+	github.com/aws/aws-sdk-go v1.30.15
 	github.com/onsi/ginkgo v1.10.3
 	github.com/onsi/gomega v1.8.1
 	github.com/phogolabs/parcello v0.8.2
