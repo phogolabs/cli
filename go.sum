@@ -4,6 +4,8 @@ github.com/aws/aws-sdk-go v1.26.7 h1:ObjEnmzvSdYy8KVd3me7v/UMyCn81inLy2SyoIPoBkg
 github.com/aws/aws-sdk-go v1.26.7/go.mod h1:KmX6BPdI08NWTb3/sm4ZGu5ShLoqVDhKgpiN924inxo=
 github.com/aws/aws-sdk-go v1.30.17 h1:Y8cyVjc7RWSJwt9uymwnsKZI4qnmamMkfYJJ806wHtA=
 github.com/aws/aws-sdk-go v1.30.17/go.mod h1:5zCpMtNQVjRREroY7sYe8lOMRSxkhG6MZveU8YkpAk0=
+github.com/aws/aws-sdk-go v1.31.13 h1:UeWMTRTL0XAKLR7vxDL4/u7KOtz/LtfJr+lXtxN4YEQ=
+github.com/aws/aws-sdk-go v1.31.13/go.mod h1:5zCpMtNQVjRREroY7sYe8lOMRSxkhG6MZveU8YkpAk0=
 github.com/blang/vfs v1.0.0 h1:AUZUgulCDzbaNjTRWEP45X7m/J10brAptZpSRKRZBZc=
 github.com/blang/vfs v1.0.0/go.mod h1:jjuNUc/IKcRNNWC9NUCvz4fR9PZLPIKxEygtPs/4tSI=
 github.com/daaku/go.zipexe v1.0.1 h1:wV4zMsDOI2SZ2m7Tdz1Ps96Zrx+TzaK15VbUaGozw0M=
