@@ -58,6 +58,8 @@ type App struct {
 	// The action to execute when no subcommands are specified
 	// Expects a `cli.ActionFunc` but will accept the *deprecated* signature of `func(*cli.Context) {}`
 	Action ActionFunc
+	// Strategy enables comman retry logic
+	Strategy BackOffStrategy
 	// OnSignal occurs on system signal
 	OnSignal SignalFunc
 	// Execute this function if a usage error occurs.
@@ -95,6 +97,7 @@ func (app *App) Run(args []string) {
 		BeforeInit:        app.BeforeInit,
 		AfterInit:         app.AfterInit,
 		Action:            app.Action,
+		Strategy:          app.Strategy,
 		Providers:         app.Providers,
 		OnUsageError:      app.OnUsageError,
 		OnCommandNotFound: app.OnCommandNotFound,

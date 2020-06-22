@@ -55,8 +55,8 @@ type Command struct {
 	// The action to execute when no subcommands are specified
 	// Expects a cli.ActionFunc
 	Action ActionFunc
-	// BackOffStrategy enables comman retry logic
-	BackOffStrategy BackOffStrategy
+	// Strategy enables comman retry logic
+	Strategy BackOffStrategy
 	// Execute this function if a usage error occurs.
 	OnUsageError UsageErrorFunc
 	// OnCommandNotFound is executed if the proper command cannot be found
@@ -381,7 +381,7 @@ func (cmd *Command) exec(action ActionFunc, ctx *Context) (errx error) {
 }
 
 func (cmd *Command) retry(fn func(*Context) error, ctx *Context) error {
-	if cmd.BackOffStrategy == nil {
+	if cmd.Strategy == nil {
 		return fn(ctx)
 	}
 
@@ -395,7 +395,7 @@ func (cmd *Command) retry(fn func(*Context) error, ctx *Context) error {
 		logger.WithError(err).Warnf("executing the command not successful. retry in %v", t)
 	}
 
-	if err := backoff.RetryNotify(tryFunc, cmd.BackOffStrategy, notify); err != nil {
+	if err := backoff.RetryNotify(tryFunc, cmd.Strategy, notify); err != nil {
 		logger.WithError(err).Fatal("executing the command failed")
 		return err
 	}
