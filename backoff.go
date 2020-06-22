@@ -10,14 +10,6 @@ import (
 // BackOffStrategy represents the backoff strategy
 type BackOffStrategy backoff.BackOff
 
-// NewExponentialBackOffStrategy creates a new backoff strategy
-func NewExponentialBackOffStrategy() BackOffStrategy {
-	strategy := backoff.NewExponentialBackOff()
-	strategy.MaxElapsedTime = 30 * time.Second
-	strategy.InitialInterval = 2 * time.Second
-	return strategy
-}
-
 // BackOffProvider backoff the provider
 type BackOffProvider struct {
 	Provider Provider
@@ -36,8 +28,12 @@ func (m *BackOffProvider) Provide(ctx *Context) error {
 	}
 
 	if m.Strategy == nil {
+		// create the default strategy
+		strategy := backoff.NewExponentialBackOff()
+		strategy.MaxElapsedTime = 30 * time.Second
+		strategy.InitialInterval = 2 * time.Second
 		// set the default strategy
-		m.Strategy = NewExponentialBackOffStrategy()
+		m.Strategy = strategy
 	}
 
 	if err := backoff.RetryNotify(tryProvide, m.Strategy, notify); err != nil {
