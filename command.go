@@ -3,6 +3,10 @@ package cli
 import (
 	"fmt"
 	"strings"
+	"time"
+
+	"github.com/cenkalti/backoff"
+	"github.com/phogolabs/log"
 )
 
 //go:generate parcello -d ./template
@@ -51,6 +55,8 @@ type Command struct {
 	// The action to execute when no subcommands are specified
 	// Expects a cli.ActionFunc
 	Action ActionFunc
+	// BackOffStrategy enables comman retry logic
+	BackOffStrategy BackOffStrategy
 	// Execute this function if a usage error occurs.
 	OnUsageError UsageErrorFunc
 	// OnCommandNotFound is executed if the proper command cannot be found
@@ -174,21 +180,21 @@ func (cmd *Command) provide(ctx *Context) (errx error) {
 
 	if cmd.AfterInit != nil {
 		defer func() {
-			if afterErr := cmd.AfterInit(ctx); afterErr != nil {
+			if afterErr := cmd.retry(cmd.AfterInit, ctx); afterErr != nil {
 				errs.Wrap(afterErr)
 			}
 		}()
 	}
 
 	if cmd.BeforeInit != nil {
-		if beforeErr := cmd.BeforeInit(ctx); beforeErr != nil {
+		if beforeErr := cmd.retry(cmd.BeforeInit, ctx); beforeErr != nil {
 			errs.Wrap(beforeErr)
 			return
 		}
 	}
 
 	for _, provider := range cmd.Providers {
-		if err := provider.Provide(ctx); err != nil {
+		if err := cmd.retry(provider.Provide, ctx); err != nil {
 			errs.Wrap(err)
 			return
 		}
@@ -348,14 +354,14 @@ func (cmd *Command) exec(action ActionFunc, ctx *Context) (errx error) {
 
 	if cmd.After != nil {
 		defer func() {
-			if afterErr := cmd.After(eventCtx); afterErr != nil {
+			if afterErr := cmd.retry(cmd.After, eventCtx); afterErr != nil {
 				errs.Wrap(afterErr)
 			}
 		}()
 	}
 
 	if cmd.Before != nil {
-		if beforeErr := cmd.Before(eventCtx); beforeErr != nil {
+		if beforeErr := cmd.retry(cmd.Before, eventCtx); beforeErr != nil {
 			errs.Wrap(beforeErr)
 			return
 		}
@@ -366,9 +372,32 @@ func (cmd *Command) exec(action ActionFunc, ctx *Context) (errx error) {
 		return
 	}
 
-	if err := action(ctx); err != nil {
+	if err := cmd.retry(action, ctx); err != nil {
 		errs.Wrap(err)
 		return
+	}
+
+	return nil
+}
+
+func (cmd *Command) retry(fn func(*Context) error, ctx *Context) error {
+	if cmd.BackOffStrategy == nil {
+		return fn(ctx)
+	}
+
+	logger := log.WithField("command", cmd.Name)
+
+	tryFunc := func() error {
+		return fn(ctx)
+	}
+
+	notify := func(err error, t time.Duration) {
+		logger.WithError(err).Warnf("executing the command not successful. retry in %v", t)
+	}
+
+	if err := backoff.RetryNotify(tryFunc, cmd.BackOffStrategy, notify); err != nil {
+		logger.WithError(err).Fatal("executing the command failed")
+		return err
 	}
 
 	return nil

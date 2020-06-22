@@ -225,7 +225,7 @@ var _ = Describe("URLFlag", func() {
 
 	Context("when the value cannot be parsed", func() {
 		It("returns an error", func() {
-			Expect(flag.Set("://wrong")).To(MatchError("parse ://wrong: missing protocol scheme"))
+			Expect(flag.Set("://wrong")).To(MatchError("parse \"://wrong\": missing protocol scheme"))
 		})
 	})
 
@@ -243,10 +243,10 @@ var _ = Describe("URLFlag", func() {
 		Context("when the validation fails", func() {
 			It("returns an error", func() {
 				flag.Validator = cli.ValidatorFunc(func(_ *cli.Context, _ interface{}) error {
-					return fmt.Errorf("oh no!")
+					return fmt.Errorf("oh no")
 				})
 
-				Expect(flag.Validate(&cli.Context{})).To(MatchError("oh no!"))
+				Expect(flag.Validate(&cli.Context{})).To(MatchError("oh no"))
 			})
 		})
 
