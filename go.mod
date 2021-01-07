@@ -7,8 +7,8 @@ require (
 	github.com/cenkalti/backoff v2.2.1+incompatible
 	github.com/golang/protobuf v1.4.2 // indirect
 	github.com/hashicorp/hcl/v2 v2.8.2
-	github.com/onsi/ginkgo v1.12.0
-	github.com/onsi/gomega v1.9.0
+	github.com/onsi/ginkgo v1.12.1
+	github.com/onsi/gomega v1.10.4
 	github.com/phogolabs/flaw v0.0.0-20200430120352-4ad281bcdd57 // indirect
 	github.com/phogolabs/log v0.0.0-20200617151902-f50997c84d5c
 	github.com/phogolabs/parcello v0.8.2
