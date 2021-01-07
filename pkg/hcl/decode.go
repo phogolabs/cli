@@ -43,6 +43,10 @@ func NewVariables(value cty.Value) map[string]cty.Value {
 		kind = value.Type()
 	)
 
+	if value.IsNull() {
+		return kv
+	}
+
 	switch {
 	case kind.IsObjectType():
 		for it := value.ElementIterator(); it.Next(); {
@@ -65,4 +69,3 @@ func NewVariables(value cty.Value) map[string]cty.Value {
 
 	return kv
 }
-
