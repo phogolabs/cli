@@ -14,5 +14,5 @@ require (
 	github.com/phogolabs/parcello v0.8.2
 	github.com/zclconf/go-cty v1.2.0
 	google.golang.org/genproto v0.0.0-20200620020550-bd6e04640131 // indirect
-	gopkg.in/yaml.v2 v2.3.0
+	gopkg.in/yaml.v2 v2.4.0
 )
