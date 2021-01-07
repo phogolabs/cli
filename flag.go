@@ -11,6 +11,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/phogolabs/cli/pkg/hcl"
 	"gopkg.in/yaml.v2"
 )
 
@@ -426,6 +427,64 @@ func (f *XMLFlag) Get() interface{} {
 
 // Validate validates the flag
 func (f *XMLFlag) Validate(ctx *Context) error {
+	if f.Required {
+		if f.Value == nil {
+			return NotFoundFlagError(f.Name)
+		}
+	}
+
+	if f.Validator != nil {
+		return f.Validator.Validate(ctx, f.Value)
+	}
+
+	return nil
+}
+
+// HCLFlag is a flag with type yaml document
+type HCLFlag struct {
+	Name      string
+	Usage     string
+	EnvVar    string
+	FilePath  string
+	Value     interface{}
+	Metadata  map[string]interface{}
+	Hidden    bool
+	Required  bool
+	Validator Validator
+}
+
+// String returns the value as string
+func (f *HCLFlag) String() string {
+	return FlagFormat(f)
+}
+
+// Set is called once, in command line order, for each flag present.
+// The flag package may call the String method with a zero-valued receiver,
+// such as a nil pointer.
+func (f *HCLFlag) Set(value string) error {
+	if f.Value == nil {
+		f.Value = &map[string]interface{}{}
+	}
+
+	data := []byte(value)
+
+	if content, err := base64.StdEncoding.DecodeString(value); err == nil {
+		data = content
+	}
+
+	return hcl.Unmarshal(data, f.Value)
+}
+
+// Get is a function that allows the contents of a Value to be retrieved.
+// It wraps the Value interface, rather than being part of it, because it
+// appeared after Go 1 and its compatibility rules. All Value types provided
+// by this package satisfy the Getter interface.
+func (f *HCLFlag) Get() interface{} {
+	return f.Value
+}
+
+// Validate validates the flag
+func (f *HCLFlag) Validate(ctx *Context) error {
 	if f.Required {
 		if f.Value == nil {
 			return NotFoundFlagError(f.Name)
