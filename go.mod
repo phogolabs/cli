@@ -12,7 +12,7 @@ require (
 	github.com/phogolabs/flaw v0.0.0-20200430120352-4ad281bcdd57 // indirect
 	github.com/phogolabs/log v0.0.0-20200617151902-f50997c84d5c
 	github.com/phogolabs/parcello v0.8.2
-	github.com/zclconf/go-cty v1.2.0
+	github.com/zclconf/go-cty v1.7.1
 	google.golang.org/genproto v0.0.0-20200620020550-bd6e04640131 // indirect
 	gopkg.in/yaml.v2 v2.3.0
 )
