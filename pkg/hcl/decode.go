@@ -1,6 +1,9 @@
 package hcl
 
 import (
+	"fmt"
+	"strconv"
+
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/gohcl"
 	"github.com/hashicorp/hcl/v2/hcldec"
@@ -8,25 +11,45 @@ import (
 	"github.com/zclconf/go-cty/cty"
 )
 
+// SpecDescriptor represents the type spec
 type SpecDescriptor interface {
 	Spec() hcldec.Spec
 }
 
+// Unmarshal unmarshal the data for given target
 func Unmarshal(data []byte, target interface{}) error {
-	start := hcl.Pos{Line: 1, Column: 1}
+	var (
+		ctx   *hcl.EvalContext
+		start = hcl.Pos{Line: 1, Column: 1}
+	)
 
-	file, err := hclsyntax.ParseConfig(data, "config.hcl", start)
-	if err != nil {
-		return err
+	file, derr := hclsyntax.ParseConfig(data, "config.hcl", start)
+	if derr != nil {
+		return derr
 	}
 
-	var ctx *hcl.EvalContext
-
 	if descriptor, ok := target.(SpecDescriptor); ok {
-		value, _, _ := hcldec.PartialDecode(file.Body, descriptor.Spec(), nil)
+		root, _, _ := hcldec.PartialDecode(file.Body, descriptor.Spec(), nil)
+		tree := make(map[string]interface{})
+
+		err := cty.Walk(root, func(path cty.Path, value cty.Value) (bool, error) {
+			switch {
+			case value.Type().IsMapType():
+				fallthrough
+			case value.Type().IsPrimitiveType():
+				vc := vector(path, root)
+				name, kv := leaf(vc, tree)
+				kv[name] = value
+			}
+			return true, nil
+		})
+
+		if err != nil {
+			return err
+		}
 
 		ctx = &hcl.EvalContext{
-			Variables: NewVariables(value),
+			Variables: compile(tree).AsValueMap(),
 		}
 	}
 
@@ -37,35 +60,92 @@ func Unmarshal(data []byte, target interface{}) error {
 	return nil
 }
 
-func NewVariables(value cty.Value) map[string]cty.Value {
-	var (
-		kv   = make(map[string]cty.Value)
-		kind = value.Type()
-	)
+func compile(kv map[string]interface{}) cty.Value {
+	props := make(map[string]cty.Value, len(kv))
+	items := make([]cty.Value, len(kv))
 
-	if value.IsNull() {
-		return kv
-	}
+	for k, v := range kv {
+		index, err := strconv.Atoi(k)
+		yep := err == nil
 
-	switch {
-	case kind.IsObjectType():
-		for it := value.ElementIterator(); it.Next(); {
-			k, v := it.Element()
-			props := NewVariables(v)
-			kv[k.AsString()] = cty.ObjectVal(props)
-		}
-	case kind.IsListType():
-		for it := value.ElementIterator(); it.Next(); {
-			_, v := it.Element()
+		if next, ok := v.(map[string]interface{}); ok {
+			value := compile(next)
 
-			if !v.Type().HasAttribute("name") {
-				continue
+			if yep {
+				items[index] = value
+			} else {
+				props[k] = value
 			}
+		}
 
-			k := v.GetAttr("name")
-			kv[k.AsString()] = v
+		if value, ok := v.(cty.Value); ok {
+			if yep {
+				items[index] = value
+			} else {
+				props[k] = value
+			}
 		}
 	}
 
-	return kv
+	if len(props) > 0 {
+		return cty.ObjectVal(props)
+	}
+
+	return cty.ListVal(items)
+
+}
+
+func leaf(path []string, tree map[string]interface{}) (string, map[string]interface{}) {
+	kv := tree
+
+	for index, key := range path {
+		if index == len(path)-1 {
+			return key, kv
+		}
+
+		next, ok := kv[key].(map[string]interface{})
+		if !ok {
+			next = make(map[string]interface{})
+			kv[key] = next
+		}
+
+		kv = next
+	}
+
+	return "", kv
+}
+
+func vector(path cty.Path, root cty.Value) []string {
+	vc := []string{}
+
+	for index, step := range path {
+		switch ptr := step.(type) {
+		case cty.GetAttrStep:
+			vc = append(vc, ptr.Name)
+		case cty.IndexStep:
+			key := ptr.Key
+
+			switch key.Type() {
+			case cty.String:
+				vc = append(vc, key.AsString())
+			case cty.Number:
+				var (
+					head      = path[:index+1]
+					parent, _ = head.Apply(root)
+				)
+
+				if kind := parent.Type(); kind.IsObjectType() {
+					if kind.HasAttribute("name") {
+						vc = append(vc, parent.GetAttr("name").AsString())
+						continue
+					}
+				}
+
+				kindex, _ := key.AsBigFloat().Int64()
+				vc = append(vc, fmt.Sprintf("%v", kindex))
+			}
+		}
+	}
+
+	return vc
 }
