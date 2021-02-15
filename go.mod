@@ -3,7 +3,7 @@ module github.com/phogolabs/cli
 go 1.14
 
 require (
-	github.com/aws/aws-sdk-go v1.32.6
+	github.com/aws/aws-sdk-go v1.37.10
 	github.com/cenkalti/backoff v2.2.1+incompatible
 	github.com/golang/protobuf v1.4.2 // indirect
 	github.com/hashicorp/hcl/v2 v2.8.2
