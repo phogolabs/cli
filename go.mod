@@ -10,7 +10,7 @@ require (
 	github.com/hashicorp/hcl/v2 v2.9.0
 	github.com/mitchellh/go-wordwrap v1.0.1 // indirect
 	github.com/onsi/ginkgo v1.14.0
-	github.com/onsi/gomega v1.10.1
+	github.com/onsi/gomega v1.10.5
 	github.com/phogolabs/flaw v0.0.0-20210108012932-e1cf67d6edb4 // indirect
 	github.com/phogolabs/log v0.0.0-20201111184021-532c7331555a
 	github.com/phogolabs/parcello v0.8.2
