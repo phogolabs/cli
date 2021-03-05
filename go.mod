@@ -4,7 +4,7 @@ go 1.14
 
 require (
 	github.com/agext/levenshtein v1.2.3 // indirect
-	github.com/aws/aws-sdk-go v1.37.20
+	github.com/aws/aws-sdk-go v1.37.24
 	github.com/cenkalti/backoff v2.2.1+incompatible
 	github.com/google/go-cmp v0.5.4 // indirect
 	github.com/hashicorp/hcl/v2 v2.9.0
