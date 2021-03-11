@@ -7,7 +7,7 @@ require (
 	github.com/aws/aws-sdk-go v1.37.25
 	github.com/cenkalti/backoff v2.2.1+incompatible
 	github.com/google/go-cmp v0.5.5 // indirect
-	github.com/hashicorp/hcl/v2 v2.9.0
+	github.com/hashicorp/hcl/v2 v2.9.1
 	github.com/mitchellh/go-wordwrap v1.0.1 // indirect
 	github.com/onsi/ginkgo v1.14.0
 	github.com/onsi/gomega v1.10.1
