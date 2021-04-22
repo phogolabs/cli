@@ -13,7 +13,7 @@ require (
 	github.com/onsi/gomega v1.10.1
 	github.com/phogolabs/log v0.0.0-20210301135254-d095e2fdec4b
 	github.com/phogolabs/parcello v0.8.2
-	github.com/zclconf/go-cty v1.8.0
+	github.com/zclconf/go-cty v1.8.2
 	google.golang.org/genproto v0.0.0-20210303154014-9728d6b83eeb // indirect
 	gopkg.in/yaml.v2 v2.4.0
 )
