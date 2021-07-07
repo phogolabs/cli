@@ -12,6 +12,6 @@ require (
 	github.com/onsi/gomega v1.10.1
 	github.com/phogolabs/log v0.0.0-20210430124854-15b4a15a74cc
 	github.com/phogolabs/parcello v0.8.2
-	github.com/zclconf/go-cty v1.8.2
+	github.com/zclconf/go-cty v1.9.0
 	gopkg.in/yaml.v2 v2.4.0
 )
