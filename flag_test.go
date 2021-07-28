@@ -225,7 +225,7 @@ var _ = Describe("URLFlag", func() {
 
 	Context("when the value cannot be parsed", func() {
 		It("returns an error", func() {
-			Expect(flag.Set("://wrong")).To(MatchError("parse \"://wrong\": missing protocol scheme"))
+			Expect(flag.Set("://wrong")).To(HaveOccurred())
 		})
 	})
 
