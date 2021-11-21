@@ -3,8 +3,10 @@ package cli
 import (
 	"bytes"
 	"fmt"
+	"io/fs"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 	"reflect"
 	"strings"
 )
@@ -177,11 +179,31 @@ func getEnv(name string) string {
 	return value
 }
 
-func readFile(path string) (string, error) {
-	content, err := ioutil.ReadFile(path)
+func readFile(path string) ([]string, error) {
+	data, err := ioutil.ReadFile(path)
 	if err != nil {
-		return "", nil
+		return nil, err
 	}
 
-	return string(content), nil
+	content := string(data)
+	return []string{content}, nil
+}
+
+func readDir(root string) ([]string, error) {
+	items := []string{}
+
+	err := filepath.Walk(root, func(path string, info fs.FileInfo, err error) error {
+		if info.IsDir() {
+			return nil
+		}
+
+		items = append(items, path)
+		return nil
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	return items, nil
 }

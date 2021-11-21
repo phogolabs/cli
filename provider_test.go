@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -139,6 +140,18 @@ var _ = Describe("Provider", func() {
 		It("sets the value successfully", func() {
 			Expect(parser.Provide(ctx)).To(Succeed())
 			Expect(flag.Value).To(Equal("9292"))
+		})
+
+		Context("when the filepath is directory", func() {
+			BeforeEach(func() {
+				fmt.Println(flag.FilePath)
+				flag.FilePath = filepath.Dir(flag.FilePath)
+			})
+
+			It("sets the value successfully", func() {
+				Expect(parser.Provide(ctx)).To(Succeed())
+				Expect(flag.Value).NotTo(BeEmpty())
+			})
 		})
 
 		Context("when the file path is not valid", func() {

@@ -3,6 +3,7 @@ package cli
 import (
 	"flag"
 	"io/ioutil"
+	"os"
 	"path/filepath"
 )
 
@@ -83,21 +84,37 @@ func (p *FileProvider) Provide(ctx *Context) error {
 	for _, flag := range ctx.Command.Flags {
 		accessor := NewFlagAccessor(flag)
 
-		for _, path := range split(accessor.FilePath()) {
-			paths, err := filepath.Glob(path)
+		for _, fpath := range split(accessor.FilePath()) {
+			paths, err := filepath.Glob(fpath)
 
 			if err != nil {
 				return err
 			}
 
-			for _, path := range paths {
-				value, err := readFile(path)
+			for _, root := range paths {
+				info, err := os.Stat(root)
 				if err != nil {
 					continue
 				}
 
-				if err := accessor.Set(value); err != nil {
-					return FlagError("file", accessor.Name(), err)
+				values := []string{}
+
+				if info.IsDir() {
+					values, err = readDir(root)
+					if err != nil {
+						continue
+					}
+				} else {
+					values, err = readFile(fpath)
+					if err != nil {
+						continue
+					}
+				}
+
+				for _, value := range values {
+					if err := accessor.Set(value); err != nil {
+						return FlagError("file", accessor.Name(), err)
+					}
 				}
 			}
 		}
