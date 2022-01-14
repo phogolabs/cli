@@ -3,20 +3,16 @@ module github.com/phogolabs/cli
 go 1.16
 
 require (
-	github.com/agext/levenshtein v1.2.3 // indirect
-	github.com/aws/aws-sdk-go v1.42.9
+	github.com/aws/aws-sdk-go v1.42.34
 	github.com/cenkalti/backoff v2.2.1+incompatible
 	github.com/google/go-cmp v0.5.6 // indirect
-	github.com/hashicorp/hcl/v2 v2.10.1
-	github.com/mitchellh/go-wordwrap v1.0.1 // indirect
-	github.com/onsi/ginkgo v1.14.0
-	github.com/onsi/gomega v1.10.1
+	github.com/onsi/ginkgo/v2 v2.0.0
+	github.com/onsi/gomega v1.17.0
 	github.com/phogolabs/flaw v0.0.0-20210430130223-f948049b189e // indirect
 	github.com/phogolabs/log v0.0.0-20210430125128-bb23cd1dfac5
 	github.com/phogolabs/parcello v0.8.2
-	github.com/zclconf/go-cty v1.10.0
 	golang.org/x/text v0.3.7 // indirect
-	google.golang.org/genproto v0.0.0-20211118181313-81c1377c94b1 // indirect
-	google.golang.org/grpc v1.42.0 // indirect
+	google.golang.org/genproto v0.0.0-20220112215332-a9c7c0acf9f2 // indirect
+	google.golang.org/grpc v1.43.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0
 )

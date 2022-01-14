@@ -3,12 +3,12 @@ package aws_test
 import (
 	"fmt"
 
-	. "github.com/onsi/ginkgo"
-	. "github.com/onsi/gomega"
-
 	"github.com/phogolabs/cli"
 	"github.com/phogolabs/cli/provider/aws"
 	"github.com/phogolabs/cli/provider/aws/fake"
+
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 )
 
 var _ = Describe("S3Provider", func() {

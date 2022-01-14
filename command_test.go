@@ -4,10 +4,10 @@ import (
 	"bytes"
 	"fmt"
 
-	. "github.com/onsi/ginkgo"
-	. "github.com/onsi/gomega"
-
 	"github.com/phogolabs/cli"
+
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 )
 
 var _ = Describe("Command", func() {
