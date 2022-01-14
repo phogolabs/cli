@@ -216,6 +216,8 @@ func (f *BoolFlag) Validate(ctx *Context) error {
 	return nil
 }
 
+var _ Flag = &URLFlag{}
+
 // URLFlag is a flag with type url.URL
 type URLFlag struct {
 	Name      string
@@ -269,6 +271,8 @@ func (f *URLFlag) Validate(ctx *Context) error {
 
 	return nil
 }
+
+var _ Flag = &JSONFlag{}
 
 // JSONFlag is a flag with type json document
 type JSONFlag struct {
@@ -328,6 +332,8 @@ func (f *JSONFlag) Validate(ctx *Context) error {
 	return nil
 }
 
+var _ Flag = &YAMLFlag{}
+
 // YAMLFlag is a flag with type yaml document
 type YAMLFlag struct {
 	Name      string
@@ -386,6 +392,8 @@ func (f *YAMLFlag) Validate(ctx *Context) error {
 	return nil
 }
 
+var _ Flag = &XMLFlag{}
+
 // XMLFlag is a flag with type XMLDocument
 type XMLFlag struct {
 	Name      string
@@ -437,6 +445,8 @@ func (f *XMLFlag) Validate(ctx *Context) error {
 
 	return nil
 }
+
+var _ Flag = &TimeFlag{}
 
 // TimeFlag is a flag with type time.Time
 type TimeFlag struct {
@@ -492,6 +502,8 @@ func (f *TimeFlag) Validate(ctx *Context) error {
 	return nil
 }
 
+var _ Flag = &DurationFlag{}
+
 // DurationFlag is a flag with type time.Duration
 type DurationFlag struct {
 	Name      string
@@ -540,6 +552,8 @@ func (f *DurationFlag) Validate(ctx *Context) error {
 
 	return nil
 }
+
+var _ Flag = &IntFlag{}
 
 // IntFlag is a flag with type int
 type IntFlag struct {
@@ -595,6 +609,8 @@ func (f *IntFlag) Validate(ctx *Context) error {
 	return nil
 }
 
+var _ Flag = &Int64Flag{}
+
 // Int64Flag is a flag with type int64
 type Int64Flag struct {
 	Name      string
@@ -643,6 +659,8 @@ func (f *Int64Flag) Validate(ctx *Context) error {
 
 	return nil
 }
+
+var _ Flag = &UIntFlag{}
 
 // UIntFlag is a flag with type uint64
 type UIntFlag struct {
@@ -698,6 +716,8 @@ func (f *UIntFlag) Validate(ctx *Context) error {
 	return nil
 }
 
+var _ Flag = &UInt64Flag{}
+
 // UInt64Flag is a flag with type uint
 type UInt64Flag struct {
 	Name      string
@@ -746,6 +766,8 @@ func (f *UInt64Flag) Validate(ctx *Context) error {
 
 	return nil
 }
+
+var _ Flag = &Float32Flag{}
 
 // Float32Flag is a flag with type float32
 type Float32Flag struct {
@@ -801,6 +823,8 @@ func (f *Float32Flag) Validate(ctx *Context) error {
 	return nil
 }
 
+var _ Flag = &Float64Flag{}
+
 // Float64Flag is a flag with type float64
 type Float64Flag struct {
 	Name      string
@@ -849,6 +873,8 @@ func (f *Float64Flag) Validate(ctx *Context) error {
 
 	return nil
 }
+
+var _ Flag = &IPFlag{}
 
 // IPFlag is a flag with type net.IP
 type IPFlag struct {
@@ -907,6 +933,8 @@ func (f *IPFlag) Validate(ctx *Context) error {
 	return nil
 }
 
+var _ Flag = &HardwareAddrFlag{}
+
 // HardwareAddrFlag is a flag with type net.HardwareAddr
 type HardwareAddrFlag struct {
 	Name      string
@@ -954,18 +982,6 @@ func (f *HardwareAddrFlag) Validate(ctx *Context) error {
 	}
 
 	return nil
-}
-
-type toggle interface {
-	IsBoolFlag() bool
-}
-
-type validator interface {
-	Validate(ctx *Context) error
-}
-
-type resetter interface {
-	Reset() error
 }
 
 var _ Flag = &FlagAccessor{}
@@ -1017,10 +1033,13 @@ func (f *FlagAccessor) Value() interface{} {
 
 // Reset resets the value
 func (f *FlagAccessor) Reset() error {
-	if flag, ok := f.Flag.(resetter); ok {
-		if err := flag.Reset(); err != nil {
-			return err
-		}
+	// FlagResetter resets a given flag
+	type FlagResetter interface {
+		Reset() error
+	}
+
+	if flag, ok := f.Flag.(FlagResetter); ok {
+		return flag.Reset()
 	}
 
 	return nil
@@ -1049,6 +1068,15 @@ func (f *FlagAccessor) EnvVar() string {
 
 // FilePath of the flag
 func (f *FlagAccessor) FilePath() string {
+	// FilePathFlag represents a flag that is file-path
+	type FilePathFlag interface {
+		FilePath() string
+	}
+
+	if flag, ok := f.Flag.(FilePathFlag); ok {
+		return flag.FilePath()
+	}
+
 	value := reflect.ValueOf(f.Flag)
 	value = reflect.Indirect(value)
 	return value.FieldByName("FilePath").String()
@@ -1085,7 +1113,12 @@ func (f *FlagAccessor) Hidden() bool {
 
 // Validate validates the flag
 func (f *FlagAccessor) Validate(ctx *Context) error {
-	if validator, ok := f.Flag.(validator); ok {
+	// FlagValidator validates a given flag
+	type FlagValidator interface {
+		Validate(ctx *Context) error
+	}
+
+	if validator, ok := f.Flag.(FlagValidator); ok {
 		return validator.Validate(ctx)
 	}
 
@@ -1099,7 +1132,12 @@ func (f *FlagAccessor) String() string {
 
 // IsBoolFlag returns true if the flag is bool
 func (f *FlagAccessor) IsBoolFlag() bool {
-	if flag, ok := f.Flag.(toggle); ok {
+	// BoolFlag represents a boolean flag
+	type BoolFlag interface {
+		IsBoolFlag() bool
+	}
+
+	if flag, ok := f.Flag.(BoolFlag); ok {
 		return flag.IsBoolFlag()
 	}
 
