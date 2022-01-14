@@ -14,14 +14,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out code
-        uses: actions/checkout@v1
+        uses: actions/checkout@v2.4.0
+
       - name: Set up Golang
-        uses: actions/setup-go@v1
-        with:
-          go-version: '1.13.x'
+        uses: actions/setup-go@v2.1.5
+
       - name: Run Tests
         run: go test -race -coverprofile=coverage.txt -covermode=atomic ./...
+
       - name: Upload tests coverage to codeconv.io
-        uses: codecov/codecov-action@v1
+        uses: codecov/codecov-action@v2.1.0
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
