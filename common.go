@@ -34,7 +34,7 @@ func EnvOf(items ...string) string {
 		item = strings.TrimSpace(item)
 		item = strings.ToUpper(item)
 
-		fmt.Fprintf(buffer, item)
+		fmt.Fprint(buffer, item)
 	}
 
 	return buffer.String()

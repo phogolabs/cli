@@ -423,7 +423,7 @@ func (cmd *Command) error(ctx *Context, err error) error {
 	}
 
 	if err == nil {
-		return err
+		return nil
 	}
 
 	fmt.Fprintln(ctx.Writer, "Incorrect Usage:", err.Error())
@@ -431,7 +431,7 @@ func (cmd *Command) error(ctx *Context, err error) error {
 
 	ctx.Args = []string{"help"}
 
-	cmd.fork(ctx)
+	_ = cmd.fork(ctx)
 
 	return err
 }

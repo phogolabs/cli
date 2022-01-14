@@ -4,7 +4,6 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"encoding/xml"
-	"fmt"
 	"net"
 	"net/url"
 	"reflect"
@@ -1091,15 +1090,6 @@ func (f *FlagAccessor) Validate(ctx *Context) error {
 	}
 
 	return nil
-}
-
-func (f *FlagAccessor) error(v interface{}) error {
-	switch err := v.(type) {
-	case *reflect.ValueError:
-		return err
-	default:
-		return fmt.Errorf("%v", err)
-	}
 }
 
 // String returns the flag as string

@@ -105,7 +105,7 @@ func (c *Client) s3() *s3.S3 {
 		Region: aws.String(c.Config.Region),
 	}
 
-	cookie := session.New(config)
+	cookie := session.Must(session.NewSession(config))
 
 	if c.Config.RoleARN != "" {
 		creds := stscreds.NewCredentials(cookie, c.Config.RoleARN)
@@ -120,12 +120,12 @@ func (c *Client) ssm() *ssm.SSM {
 		Region: aws.String(c.Config.Region),
 	}
 
-	cookie := session.New(config)
+	cookie := session.Must(session.NewSession(config))
 
 	if c.Config.RoleARN != "" {
 		creds := stscreds.NewCredentials(cookie, c.Config.RoleARN)
 		return ssm.New(cookie, &aws.Config{Credentials: creds})
 	}
 
-	return ssm.New(session.New(config))
+	return ssm.New(session.Must(session.NewSession(config)))
 }

@@ -17,10 +17,6 @@ type Provider interface {
 	Provide(*Context) error
 }
 
-type transaction interface {
-	Rollback(*Context) error
-}
-
 var _ Provider = &FlagProvider{}
 
 // FlagProvider parses the CLI flags
@@ -97,7 +93,7 @@ func (p *FileProvider) Provide(ctx *Context) error {
 					continue
 				}
 
-				values := []string{}
+				var values []string
 
 				if info.IsDir() {
 					values, err = readDir(root)
