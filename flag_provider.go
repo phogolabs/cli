@@ -3,11 +3,13 @@ package cli
 import (
 	"flag"
 	"io/ioutil"
+	"net/url"
 	"os"
 	"path/filepath"
 	"time"
 
 	"github.com/cenkalti/backoff"
+	"github.com/hairyhenderson/go-fsimpl/autofs"
 	"github.com/phogolabs/log"
 )
 
@@ -74,53 +76,99 @@ func (p *EnvProvider) Provide(ctx *Context) error {
 	return nil
 }
 
-var _ Provider = &FileProvider{}
+var _ Provider = &PathProvider{}
 
-// FileProvider parses flags from file
-type FileProvider struct{}
+// PathProvider parses flags from file
+type PathProvider struct {
+	IsPathFlag bool
+}
 
 // Provide parses the args
-func (p *FileProvider) Provide(ctx *Context) error {
+func (p *PathProvider) Provide(ctx *Context) error {
 	for _, flag := range ctx.Command.Flags {
 		accessor := NewFlagAccessor(flag)
 
-		for _, fpath := range split(accessor.FilePath()) {
-			paths, err := filepath.Glob(fpath)
+		if p.IsPathFlag != accessor.IsPathFlag() {
+			continue
+		}
 
+		for _, path := range split(accessor.Path()) {
+			if path == "" {
+				continue
+			}
+
+			root, err := p.root(path)
 			if err != nil {
 				return err
 			}
 
-			for _, root := range paths {
-				info, err := os.Stat(root)
-				if err != nil {
-					continue
-				}
+			fs, err := autofs.Lookup(root.String())
+			if err != nil {
+				return err
+			}
 
-				var values []string
+			name, err := p.name(path)
+			if err != nil {
+				return err
+			}
 
-				if info.IsDir() {
-					values, err = readDir(root)
-					if err != nil {
-						continue
-					}
-				} else {
-					values, err = readFile(fpath)
-					if err != nil {
-						continue
-					}
-				}
+			source, err := fs.Open(name)
+			if err != nil {
+				return err
+			}
+			// close the source
+			defer source.Close()
 
-				for _, value := range values {
-					if err := accessor.Set(value); err != nil {
-						return FlagError("file", accessor.Name(), err)
-					}
-				}
+			if _, err := accessor.ReadFrom(source); err != nil {
+				return err
 			}
 		}
 	}
 
 	return nil
+}
+
+func (p *PathProvider) root(path string) (*url.URL, error) {
+	uri, err := url.Parse(path)
+	if err != nil {
+		return nil, err
+	}
+
+	if uri.Scheme == "" {
+		uri.Scheme = "file"
+	}
+
+	if dir := filepath.Dir(uri.Path); dir == "." {
+		uri.Path, _ = os.Getwd()
+	} else {
+		uri.Path = dir
+	}
+
+	if dir := filepath.Dir(uri.RawPath); dir == "." {
+		uri.RawPath, _ = os.Getwd()
+	} else {
+		uri.RawPath = dir
+	}
+
+	if uri.Host == "." {
+		uri.Path, _ = os.Getwd()
+		uri.RawPath, _ = os.Getwd()
+	}
+
+	return uri, nil
+}
+
+func (p *PathProvider) name(path string) (string, error) {
+	uri, err := url.Parse(path)
+	if err != nil {
+		return "", err
+	}
+
+	if name := filepath.Base(uri.Path); name != "." {
+		path = name
+	}
+
+	return path, nil
 }
 
 // BackOffStrategy represents the backoff strategy

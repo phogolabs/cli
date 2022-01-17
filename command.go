@@ -222,9 +222,14 @@ func (cmd *Command) prepare() {
 
 func (cmd *Command) providers() {
 	providers := []Provider{
-		&FileProvider{},
+		&PathProvider{
+			IsPathFlag: false,
+		},
 		&EnvProvider{},
 		&FlagProvider{},
+		&PathProvider{
+			IsPathFlag: true,
+		},
 	}
 
 	cmd.Providers = append(providers, cmd.Providers...)

@@ -29,7 +29,10 @@ $ go get github.com/phogolabs/cli
 ## Getting Started
 
 ```golang
+package main
+
 import (
+	"fmt"
 	"os"
 	"syscall"
 
@@ -37,15 +40,22 @@ import (
 )
 
 var flags = []cli.Flag{
-	&cli.StringFlag{
+	&cli.YAMLFlag{
 		Name:     "config",
 		Usage:    "Application Config",
+		Path:     "/etc/app/default.conf",
 		EnvVar:   "APP_CONFIG",
-		FilePath: "/etc/app/app.config",
+		Value:    &Config{},
+		Required: true,
+	},
+	&cli.StringFlag{
+		Name:     "listen-addr",
+		Usage:    "Application TCP Listen Address",
+		EnvVar:   "APP_LISTEN_ADDR",
+		Value:    ":8080",
 		Required: true,
 	},
 }
-
 
 func main() {
 	app := &cli.App{
@@ -82,22 +92,13 @@ You can set the `Required` field to `true` if you want to make some flags
 mandatory. If you need some customized validation, you can create a custom
 validator in the following way:
 
-As a function:
-
-```golang
-validate := cli.ValidatorFunc(func(ctx *cli.Context, value interface{}) error {
-        //TODO: your validation logic
-	return nil
-})
-```
-
 As a struct that has a `Validate` function:
 
 ``` golang
-type Validator struct {}
+type Validator struct{}
 
 func (v *Validator) Validate(ctx *cli.Context, value interface{}) error {
-        //TODO: your validation logic
+	//TODO: your validation logic
 	return nil
 }
 ```
@@ -106,13 +107,6 @@ Then you can set the validator like that:
 
 ```golang
 var flags = []cli.Flag{
-	&cli.StringSliceFlag{
-		Name:     "endpoint",
-		Usage:    "Endpoint URL",
-		EnvVar:   "APP_ENDPOINT",
-		Required: true,
-		Validator: validate,
-	},
 	&cli.StringFlag{
 		Name:      "name",
 		EnvVar:    "APP_NAME",
@@ -120,13 +114,6 @@ var flags = []cli.Flag{
 	},
 }
 ```
-
-## Providers
-
-The providers allow setting the flag's value from external sources:
-
-- [AWS S3 Provider](./provider/aws/README.md#s3-provider) - reads a flag's value from AWS S3 bucket object
-- [AWS SSM Provider](./provider/aws/README.md#ssm-provider) - reads a flag's value from AWS SSM Parameter store
 
 ## Contributing
 

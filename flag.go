@@ -4,6 +4,8 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"encoding/xml"
+	"io"
+	"io/ioutil"
 	"net"
 	"net/url"
 	"reflect"
@@ -12,24 +14,6 @@ import (
 
 	"gopkg.in/yaml.v2"
 )
-
-//go:generate counterfeiter -fake-name Validator -o ./fake/validator.go . Validator
-
-// Validator converts values
-type Validator interface {
-	// Validate validates the value
-	Validate(ctx *Context, value interface{}) error
-}
-
-var _ Validator = ValidatorFunc(nil)
-
-// ValidatorFunc validates a flag
-type ValidatorFunc func(ctx *Context, value interface{}) error
-
-// Validate validates the value
-func (fn ValidatorFunc) Validate(ctx *Context, value interface{}) error {
-	return fn(ctx, value)
-}
 
 //go:generate counterfeiter -fake-name Flag -o ./fake/flag.go . Flag
 
@@ -59,11 +43,10 @@ var _ Flag = &StringFlag{}
 // StringFlag is a flag with type string
 type StringFlag struct {
 	Name      string
+	Path      string
 	Usage     string
 	EnvVar    string
-	FilePath  string
 	Value     string
-	Metadata  map[string]interface{}
 	Hidden    bool
 	Required  bool
 	Validator Validator
@@ -110,11 +93,10 @@ var _ Flag = &StringSliceFlag{}
 // StringSliceFlag is a flag with type *StringSlice
 type StringSliceFlag struct {
 	Name      string
+	Path      string
 	Usage     string
 	EnvVar    string
-	FilePath  string
 	Value     []string
-	Metadata  map[string]interface{}
 	Hidden    bool
 	Required  bool
 	Validator Validator
@@ -167,11 +149,10 @@ var _ Flag = &BoolFlag{}
 // BoolFlag is a flag with type bool
 type BoolFlag struct {
 	Name      string
+	Path      string
 	Usage     string
 	EnvVar    string
-	FilePath  string
 	Value     bool
-	Metadata  map[string]interface{}
 	Hidden    bool
 	Validator Validator
 }
@@ -221,11 +202,10 @@ var _ Flag = &URLFlag{}
 // URLFlag is a flag with type url.URL
 type URLFlag struct {
 	Name      string
+	Path      string
 	Usage     string
 	EnvVar    string
-	FilePath  string
 	Value     *url.URL
-	Metadata  map[string]interface{}
 	Hidden    bool
 	Required  bool
 	Validator Validator
@@ -277,11 +257,10 @@ var _ Flag = &JSONFlag{}
 // JSONFlag is a flag with type json document
 type JSONFlag struct {
 	Name      string
+	Path      string
 	Usage     string
 	EnvVar    string
-	FilePath  string
 	Value     interface{}
-	Metadata  map[string]interface{}
 	Hidden    bool
 	Required  bool
 	Validator Validator
@@ -296,17 +275,8 @@ func (f *JSONFlag) String() string {
 // The flag package may call the String method with a zero-valued receiver,
 // such as a nil pointer.
 func (f *JSONFlag) Set(value string) error {
-	if f.Value == nil {
-		f.Value = &map[string]interface{}{}
-	}
-
-	data := []byte(value)
-
-	if content, err := base64.StdEncoding.DecodeString(value); err == nil {
-		data = content
-	}
-
-	return json.Unmarshal(data, f.Value)
+	f.Path = value
+	return nil
 }
 
 // Get is a function that allows the contents of a Value to be retrieved.
@@ -314,13 +284,39 @@ func (f *JSONFlag) Set(value string) error {
 // appeared after Go 1 and its compatibility rules. All Value types provided
 // by this package satisfy the Getter interface.
 func (f *JSONFlag) Get() interface{} {
-	return f.Value
+	return f.Path
+}
+
+// ReadFrom reads data from r until EOF or error.
+// The return value n is the number of bytes read.
+// Any error except EOF encountered during the read is also returned.
+func (f *JSONFlag) ReadFrom(r io.Reader) (int64, error) {
+	if f.Value == nil {
+		f.Value = &map[string]interface{}{}
+	}
+
+	data, err := ioutil.ReadAll(r)
+	if err != nil {
+		return 0, err
+	}
+
+	n := len(data)
+	// decode from base64
+	if content, err := base64.StdEncoding.DecodeString(string(data)); err == nil {
+		data = content
+	}
+
+	if err := json.Unmarshal(data, f.Value); err != nil {
+		return 0, err
+	}
+
+	return int64(n), nil
 }
 
 // Validate validates the flag
 func (f *JSONFlag) Validate(ctx *Context) error {
 	if f.Required {
-		if f.Value == nil {
+		if f.Path == "" || f.Value == nil {
 			return NotFoundFlagError(f.Name)
 		}
 	}
@@ -332,16 +328,20 @@ func (f *JSONFlag) Validate(ctx *Context) error {
 	return nil
 }
 
+// IsPathFlag returns true if the flag is path
+func (f *JSONFlag) IsPathFlag() bool {
+	return true
+}
+
 var _ Flag = &YAMLFlag{}
 
 // YAMLFlag is a flag with type yaml document
 type YAMLFlag struct {
 	Name      string
+	Path      string
 	Usage     string
 	EnvVar    string
-	FilePath  string
 	Value     interface{}
-	Metadata  map[string]interface{}
 	Hidden    bool
 	Required  bool
 	Validator Validator
@@ -356,17 +356,8 @@ func (f *YAMLFlag) String() string {
 // The flag package may call the String method with a zero-valued receiver,
 // such as a nil pointer.
 func (f *YAMLFlag) Set(value string) error {
-	if f.Value == nil {
-		f.Value = &map[string]interface{}{}
-	}
-
-	data := []byte(value)
-
-	if content, err := base64.StdEncoding.DecodeString(value); err == nil {
-		data = content
-	}
-
-	return yaml.Unmarshal(data, f.Value)
+	f.Path = value
+	return nil
 }
 
 // Get is a function that allows the contents of a Value to be retrieved.
@@ -374,13 +365,39 @@ func (f *YAMLFlag) Set(value string) error {
 // appeared after Go 1 and its compatibility rules. All Value types provided
 // by this package satisfy the Getter interface.
 func (f *YAMLFlag) Get() interface{} {
-	return f.Value
+	return f.Path
+}
+
+// ReadFrom reads data from r until EOF or error.
+// The return value n is the number of bytes read.
+// Any error except EOF encountered during the read is also returned.
+func (f *YAMLFlag) ReadFrom(r io.Reader) (int64, error) {
+	if f.Value == nil {
+		f.Value = &map[string]interface{}{}
+	}
+
+	data, err := ioutil.ReadAll(r)
+	if err != nil {
+		return 0, err
+	}
+
+	n := len(data)
+	// decode from base64
+	if content, err := base64.StdEncoding.DecodeString(string(data)); err == nil {
+		data = content
+	}
+
+	if err := yaml.Unmarshal(data, f.Value); err != nil {
+		return 0, err
+	}
+
+	return int64(n), nil
 }
 
 // Validate validates the flag
 func (f *YAMLFlag) Validate(ctx *Context) error {
 	if f.Required {
-		if f.Value == nil {
+		if f.Path == "" || f.Value == nil {
 			return NotFoundFlagError(f.Name)
 		}
 	}
@@ -392,16 +409,20 @@ func (f *YAMLFlag) Validate(ctx *Context) error {
 	return nil
 }
 
+// IsPathFlag returns true if the flag is path
+func (f *YAMLFlag) IsPathFlag() bool {
+	return true
+}
+
 var _ Flag = &XMLFlag{}
 
 // XMLFlag is a flag with type XMLDocument
 type XMLFlag struct {
 	Name      string
+	Path      string
 	Usage     string
 	EnvVar    string
-	FilePath  string
 	Value     interface{}
-	Metadata  map[string]interface{}
 	Hidden    bool
 	Required  bool
 	Validator Validator
@@ -416,11 +437,8 @@ func (f *XMLFlag) String() string {
 // The flag package may call the String method with a zero-valued receiver,
 // such as a nil pointer.
 func (f *XMLFlag) Set(value string) error {
-	if f.Value == nil {
-		return nil
-	}
-
-	return xml.Unmarshal([]byte(value), f.Value)
+	f.Path = value
+	return nil
 }
 
 // Get is a function that allows the contents of a Value to be retrieved.
@@ -428,13 +446,39 @@ func (f *XMLFlag) Set(value string) error {
 // appeared after Go 1 and its compatibility rules. All Value types provided
 // by this package satisfy the Getter interface.
 func (f *XMLFlag) Get() interface{} {
-	return f.Value
+	return f.Path
+}
+
+// ReadFrom reads data from r until EOF or error.
+// The return value n is the number of bytes read.
+// Any error except EOF encountered during the read is also returned.
+func (f *XMLFlag) ReadFrom(r io.Reader) (int64, error) {
+	if f.Value == nil {
+		f.Value = &map[string]interface{}{}
+	}
+
+	data, err := ioutil.ReadAll(r)
+	if err != nil {
+		return 0, err
+	}
+
+	n := len(data)
+	// decode from base64
+	if content, err := base64.StdEncoding.DecodeString(string(data)); err == nil {
+		data = content
+	}
+
+	if err := xml.Unmarshal(data, f.Value); err != nil {
+		return 0, err
+	}
+
+	return int64(n), err
 }
 
 // Validate validates the flag
 func (f *XMLFlag) Validate(ctx *Context) error {
 	if f.Required {
-		if f.Value == nil {
+		if f.Path == "" || f.Value == nil {
 			return NotFoundFlagError(f.Name)
 		}
 	}
@@ -446,17 +490,21 @@ func (f *XMLFlag) Validate(ctx *Context) error {
 	return nil
 }
 
+// IsPathFlag returns true if the flag is path
+func (f *XMLFlag) IsPathFlag() bool {
+	return true
+}
+
 var _ Flag = &TimeFlag{}
 
 // TimeFlag is a flag with type time.Time
 type TimeFlag struct {
 	Name      string
+	Path      string
 	Usage     string
 	EnvVar    string
-	FilePath  string
 	Format    string
 	Value     time.Time
-	Metadata  map[string]interface{}
 	Hidden    bool
 	Required  bool
 	Validator Validator
@@ -507,11 +555,10 @@ var _ Flag = &DurationFlag{}
 // DurationFlag is a flag with type time.Duration
 type DurationFlag struct {
 	Name      string
+	Path      string
 	Usage     string
 	EnvVar    string
-	FilePath  string
 	Value     time.Duration
-	Metadata  map[string]interface{}
 	Hidden    bool
 	Required  bool
 	Validator Validator
@@ -558,11 +605,10 @@ var _ Flag = &IntFlag{}
 // IntFlag is a flag with type int
 type IntFlag struct {
 	Name      string
+	Path      string
 	Usage     string
 	EnvVar    string
-	FilePath  string
 	Value     int
-	Metadata  map[string]interface{}
 	Hidden    bool
 	Required  bool
 	Validator Validator
@@ -614,11 +660,10 @@ var _ Flag = &Int64Flag{}
 // Int64Flag is a flag with type int64
 type Int64Flag struct {
 	Name      string
+	Path      string
 	Usage     string
 	EnvVar    string
-	FilePath  string
 	Value     int64
-	Metadata  map[string]interface{}
 	Hidden    bool
 	Required  bool
 	Validator Validator
@@ -665,11 +710,10 @@ var _ Flag = &UIntFlag{}
 // UIntFlag is a flag with type uint64
 type UIntFlag struct {
 	Name      string
+	Path      string
 	Usage     string
 	EnvVar    string
-	FilePath  string
 	Value     uint
-	Metadata  map[string]interface{}
 	Hidden    bool
 	Required  bool
 	Validator Validator
@@ -721,11 +765,10 @@ var _ Flag = &UInt64Flag{}
 // UInt64Flag is a flag with type uint
 type UInt64Flag struct {
 	Name      string
+	Path      string
 	Usage     string
 	EnvVar    string
-	FilePath  string
 	Value     uint64
-	Metadata  map[string]interface{}
 	Hidden    bool
 	Required  bool
 	Validator Validator
@@ -772,11 +815,10 @@ var _ Flag = &Float32Flag{}
 // Float32Flag is a flag with type float32
 type Float32Flag struct {
 	Name      string
+	Path      string
 	Usage     string
 	EnvVar    string
-	FilePath  string
 	Value     float32
-	Metadata  map[string]interface{}
 	Hidden    bool
 	Required  bool
 	Validator Validator
@@ -828,11 +870,10 @@ var _ Flag = &Float64Flag{}
 // Float64Flag is a flag with type float64
 type Float64Flag struct {
 	Name      string
+	Path      string
 	Usage     string
 	EnvVar    string
-	FilePath  string
 	Value     float64
-	Metadata  map[string]interface{}
 	Hidden    bool
 	Required  bool
 	Validator Validator
@@ -879,11 +920,10 @@ var _ Flag = &IPFlag{}
 // IPFlag is a flag with type net.IP
 type IPFlag struct {
 	Name      string
+	Path      string
 	Usage     string
 	EnvVar    string
-	FilePath  string
 	Value     net.IP
-	Metadata  map[string]interface{}
 	Hidden    bool
 	Required  bool
 	Validator Validator
@@ -938,11 +978,10 @@ var _ Flag = &HardwareAddrFlag{}
 // HardwareAddrFlag is a flag with type net.HardwareAddr
 type HardwareAddrFlag struct {
 	Name      string
+	Path      string
 	Usage     string
 	EnvVar    string
-	FilePath  string
 	Value     net.HardwareAddr
-	Metadata  map[string]interface{}
 	Hidden    bool
 	Required  bool
 	Validator Validator
@@ -1001,6 +1040,11 @@ func NewFlagAccessor(flag Flag) *FlagAccessor {
 	}
 }
 
+// String returns the flag as string
+func (f *FlagAccessor) String() string {
+	return f.Text
+}
+
 // Set is called once, in command line order, for each flag present.
 // The flag package may call the String method with a zero-valued receiver,
 // such as a nil pointer.
@@ -1026,18 +1070,26 @@ func (f *FlagAccessor) Get() interface{} {
 	return f.Flag.Get()
 }
 
-// Reset resets the value
-func (f *FlagAccessor) Reset() error {
-	// FlagResetter resets a given flag
-	type FlagResetter interface {
-		Reset() error
+// ReadFrom reads data from r until EOF or error.
+// The return value n is the number of bytes read.
+// Any error except EOF encountered during the read is also returned.
+func (f *FlagAccessor) ReadFrom(r io.Reader) (int64, error) {
+	if reader, ok := f.Flag.(io.ReaderFrom); ok {
+		return reader.ReadFrom(r)
 	}
 
-	if flag, ok := f.Flag.(FlagResetter); ok {
-		return flag.Reset()
+	data, err := ioutil.ReadAll(r)
+	if err != nil {
+		return 0, err
 	}
 
-	return nil
+	n := len(data)
+	// use the set method
+	if err := f.Set(string(data)); err != nil {
+		return 0, err
+	}
+
+	return int64(n), nil
 }
 
 // Name of the flag
@@ -1045,6 +1097,13 @@ func (f *FlagAccessor) Name() string {
 	value := reflect.ValueOf(f.Flag)
 	value = reflect.Indirect(value)
 	return value.FieldByName("Name").String()
+}
+
+// Path of the flag
+func (f *FlagAccessor) Path() string {
+	value := reflect.ValueOf(f.Flag)
+	value = reflect.Indirect(value)
+	return value.FieldByName("Path").String()
 }
 
 // Usage of the flag
@@ -1068,35 +1127,6 @@ func (f *FlagAccessor) EnvVar() string {
 	return value.FieldByName("EnvVar").String()
 }
 
-// FilePath of the flag
-func (f *FlagAccessor) FilePath() string {
-	value := reflect.ValueOf(f.Flag)
-	value = reflect.Indirect(value)
-	return value.FieldByName("FilePath").String()
-}
-
-// Metadata of the flag
-func (f *FlagAccessor) Metadata() map[string]interface{} {
-	value := reflect.ValueOf(f.Flag)
-	value = reflect.Indirect(value)
-
-	metadata, ok := value.FieldByName("Metadata").Interface().(map[string]interface{})
-	if !ok {
-		return nil
-	}
-
-	return metadata
-}
-
-// MetaKey returns a metadata by key
-func (f *FlagAccessor) MetaKey(path string) interface{} {
-	if value, ok := f.Metadata()[path]; ok {
-		return value
-	}
-
-	return nil
-}
-
 // Hidden of the flag
 func (f *FlagAccessor) Hidden() bool {
 	value := reflect.ValueOf(f.Flag)
@@ -1118,11 +1148,6 @@ func (f *FlagAccessor) Validate(ctx *Context) error {
 	return nil
 }
 
-// String returns the flag as string
-func (f *FlagAccessor) String() string {
-	return f.Text
-}
-
 // IsBoolFlag returns true if the flag is bool
 func (f *FlagAccessor) IsBoolFlag() bool {
 	// BoolFlag represents a boolean flag
@@ -1135,6 +1160,34 @@ func (f *FlagAccessor) IsBoolFlag() bool {
 	}
 
 	return false
+}
+
+// IsPathFlag returns true if the flag is path
+func (f *FlagAccessor) IsPathFlag() bool {
+	// PathFlag represents a boolean flag
+	type PathFlag interface {
+		IsPathFlag() bool
+	}
+
+	if flag, ok := f.Flag.(PathFlag); ok {
+		return flag.IsPathFlag()
+	}
+
+	return false
+}
+
+// Reset resets the value
+func (f *FlagAccessor) Reset() error {
+	// FlagResetter resets a given flag
+	type FlagResetter interface {
+		Reset() error
+	}
+
+	if flag, ok := f.Flag.(FlagResetter); ok {
+		return flag.Reset()
+	}
+
+	return nil
 }
 
 // FlagsByName is a slice of Flag
@@ -1153,4 +1206,22 @@ func (f FlagsByName) Less(i, j int) bool {
 // Swap swaps two items
 func (f FlagsByName) Swap(i, j int) {
 	f[i], f[j] = f[j], f[i]
+}
+
+//go:generate counterfeiter -fake-name Validator -o ./fake/validator.go . Validator
+
+// Validator converts values
+type Validator interface {
+	// Validate validates the value
+	Validate(ctx *Context, value interface{}) error
+}
+
+var _ Validator = ValidatorFunc(nil)
+
+// ValidatorFunc validates a flag
+type ValidatorFunc func(ctx *Context, value interface{}) error
+
+// Validate validates the value
+func (fn ValidatorFunc) Validate(ctx *Context, value interface{}) error {
+	return fn(ctx, value)
 }

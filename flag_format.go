@@ -3,10 +3,7 @@ package cli
 import (
 	"bytes"
 	"fmt"
-	"io/fs"
-	"io/ioutil"
 	"os"
-	"path/filepath"
 	"reflect"
 	"strings"
 )
@@ -24,7 +21,7 @@ func FlagFormat(flag Flag) string {
 	formatUsage(buffer, accessor)
 	formatValue(buffer, accessor)
 	formatEnv(buffer, accessor)
-	formatFile(buffer, accessor)
+	formatPath(buffer, accessor)
 
 	return buffer.String()
 }
@@ -105,8 +102,8 @@ func formatEnv(buffer *bytes.Buffer, flag *FlagAccessor) {
 	buffer.WriteString("]")
 }
 
-func formatFile(buffer *bytes.Buffer, flag *FlagAccessor) {
-	path := flag.FilePath()
+func formatPath(buffer *bytes.Buffer, flag *FlagAccessor) {
+	path := flag.Path()
 
 	if path = strings.TrimSpace(path); path == "" {
 		return
@@ -177,33 +174,4 @@ func getEnv(name string) string {
 	value = strings.TrimPrefix(value, "'")
 	value = strings.TrimSuffix(value, "'")
 	return value
-}
-
-func readFile(path string) ([]string, error) {
-	data, err := ioutil.ReadFile(path)
-	if err != nil {
-		return nil, err
-	}
-
-	content := string(data)
-	return []string{content}, nil
-}
-
-func readDir(root string) ([]string, error) {
-	items := []string{}
-
-	err := filepath.Walk(root, func(path string, info fs.FileInfo, err error) error {
-		if info.IsDir() {
-			return nil
-		}
-
-		items = append(items, path)
-		return nil
-	})
-
-	if err != nil {
-		return nil, err
-	}
-
-	return items, nil
 }
