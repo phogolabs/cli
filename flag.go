@@ -1026,11 +1026,6 @@ func (f *FlagAccessor) Get() interface{} {
 	return f.Flag.Get()
 }
 
-// Value of the flag
-func (f *FlagAccessor) Value() interface{} {
-	return f.Flag.Get()
-}
-
 // Reset resets the value
 func (f *FlagAccessor) Reset() error {
 	// FlagResetter resets a given flag
@@ -1059,6 +1054,13 @@ func (f *FlagAccessor) Usage() string {
 	return value.FieldByName("Usage").String()
 }
 
+// Value of the flag
+func (f *FlagAccessor) Value() interface{} {
+	value := reflect.ValueOf(f.Flag)
+	value = reflect.Indirect(value)
+	return value.FieldByName("Value").Interface()
+}
+
 // EnvVar of the flag
 func (f *FlagAccessor) EnvVar() string {
 	value := reflect.ValueOf(f.Flag)
@@ -1068,15 +1070,6 @@ func (f *FlagAccessor) EnvVar() string {
 
 // FilePath of the flag
 func (f *FlagAccessor) FilePath() string {
-	// FilePathFlag represents a flag that is file-path
-	type FilePathFlag interface {
-		FilePath() string
-	}
-
-	if flag, ok := f.Flag.(FilePathFlag); ok {
-		return flag.FilePath()
-	}
-
 	value := reflect.ValueOf(f.Flag)
 	value = reflect.Indirect(value)
 	return value.FieldByName("FilePath").String()
@@ -1154,9 +1147,7 @@ func (f FlagsByName) Len() int {
 
 // Less returns true if item at index i < item at index j
 func (f FlagsByName) Less(i, j int) bool {
-	x := NewFlagAccessor(f[i])
-	y := NewFlagAccessor(f[j])
-	return lexicographicLess(x.Name(), y.Name())
+	return less(NewFlagAccessor(f[i]).Name(), NewFlagAccessor(f[j]).Name())
 }
 
 // Swap swaps two items

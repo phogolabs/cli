@@ -446,10 +446,29 @@ func (c CommandsByName) Len() int {
 
 // Less returns true if item at index i < item at index j
 func (c CommandsByName) Less(i, j int) bool {
-	return lexicographicLess(c[i].Name, c[j].Name)
+	return less(c[i].Name, c[j].Name)
 }
 
 // Swap swaps two items
 func (c CommandsByName) Swap(i, j int) {
 	c[i], c[j] = c[j], c[i]
+}
+
+// CommandCategory is a category containing commands.
+type CommandCategory struct {
+	Name     string
+	Commands []*Command
+}
+
+// VisibleCommands returns a slice of the Commands with Hidden=false
+func (category *CommandCategory) VisibleCommands() []*Command {
+	items := []*Command{}
+
+	for _, command := range category.Commands {
+		if !command.Hidden {
+			items = append(items, command)
+		}
+	}
+
+	return items
 }

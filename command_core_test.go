@@ -3,6 +3,7 @@ package cli_test
 import (
 	"bytes"
 	"fmt"
+	"sort"
 
 	"github.com/phogolabs/cli"
 
@@ -273,4 +274,51 @@ var _ = Describe("Command", func() {
 			Expect(cmds).To(ContainElement(cmd.Commands[2]))
 		})
 	})
+})
+
+var _ = Describe("CommandsByName", func() {
+	It("sorts the commands correctly", func() {
+		var (
+			alpha    = &cli.Command{Name: "alpha"}
+			beta     = &cli.Command{Name: "beta"}
+			commands = cli.CommandsByName{beta, alpha}
+		)
+
+		sort.Sort(commands)
+
+		Expect(commands[0]).To(Equal(alpha))
+		Expect(commands[1]).To(Equal(beta))
+	})
+})
+
+var _ = Describe("CommandCategory", func() {
+	var category *cli.CommandCategory
+
+	BeforeEach(func() {
+		category = &cli.CommandCategory{
+			Name: "main",
+			Commands: []*cli.Command{
+				&cli.Command{
+					Name: "cmd1",
+				},
+				&cli.Command{
+					Name:   "cmd2",
+					Hidden: true,
+				},
+				&cli.Command{
+					Name: "cmd3",
+				},
+			},
+		}
+	})
+
+	Describe("VisibleCommands", func() {
+		It("returns visible commands", func() {
+			cmds := category.VisibleCommands()
+			Expect(cmds).To(HaveLen(2))
+			Expect(cmds[0].Name).To(Equal("cmd1"))
+			Expect(cmds[1].Name).To(Equal("cmd3"))
+		})
+	})
+
 })

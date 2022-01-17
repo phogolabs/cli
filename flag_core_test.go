@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net"
 	"net/url"
+	"sort"
 	"time"
 
 	"github.com/phogolabs/cli"
@@ -1219,6 +1220,21 @@ var _ = Describe("HardwareAddrFlag", func() {
 				})
 			})
 		})
+	})
+})
+
+var _ = Describe("FlagsByName", func() {
+	It("sorts the flags correctly", func() {
+		var (
+			alpha = &cli.StringFlag{Name: "alpha"}
+			beta  = &cli.StringFlag{Name: "beta"}
+			flags = cli.FlagsByName{beta, alpha}
+		)
+
+		sort.Sort(flags)
+
+		Expect(flags[0]).To(Equal(alpha))
+		Expect(flags[1]).To(Equal(beta))
 	})
 })
 

@@ -1,0 +1,1 @@
+{{ .Name }} version {{ .Metadata.Version }}

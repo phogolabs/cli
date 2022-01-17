@@ -2,12 +2,9 @@ package cli
 
 import (
 	"fmt"
-	"io/ioutil"
-	"strings"
 	"text/tabwriter"
-	"text/template"
 
-	"github.com/phogolabs/parcello"
+	"github.com/phogolabs/cli/template"
 )
 
 func help(ctx *Context) error {
@@ -37,19 +34,14 @@ func help(ctx *Context) error {
 		return nil
 	}
 
-	var (
-		help, _         = parcello.Open(man)
-		content, _      = ioutil.ReadAll(help)
-		writer          = tabwriter.NewWriter(ctx.Writer, 1, 8, 2, ' ', 0)
-		templateFuncMap = template.FuncMap{
-			"join": strings.Join,
-		}
-	)
+	writer := tabwriter.NewWriter(ctx.Writer, 1, 8, 2, ' ', 0)
 
-	tmpl := template.New("help").Funcs(templateFuncMap)
-	tmpl = template.Must(tmpl.Parse(string(content)))
+	content, err := template.Open(man)
+	if err != nil {
+		return err
+	}
 
-	if err := tmpl.Execute(writer, cmd); err != nil {
+	if err := content.Execute(writer, cmd); err != nil {
 		return err
 	}
 
@@ -61,10 +53,12 @@ func version(ctx *Context) error {
 		ctx = ctx.Parent
 	}
 
-	tmpl := template.New("version")
-	tmpl = template.Must(tmpl.Parse("{{ .Name }} version {{ .Metadata.Version }}\n"))
+	content, err := template.Open("version.app.tpl")
+	if err != nil {
+		return err
+	}
 
-	if err := tmpl.Execute(ctx.Writer, ctx.Command); err != nil {
+	if err := content.Execute(ctx.Writer, ctx.Command); err != nil {
 		return err
 	}
 

@@ -31,7 +31,7 @@ type Context struct {
 // false if not found
 func (ctx *Context) Bool(name string) bool {
 	if flag := ctx.find(name); flag != nil {
-		if value, ok := flag.Get().(bool); ok {
+		if value, ok := flag.Value().(bool); ok {
 			return value
 		}
 	}
@@ -42,8 +42,8 @@ func (ctx *Context) Bool(name string) bool {
 // GlobalBool looks up the value of a global BoolFlag, returns
 // false if not found
 func (ctx *Context) GlobalBool(name string) bool {
-	if flag := ctx.findAncestor(name); flag != nil {
-		if value, ok := flag.Get().(bool); ok {
+	if flag := ctx.findAll(name); flag != nil {
+		if value, ok := flag.Value().(bool); ok {
 			return value
 		}
 	}
@@ -54,7 +54,7 @@ func (ctx *Context) GlobalBool(name string) bool {
 // String looks up the value of a local StringFlag, returns "" if not found
 func (ctx *Context) String(name string) string {
 	if flag := ctx.find(name); flag != nil {
-		if value, ok := flag.Get().(string); ok {
+		if value, ok := flag.Value().(string); ok {
 			return value
 		}
 	}
@@ -64,8 +64,8 @@ func (ctx *Context) String(name string) string {
 
 // GlobalString looks up the value of a global StringFlag, returns "" if not found
 func (ctx *Context) GlobalString(name string) string {
-	if flag := ctx.findAncestor(name); flag != nil {
-		if value, ok := flag.Get().(string); ok {
+	if flag := ctx.findAll(name); flag != nil {
+		if value, ok := flag.Value().(string); ok {
 			return value
 		}
 	}
@@ -77,7 +77,7 @@ func (ctx *Context) GlobalString(name string) string {
 // nil if not found
 func (ctx *Context) StringSlice(name string) []string {
 	if flag := ctx.find(name); flag != nil {
-		if value, ok := flag.Get().([]string); ok {
+		if value, ok := flag.Value().([]string); ok {
 			return value
 		}
 	}
@@ -88,8 +88,8 @@ func (ctx *Context) StringSlice(name string) []string {
 // GlobalStringSlice looks up the value of a global StringSliceFlag, returns
 // nil if not found
 func (ctx *Context) GlobalStringSlice(name string) []string {
-	if flag := ctx.findAncestor(name); flag != nil {
-		if value, ok := flag.Get().([]string); ok {
+	if flag := ctx.findAll(name); flag != nil {
+		if value, ok := flag.Value().([]string); ok {
 			return value
 		}
 	}
@@ -100,7 +100,7 @@ func (ctx *Context) GlobalStringSlice(name string) []string {
 // URL looks up the value of a local URLFlag, returns nil if not found
 func (ctx *Context) URL(name string) *url.URL {
 	if flag := ctx.find(name); flag != nil {
-		if value, ok := flag.Get().(*url.URL); ok {
+		if value, ok := flag.Value().(*url.URL); ok {
 			return value
 		}
 	}
@@ -110,8 +110,8 @@ func (ctx *Context) URL(name string) *url.URL {
 
 // GlobalURL looks up the value of a global URLFlag, returns nil if not found
 func (ctx *Context) GlobalURL(name string) *url.URL {
-	if flag := ctx.findAncestor(name); flag != nil {
-		if value, ok := flag.Get().(*url.URL); ok {
+	if flag := ctx.findAll(name); flag != nil {
+		if value, ok := flag.Value().(*url.URL); ok {
 			return value
 		}
 	}
@@ -122,7 +122,7 @@ func (ctx *Context) GlobalURL(name string) *url.URL {
 // Time looks up the value of a local TimeFlag, returns 0 if not found
 func (ctx *Context) Time(name string) time.Time {
 	if flag := ctx.find(name); flag != nil {
-		if value, ok := flag.Get().(time.Time); ok {
+		if value, ok := flag.Value().(time.Time); ok {
 			return value
 		}
 	}
@@ -132,8 +132,8 @@ func (ctx *Context) Time(name string) time.Time {
 
 // GlobalTime looks up the value of a global TimeFlag, returns 0 if not found
 func (ctx *Context) GlobalTime(name string) time.Time {
-	if flag := ctx.findAncestor(name); flag != nil {
-		if value, ok := flag.Get().(time.Time); ok {
+	if flag := ctx.findAll(name); flag != nil {
+		if value, ok := flag.Value().(time.Time); ok {
 			return value
 		}
 	}
@@ -144,7 +144,7 @@ func (ctx *Context) GlobalTime(name string) time.Time {
 // Duration looks up the value of a local DurationFlag, returns 0 if not found
 func (ctx *Context) Duration(name string) time.Duration {
 	if flag := ctx.find(name); flag != nil {
-		if value, ok := flag.Get().(time.Duration); ok {
+		if value, ok := flag.Value().(time.Duration); ok {
 			return value
 		}
 	}
@@ -154,8 +154,8 @@ func (ctx *Context) Duration(name string) time.Duration {
 
 // GlobalDuration looks up the value of a global DurationFlag, returns 0 if not found
 func (ctx *Context) GlobalDuration(name string) time.Duration {
-	if flag := ctx.findAncestor(name); flag != nil {
-		if value, ok := flag.Get().(time.Duration); ok {
+	if flag := ctx.findAll(name); flag != nil {
+		if value, ok := flag.Value().(time.Duration); ok {
 			return value
 		}
 	}
@@ -166,7 +166,7 @@ func (ctx *Context) GlobalDuration(name string) time.Duration {
 // Float32 looks up the value of a local Float32Flag, returns 0 if not found
 func (ctx *Context) Float32(name string) float32 {
 	if flag := ctx.find(name); flag != nil {
-		if value, ok := flag.Get().(float32); ok {
+		if value, ok := flag.Value().(float32); ok {
 			return value
 		}
 	}
@@ -176,8 +176,8 @@ func (ctx *Context) Float32(name string) float32 {
 
 // GlobalFloat32 looks up the value of a global Float64Flag, returns 0 if not found
 func (ctx *Context) GlobalFloat32(name string) float32 {
-	if flag := ctx.findAncestor(name); flag != nil {
-		if value, ok := flag.Get().(float32); ok {
+	if flag := ctx.findAll(name); flag != nil {
+		if value, ok := flag.Value().(float32); ok {
 			return value
 		}
 	}
@@ -188,7 +188,7 @@ func (ctx *Context) GlobalFloat32(name string) float32 {
 // Float64 looks up the value of a local Float64Flag, returns 0 if not found
 func (ctx *Context) Float64(name string) float64 {
 	if flag := ctx.find(name); flag != nil {
-		if value, ok := flag.Get().(float64); ok {
+		if value, ok := flag.Value().(float64); ok {
 			return value
 		}
 	}
@@ -198,8 +198,8 @@ func (ctx *Context) Float64(name string) float64 {
 
 // GlobalFloat64 looks up the value of a global Float64Flag, returns 0 if not found
 func (ctx *Context) GlobalFloat64(name string) float64 {
-	if flag := ctx.findAncestor(name); flag != nil {
-		if value, ok := flag.Get().(float64); ok {
+	if flag := ctx.findAll(name); flag != nil {
+		if value, ok := flag.Value().(float64); ok {
 			return value
 		}
 	}
@@ -210,7 +210,7 @@ func (ctx *Context) GlobalFloat64(name string) float64 {
 // Int looks up the value of a local IntFlag, returns 0 if not found
 func (ctx *Context) Int(name string) int {
 	if flag := ctx.find(name); flag != nil {
-		if value, ok := flag.Get().(int); ok {
+		if value, ok := flag.Value().(int); ok {
 			return value
 		}
 	}
@@ -220,8 +220,8 @@ func (ctx *Context) Int(name string) int {
 
 // GlobalInt looks up the value of a global IntFlag, returns 0 if not found
 func (ctx *Context) GlobalInt(name string) int {
-	if flag := ctx.findAncestor(name); flag != nil {
-		if value, ok := flag.Get().(int); ok {
+	if flag := ctx.findAll(name); flag != nil {
+		if value, ok := flag.Value().(int); ok {
 			return value
 		}
 	}
@@ -232,7 +232,7 @@ func (ctx *Context) GlobalInt(name string) int {
 // Int64 looks up the value of a local Int64Flag, returns 0 if not found
 func (ctx *Context) Int64(name string) int64 {
 	if flag := ctx.find(name); flag != nil {
-		if value, ok := flag.Get().(int64); ok {
+		if value, ok := flag.Value().(int64); ok {
 			return value
 		}
 	}
@@ -242,8 +242,8 @@ func (ctx *Context) Int64(name string) int64 {
 
 // GlobalInt64 looks up the value of a global Int64Flag, returns 0 if not found
 func (ctx *Context) GlobalInt64(name string) int64 {
-	if flag := ctx.findAncestor(name); flag != nil {
-		if value, ok := flag.Get().(int64); ok {
+	if flag := ctx.findAll(name); flag != nil {
+		if value, ok := flag.Value().(int64); ok {
 			return value
 		}
 	}
@@ -254,7 +254,7 @@ func (ctx *Context) GlobalInt64(name string) int64 {
 // UInt looks up the value of a local UIntFlag, returns 0 if not found
 func (ctx *Context) UInt(name string) uint {
 	if flag := ctx.find(name); flag != nil {
-		if value, ok := flag.Get().(uint); ok {
+		if value, ok := flag.Value().(uint); ok {
 			return value
 		}
 	}
@@ -264,8 +264,8 @@ func (ctx *Context) UInt(name string) uint {
 
 // GlobalUInt looks up the value of a global UIntFlag, returns 0 if not found
 func (ctx *Context) GlobalUInt(name string) uint {
-	if flag := ctx.findAncestor(name); flag != nil {
-		if value, ok := flag.Get().(uint); ok {
+	if flag := ctx.findAll(name); flag != nil {
+		if value, ok := flag.Value().(uint); ok {
 			return value
 		}
 	}
@@ -276,7 +276,7 @@ func (ctx *Context) GlobalUInt(name string) uint {
 // UInt64 looks up the value of a local UInt64Flag, returns 0 if not found
 func (ctx *Context) UInt64(name string) uint64 {
 	if flag := ctx.find(name); flag != nil {
-		if value, ok := flag.Get().(uint64); ok {
+		if value, ok := flag.Value().(uint64); ok {
 			return value
 		}
 	}
@@ -286,8 +286,8 @@ func (ctx *Context) UInt64(name string) uint64 {
 
 // GlobalUInt64 looks up the value of a global UInt64Flag, returns 0 if not found
 func (ctx *Context) GlobalUInt64(name string) uint64 {
-	if flag := ctx.findAncestor(name); flag != nil {
-		if value, ok := flag.Get().(uint64); ok {
+	if flag := ctx.findAll(name); flag != nil {
+		if value, ok := flag.Value().(uint64); ok {
 			return value
 		}
 	}
@@ -298,7 +298,7 @@ func (ctx *Context) GlobalUInt64(name string) uint64 {
 // IP looks up the value of a local IPFlag, returns nil if not found
 func (ctx *Context) IP(name string) net.IP {
 	if flag := ctx.find(name); flag != nil {
-		if value, ok := flag.Get().(net.IP); ok {
+		if value, ok := flag.Value().(net.IP); ok {
 			return value
 		}
 	}
@@ -308,8 +308,8 @@ func (ctx *Context) IP(name string) net.IP {
 
 // GlobalIP looks up the value of a global IPFlag, returns nil if not found
 func (ctx *Context) GlobalIP(name string) net.IP {
-	if flag := ctx.findAncestor(name); flag != nil {
-		if value, ok := flag.Get().(net.IP); ok {
+	if flag := ctx.findAll(name); flag != nil {
+		if value, ok := flag.Value().(net.IP); ok {
 			return value
 		}
 	}
@@ -320,7 +320,7 @@ func (ctx *Context) GlobalIP(name string) net.IP {
 // HardwareAddr looks up the value of a local HardwareddrFlag, returns nil if not found
 func (ctx *Context) HardwareAddr(name string) net.HardwareAddr {
 	if flag := ctx.find(name); flag != nil {
-		if value, ok := flag.Get().(net.HardwareAddr); ok {
+		if value, ok := flag.Value().(net.HardwareAddr); ok {
 			return value
 		}
 	}
@@ -330,8 +330,8 @@ func (ctx *Context) HardwareAddr(name string) net.HardwareAddr {
 
 // GlobalHardwareAddr looks up the value of a global HardwareAddrFlag, returns nil if not found
 func (ctx *Context) GlobalHardwareAddr(name string) net.HardwareAddr {
-	if flag := ctx.findAncestor(name); flag != nil {
-		if value, ok := flag.Get().(net.HardwareAddr); ok {
+	if flag := ctx.findAll(name); flag != nil {
+		if value, ok := flag.Value().(net.HardwareAddr); ok {
 			return value
 		}
 	}
@@ -342,7 +342,7 @@ func (ctx *Context) GlobalHardwareAddr(name string) net.HardwareAddr {
 // Get looks up the value of a local flag, returns nil if not found
 func (ctx *Context) Get(name string) interface{} {
 	if flag := ctx.find(name); flag != nil {
-		return flag.Get()
+		return flag.Value()
 	}
 
 	return nil
@@ -350,31 +350,14 @@ func (ctx *Context) Get(name string) interface{} {
 
 // GlobalGet looks up the value of a global flag, returns nil if not found
 func (ctx *Context) GlobalGet(name string) interface{} {
-	if flag := ctx.findAncestor(name); flag != nil {
-		return flag.Get()
+	if flag := ctx.findAll(name); flag != nil {
+		return flag.Value()
 	}
 
 	return nil
 }
 
-func (ctx *Context) find(name string) Flag {
-	for _, flag := range ctx.Command.Flags {
-		accessor := &FlagAccessor{Flag: flag}
-		names := strings.Split(accessor.Name(), ",")
-
-		for _, key := range names {
-			key = strings.TrimSpace(key)
-
-			if strings.EqualFold(name, key) {
-				return flag
-			}
-		}
-	}
-
-	return nil
-}
-
-func (ctx *Context) findAncestor(name string) Flag {
+func (ctx *Context) findAll(name string) *FlagAccessor {
 	if ctx.Parent != nil {
 		ctx = ctx.Parent
 	}
@@ -385,6 +368,22 @@ func (ctx *Context) findAncestor(name string) Flag {
 		}
 
 		ctx = ctx.Parent
+	}
+
+	return nil
+}
+
+func (ctx *Context) find(name string) *FlagAccessor {
+	for _, flag := range ctx.Command.Flags {
+		accessor := NewFlagAccessor(flag)
+
+		for _, key := range split(accessor.Name()) {
+			key = strings.TrimSpace(key)
+
+			if strings.EqualFold(name, key) {
+				return accessor
+			}
+		}
 	}
 
 	return nil

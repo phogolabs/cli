@@ -1,6 +1,12 @@
 package cli
 
-import "os"
+import (
+	"bytes"
+	"fmt"
+	"os"
+	"strings"
+	"unicode"
+)
 
 // BeforeFunc is an action to execute before any subcommands are run, but after
 // the context is ready if a non-nil error is returned, no subcommands are run
@@ -31,3 +37,63 @@ type ExitErrorHandlerFunc func(err error) error
 
 // ExitFunc is an exit function
 type ExitFunc func(code int)
+
+// OneOf returns a validator that expectes the flag value to matches one of the
+// provided values
+func OneOf(items ...interface{}) Validator {
+	fn := func(ctx *Context, value interface{}) error {
+		for _, item := range items {
+			if item == value {
+				return nil
+			}
+		}
+
+		return fmt.Errorf("unsupported value: %v", value)
+	}
+
+	return ValidatorFunc(fn)
+}
+
+// EnvOf formats a list of environment variables
+func EnvOf(items ...string) string {
+	buffer := &bytes.Buffer{}
+
+	for index, item := range items {
+		if index > 0 {
+			fmt.Fprintf(buffer, ", ")
+		}
+
+		item = strings.TrimSpace(item)
+		item = strings.ToUpper(item)
+
+		fmt.Fprint(buffer, item)
+	}
+
+	return buffer.String()
+}
+
+// taken from https://github.com/urfave/cli/blob/master/sort_test.go
+func less(i, j string) bool {
+	iRunes := []rune(i)
+	jRunes := []rune(j)
+
+	lenShared := len(iRunes)
+	if lenShared > len(jRunes) {
+		lenShared = len(jRunes)
+	}
+
+	for index := 0; index < lenShared; index++ {
+		ir := iRunes[index]
+		jr := jRunes[index]
+
+		if lir, ljr := unicode.ToLower(ir), unicode.ToLower(jr); lir != ljr {
+			return lir < ljr
+		}
+
+		if ir != jr {
+			return ir < jr
+		}
+	}
+
+	return i < j
+}
