@@ -10,9 +10,9 @@ A simple package for building command line applications in Go. The API is
 influenced by https://github.com/urfave/cli package, but it is way more
 flexible. It provides the following features:
 
-- Data conversion that allow conversion of data to a compatible data type accepted by the declared flag
-- Data providers that allow setting the flag's value from different sources such as environment variables, files, AWS S3 and SSM
 - More extensible flag types such as URL, IP, JSON, YAML and so on. For more information see the [docs][godoc-url]
+- Data providers that allow setting the flag's value from different sources such as command line arguments, environment variables and [etc](https://github.com/hairyhenderson/go-fsimpl).
+- Data conversion that allow conversion of data to a compatible data type accepted by the declared flag
 
 ## Installation
 
