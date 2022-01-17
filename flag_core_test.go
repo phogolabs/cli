@@ -1,6 +1,7 @@
 package cli_test
 
 import (
+	"bytes"
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
@@ -20,10 +21,10 @@ var _ = Describe("BoolFlag", func() {
 
 	BeforeEach(func() {
 		flag = &cli.BoolFlag{
-			Name:     "help",
-			Usage:    "Show help info",
-			EnvVar:   "APP_SHOW_HELP",
-			FilePath: "help.txt",
+			Name:   "help",
+			Path:   "help.txt",
+			Usage:  "Show help info",
+			EnvVar: "APP_SHOW_HELP",
 		}
 	})
 
@@ -64,11 +65,11 @@ var _ = Describe("StringFlag", func() {
 
 	BeforeEach(func() {
 		flag = &cli.StringFlag{
-			Name:     "listen-addr",
-			Value:    "9292",
-			Usage:    "listen address of HTTP server",
-			EnvVar:   "APP_LISTEN_ADDR",
-			FilePath: "app.config",
+			Name:   "listen-addr",
+			Usage:  "listen address of HTTP server",
+			EnvVar: "APP_LISTEN_ADDR",
+			Path:   "app.config",
+			Value:  ":9292",
 		}
 	})
 
@@ -80,14 +81,14 @@ var _ = Describe("StringFlag", func() {
 
 	Describe("Set", func() {
 		It("sets the value successfully", func() {
-			Expect(flag.Set("8080")).To(Succeed())
-			Expect(flag.Value).To(Equal("8080"))
+			Expect(flag.Set(":8080")).To(Succeed())
+			Expect(flag.Value).To(Equal(":8080"))
 		})
 	})
 
 	Describe("Get", func() {
 		It("gets the value successfully", func() {
-			Expect(flag.Get()).To(Equal("9292"))
+			Expect(flag.Get()).To(Equal(":9292"))
 		})
 	})
 
@@ -129,11 +130,11 @@ var _ = Describe("StringSliceFlag", func() {
 
 	BeforeEach(func() {
 		flag = &cli.StringSliceFlag{
-			Name:     "user",
-			Value:    []string{"root"},
-			Usage:    "List of all users",
-			EnvVar:   "APP_LISTEN_ADDR",
-			FilePath: "app.config",
+			Name:   "user",
+			Path:   "app.config",
+			Usage:  "List of all users",
+			EnvVar: "APP_LISTEN_ADDR",
+			Value:  []string{"root"},
 		}
 	})
 
@@ -203,11 +204,11 @@ var _ = Describe("URLFlag", func() {
 		Expect(err).To(BeNil())
 
 		flag = &cli.URLFlag{
-			Name:     "listen-addr",
-			Value:    value,
-			Usage:    "listen address of HTTP server",
-			EnvVar:   "APP_LISTEN_ADDR",
-			FilePath: "app.config",
+			Name:   "listen-addr",
+			Value:  value,
+			Usage:  "listen address of HTTP server",
+			EnvVar: "APP_LISTEN_ADDR",
+			Path:   "app.config",
 		}
 	})
 
@@ -300,7 +301,9 @@ var _ = Describe("JSONFlag", func() {
 
 				data, err := json.Marshal(&m)
 				Expect(err).To(BeNil())
-				Expect(flag.Set(string(data))).To(Succeed())
+
+				_, err = flag.ReadFrom(bytes.NewBuffer(data))
+				Expect(err).NotTo(HaveOccurred())
 
 				value, ok := flag.Value.(*map[string]interface{})
 				Expect(ok).To(BeTrue())
@@ -314,6 +317,7 @@ var _ = Describe("JSONFlag", func() {
 			BeforeEach(func() {
 				flag.Value = nil
 			})
+
 			ItSetsTheValue()
 		})
 
@@ -332,7 +336,8 @@ var _ = Describe("JSONFlag", func() {
 				data, err := json.Marshal(&m)
 				Expect(err).To(BeNil())
 
-				Expect(flag.Set(string(data))).To(Succeed())
+				_, err = flag.ReadFrom(bytes.NewBuffer(data))
+				Expect(err).NotTo(HaveOccurred())
 
 				user, ok := flag.Value.(*User)
 				Expect(ok).To(BeTrue())
@@ -343,13 +348,14 @@ var _ = Describe("JSONFlag", func() {
 
 	Context("when the value cannot be parsed", func() {
 		It("returns an error", func() {
-			Expect(flag.Set("wrong")).To(MatchError("invalid character 'w' looking for beginning of value"))
+			_, err := flag.ReadFrom(bytes.NewBufferString("wrong"))
+			Expect(err).To(MatchError("invalid character 'w' looking for beginning of value"))
 		})
 	})
 
 	Describe("Get", func() {
 		It("gets the value successfully", func() {
-			Expect(flag.Get()).To(Equal(flag.Value))
+			Expect(flag.Get()).To(Equal(flag.Path))
 		})
 	})
 
@@ -416,7 +422,8 @@ var _ = Describe("YAMLFlag", func() {
 				data, err := json.Marshal(&m)
 				Expect(err).To(BeNil())
 
-				Expect(flag.Set(string(data))).To(Succeed())
+				_, err = flag.ReadFrom(bytes.NewBuffer(data))
+				Expect(err).NotTo(HaveOccurred())
 
 				value, ok := flag.Value.(*map[string]interface{})
 				Expect(ok).To(BeTrue())
@@ -437,7 +444,7 @@ var _ = Describe("YAMLFlag", func() {
 
 	Describe("Get", func() {
 		It("gets the value successfully", func() {
-			Expect(flag.Get()).To(Equal(flag.Value))
+			Expect(flag.Get()).To(Equal(flag.Path))
 		})
 	})
 
@@ -531,7 +538,7 @@ var _ = Describe("XMLFlag", func() {
 
 	Describe("Get", func() {
 		It("gets the value successfully", func() {
-			Expect(flag.Get()).To(Equal(flag.Value))
+			Expect(flag.Get()).To(Equal(flag.Path))
 		})
 	})
 
@@ -1246,14 +1253,11 @@ var _ = Describe("FlagAccessor", func() {
 
 	BeforeEach(func() {
 		flag = &cli.StringFlag{
-			Name:     "listen-addr",
-			Value:    "9292",
-			Usage:    "listen address of HTTP server",
-			EnvVar:   "APP_LISTEN_ADDR",
-			FilePath: "app.config",
-			Metadata: map[string]interface{}{
-				"key": "meta",
-			},
+			Name:   "listen-addr",
+			Path:   "app.config",
+			Usage:  "listen address of HTTP server",
+			EnvVar: "APP_LISTEN_ADDR",
+			Value:  "9292",
 		}
 
 		accessor = &cli.FlagAccessor{
@@ -1263,11 +1267,9 @@ var _ = Describe("FlagAccessor", func() {
 
 	It("returns the definition successfully", func() {
 		Expect(accessor.Name()).To(Equal(flag.Name))
+		Expect(accessor.Path()).To(Equal(flag.Path))
 		Expect(accessor.Usage()).To(Equal(flag.Usage))
-		Expect(accessor.FilePath()).To(Equal(flag.FilePath))
 		Expect(accessor.EnvVar()).To(Equal(flag.EnvVar))
-		Expect(accessor.Metadata()).To(Equal(flag.Metadata))
 		Expect(accessor.Value()).To(Equal(flag.Value))
-		Expect(accessor.Metadata()).To(HaveKeyWithValue("key", "meta"))
 	})
 })

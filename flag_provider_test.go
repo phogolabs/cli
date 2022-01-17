@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-	"path/filepath"
 
 	"github.com/phogolabs/cli"
 
@@ -121,18 +120,18 @@ var _ = Describe("Provider", func() {
 		})
 	})
 
-	Describe("FileProvider", func() {
-		var parser *cli.FileProvider
+	Describe("PathProvider", func() {
+		var parser *cli.PathProvider
 
 		BeforeEach(func() {
-			parser = &cli.FileProvider{}
+			parser = &cli.PathProvider{}
 
 			tmpfile, err := ioutil.TempFile("", "example")
 			Expect(err).To(BeNil())
 
 			fmt.Fprint(tmpfile, "9292")
 
-			flag.FilePath = tmpfile.Name()
+			flag.Path = tmpfile.Name()
 
 			Expect(tmpfile.Close()).To(Succeed())
 		})
@@ -142,28 +141,16 @@ var _ = Describe("Provider", func() {
 			Expect(flag.Value).To(Equal("9292"))
 		})
 
-		Context("when the filepath is directory", func() {
-			BeforeEach(func() {
-				fmt.Println(flag.FilePath)
-				flag.FilePath = filepath.Dir(flag.FilePath)
-			})
-
-			It("sets the value successfully", func() {
-				Expect(parser.Provide(ctx)).To(Succeed())
-				Expect(flag.Value).NotTo(BeEmpty())
-			})
-		})
-
 		Context("when the file path is not valid", func() {
 			It("returns an error", func() {
-				flag.FilePath = "\\/"
-				Expect(parser.Provide(ctx)).To(MatchError("syntax error in pattern"))
+				flag.Path = "unknown:///default.conf"
+				Expect(parser.Provide(ctx)).To(MatchError("no filesystem registered for scheme \"unknown\""))
 			})
 		})
 
 		Context("when the file does not exist", func() {
 			BeforeEach(func() {
-				flag.FilePath = "/tmp/file"
+				flag.Path = "/tmp/file"
 			})
 
 			It("does not set the value", func() {
@@ -174,7 +161,7 @@ var _ = Describe("Provider", func() {
 
 		Context("when the file path is not set", func() {
 			BeforeEach(func() {
-				flag.FilePath = ""
+				flag.Path = ""
 			})
 
 			It("does not set the value", func() {
@@ -184,24 +171,22 @@ var _ = Describe("Provider", func() {
 		})
 
 		Context("when setting the value fails", func() {
-			var ip *cli.IPFlag
-
 			BeforeEach(func() {
-				ip = &cli.IPFlag{
-					Name:     "listen-addr",
-					FilePath: flag.FilePath,
-				}
-
 				ctx = &cli.Context{
 					Command: &cli.Command{
-						Name:  "app",
-						Flags: []cli.Flag{ip},
+						Name: "app",
+						Flags: []cli.Flag{
+							&cli.IPFlag{
+								Name: "listen-addr",
+								Path: flag.Path,
+							},
+						},
 					},
 				}
 			})
 
 			It("returns an error", func() {
-				Expect(parser.Provide(ctx)).To(MatchError("file: failed to set a flag 'listen-addr': invalid IP Address: 9292"))
+				Expect(parser.Provide(ctx)).To(MatchError("invalid IP Address: 9292"))
 			})
 		})
 	})

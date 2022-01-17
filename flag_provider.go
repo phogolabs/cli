@@ -113,9 +113,13 @@ func (p *PathProvider) Provide(ctx *Context) error {
 			}
 
 			source, err := fs.Open(name)
-			if err != nil {
+			switch {
+			case os.IsNotExist(err):
+				return nil
+			case err != nil:
 				return err
 			}
+
 			// close the source
 			defer source.Close()
 

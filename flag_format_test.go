@@ -14,22 +14,22 @@ var _ = Describe("Format", func() {
 
 	BeforeEach(func() {
 		flag = &cli.StringFlag{
-			Name:     "log-level, l",
-			Usage:    "Application log level",
-			EnvVar:   "LOG_LEVEL,LOG_LVL",
-			FilePath: "my-config.cfg",
-			Value:    "info",
+			Name:   "log-level, l",
+			Path:   "logger.conf",
+			Usage:  "Application log level",
+			EnvVar: "LOG_LEVEL, LOG_LVL",
+			Value:  "info",
 		}
 	})
 
 	It("formats a flag successfully", func() {
 		help := cli.FlagFormat(flag)
-		Expect(help).To(Equal("--log-level value, -l value\tApplication log level (default: info) [$LOG_LEVEL, $LOG_LVL] [my-config.cfg]"))
+		Expect(help).To(Equal("--log-level value, -l value\tApplication log level (default: info) [$LOG_LEVEL, $LOG_LVL] [logger.conf]"))
 	})
 
-	Context("when the FilePath is not set", func() {
+	Context("when the Path is not set", func() {
 		BeforeEach(func() {
-			flag.FilePath = ""
+			flag.Path = ""
 		})
 
 		It("formats a flag successfully", func() {
@@ -45,7 +45,7 @@ var _ = Describe("Format", func() {
 
 		It("formats a flag successfully", func() {
 			help := cli.FlagFormat(flag)
-			Expect(help).To(Equal("--log-level value, -l value\tApplication log level (default: info) [my-config.cfg]"))
+			Expect(help).To(Equal("--log-level value, -l value\tApplication log level (default: info) [logger.conf]"))
 		})
 	})
 
@@ -54,17 +54,17 @@ var _ = Describe("Format", func() {
 
 		BeforeEach(func() {
 			flag = &cli.BoolFlag{
-				Name:     "log-level, l",
-				Usage:    "Application log level",
-				EnvVar:   "LOG_LEVEL,LOG_LVL",
-				FilePath: "my-config.cfg",
-				Value:    true,
+				Name:   "log-level, l",
+				Path:   "logger.conf",
+				Usage:  "Application log level",
+				EnvVar: "LOG_LEVEL, LOG_LVL",
+				Value:  true,
 			}
 		})
 
 		It("formats a flag successfully", func() {
 			help := cli.FlagFormat(flag)
-			Expect(help).To(Equal("--log-level, -l\tApplication log level [$LOG_LEVEL, $LOG_LVL] [my-config.cfg]"))
+			Expect(help).To(Equal("--log-level, -l\tApplication log level [$LOG_LEVEL, $LOG_LVL] [logger.conf]"))
 		})
 	})
 
@@ -73,16 +73,16 @@ var _ = Describe("Format", func() {
 
 		BeforeEach(func() {
 			flag = &cli.YAMLFlag{
-				Name:     "log-level, l",
-				Usage:    "Application log level",
-				EnvVar:   "LOG_LEVEL,LOG_LVL",
-				FilePath: "my-config.cfg",
+				Name:   "log-level, l",
+				Path:   "logger.conf",
+				Usage:  "Application log level",
+				EnvVar: "LOG_LEVEL, LOG_LVL",
 			}
 		})
 
 		It("formats a flag successfully", func() {
 			help := cli.FlagFormat(flag)
-			Expect(help).To(Equal("--log-level value, -l value\tApplication log level [$LOG_LEVEL, $LOG_LVL] [my-config.cfg]"))
+			Expect(help).To(Equal("--log-level value, -l value\tApplication log level [$LOG_LEVEL, $LOG_LVL] [logger.conf]"))
 		})
 	})
 })
