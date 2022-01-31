@@ -138,26 +138,22 @@ func (p *PathProvider) root(path string) (*url.URL, error) {
 		return nil, err
 	}
 
-	if uri.Scheme == "" {
+	if uri.Scheme == "" || uri.Scheme == "file" {
+		// translate the uri
 		uri.Scheme = "file"
+
+		// we should make the path absolute
+		if uri.Host == "" {
+			uri.Path, _ = filepath.Abs(uri.Path)
+		}
+
+		// clean up
+		uri.Host = ""
+		uri.RawPath = ""
 	}
 
-	if dir := filepath.Dir(uri.Path); dir == "." {
-		uri.Path, _ = os.Getwd()
-	} else {
-		uri.Path = dir
-	}
-
-	if dir := filepath.Dir(uri.RawPath); dir == "." {
-		uri.RawPath, _ = os.Getwd()
-	} else {
-		uri.RawPath = dir
-	}
-
-	if uri.Host == "." {
-		uri.Path, _ = os.Getwd()
-		uri.RawPath, _ = os.Getwd()
-	}
+	// we need the directory
+	uri.Path = filepath.Dir(uri.Path)
 
 	return uri, nil
 }
