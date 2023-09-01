@@ -2,7 +2,7 @@ package cli
 
 import (
 	"flag"
-	"io/ioutil"
+	"io"
 	"net/url"
 	"os"
 	"path/filepath"
@@ -33,7 +33,7 @@ type FlagProvider struct {
 // Provide parses the args
 func (p *FlagProvider) Provide(ctx *Context) error {
 	p.set = flag.NewFlagSet(ctx.Command.Name, flag.ContinueOnError)
-	p.set.SetOutput(ioutil.Discard)
+	p.set.SetOutput(io.Discard)
 
 	for _, flag := range ctx.Command.Flags {
 		accessor := NewFlagAccessor(flag)

@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"fmt"
 	"io"
 	"net"
 	"net/url"
@@ -25,6 +26,25 @@ type Context struct {
 	ErrWriter io.Writer
 	// Metadata store
 	Metadata map[string]interface{}
+}
+
+// EnvVars returns the environment variables.
+func (ctx *Context) EnvVars() map[string]string {
+	variables := make(map[string]string)
+
+	if parent := ctx.Parent; parent != nil {
+		variables = parent.EnvVars()
+	}
+
+	for _, flag := range ctx.Command.Flags {
+		accessor := NewFlagAccessor(flag)
+
+		for _, name := range split(accessor.EnvVar()) {
+			variables[name] = fmt.Sprintf("%v", accessor.Value())
+		}
+	}
+
+	return variables
 }
 
 // Bool looks up the value of a local BoolFlag, returns

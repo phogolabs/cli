@@ -27,8 +27,8 @@ var _ ExitCoder = &ExitError{}
 
 // ExitError fulfills both the builtin `error` interface and `ExitCoder`
 type ExitError struct {
-	code int
 	err  error
+	code int
 }
 
 // NewExitError makes a new ExitError

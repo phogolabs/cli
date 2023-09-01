@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"encoding/xml"
 	"io"
-	"io/ioutil"
 	"net"
 	"net/url"
 	"reflect"
@@ -295,7 +294,7 @@ func (f *JSONFlag) ReadFrom(r io.Reader) (int64, error) {
 		f.Value = &map[string]interface{}{}
 	}
 
-	data, err := ioutil.ReadAll(r)
+	data, err := io.ReadAll(r)
 	if err != nil {
 		return 0, err
 	}
@@ -376,7 +375,7 @@ func (f *YAMLFlag) ReadFrom(r io.Reader) (int64, error) {
 		f.Value = &map[string]interface{}{}
 	}
 
-	data, err := ioutil.ReadAll(r)
+	data, err := io.ReadAll(r)
 	if err != nil {
 		return 0, err
 	}
@@ -457,7 +456,7 @@ func (f *XMLFlag) ReadFrom(r io.Reader) (int64, error) {
 		f.Value = &map[string]interface{}{}
 	}
 
-	data, err := ioutil.ReadAll(r)
+	data, err := io.ReadAll(r)
 	if err != nil {
 		return 0, err
 	}
@@ -1078,7 +1077,7 @@ func (f *FlagAccessor) ReadFrom(r io.Reader) (int64, error) {
 		return reader.ReadFrom(r)
 	}
 
-	data, err := ioutil.ReadAll(r)
+	data, err := io.ReadAll(r)
 	if err != nil {
 		return 0, err
 	}
