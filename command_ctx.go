@@ -40,7 +40,12 @@ func (ctx *Context) EnvVars() map[string]string {
 		accessor := NewFlagAccessor(flag)
 
 		for _, name := range split(accessor.EnvVar()) {
-			variables[name] = fmt.Sprintf("%v", accessor.Value())
+			// If the value is empty, we don't want to set the environment variable
+			if name != "" {
+				if value := fmt.Sprintf("%v", accessor.Value()); value != "" {
+					variables[name] = value
+				}
+			}
 		}
 	}
 
